@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- You may freely edit this file. See commented blocks below for --><!-- some examples of how to customize the build. --><!-- (If you delete it and reopen the project it will be recreated.) --><!-- By default, only the Clean and Build commands use this build script. --><project name="JavaFXSmartGraph" default="default" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
+    <description>Builds package for release for project JavaFXSmartGraph.</description>
+    <import file="nbproject/build-impl.xml"/>
+    
+    <target name="-pre-init">
+        <property file="version.properties"/>
+        <property name="dist.jar" value="dist/${ant.project.name}-${project.version}.jar"/>
+    </target>
+
+    <target name="package_for_release" depends="jar,javadoc">
+        <mkdir dir="build/release"/>
+        <copy file="${dist.jar}" todir="build/release/"/>
+        <copy file="LICENSE.txt" todir="build/release/"/>
+        <mkdir dir="build/release/doc"/>
+        <copy todir="build/release/doc">
+            <fileset dir="dist/javadoc" includes="**"/>
+        </copy>
+        <mkdir dir="build/release/src"/>
+        <copy todir="build/release/src">
+            <fileset dir="src" includes="**"/>
+        </copy>
+        
+        <zip basedir="build/release/" includes="**" destfile="releases/${ant.project.name}-${project.version}.zip"/>
+        <copy file="${dist.jar}" todir="releases/"/>
+        <copy file="LICENSE.txt" todir="releases/"/>
+        
+    </target>
+</project>

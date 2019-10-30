@@ -1,0 +1,21 @@
+#Ignore folders
+
+/test/
+/build/
+/dist/
+**/javadoc/
+
+# Hanging html files
+*.html
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+#Java Network Launch Protocol
+*.jnlp
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
