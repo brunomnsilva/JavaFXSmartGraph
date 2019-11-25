@@ -7,27 +7,23 @@ You can, instead, statically place the vertices according to other algorithms.
 
 Vertices and edges can be styled through a *css stylesheet* or programmatically (even at runtime).
 
-![](examples/smartgraph_realtime.gif)
-
-
+![smartgraph realtime](examples/smartgraph_realtime.gif)
 
 ### Prerequisites
 
-You need a working JDK with JavaFX libraries to compile/use the library. 
-
-The code was tested with JDK 8 and OpenJDK 11.
+You need a working JDK with JavaFX libraries to compile/use the library. The code was tested with JDK 8 and OpenJDK 11.
 
 ### Using the library
 
-Check the `releases` folder for compiled library and source code.
+Check the `releases` folder for compiled library and source code. The **jar** library is the only requirement, but if you need to attach the *javadoc* and *source code* in your IDE, additionally use the **zip** file.
 
 The visualization library can be used together with any ADT that adheres to the `Graph<V,E>` or `Digraph<V,E>` interfaces. Sample implementations are included.
 
 ### Accelerated graphics
 
-Since the visualization is computation-intensive during automatic force-directed layout of vertices, you should make sure that the graphics card is used to offload much of the work.
+Since the visualization is computation-intensive during automatic force-directed layout of vertices, you should make sure that the graphics card is used to offload much of the work. This is only guaranteed to work with *Oracle*'s JDK.
 
-In windows the JVM machine should automatically take care of that, while in Linux you must configure it manually with the `-Dsun.java2d.opengl=True` flag. 
+In windows the JVM machine should automatically take care of that, while in Linux you must configure it manually with the `-Dsun.java2d.opengl=True` flag.
 
 ## Getting Started
 
@@ -85,7 +81,7 @@ graphView.setEdgeDoubleClickAction(graphEdge -> {
 });
 ```
 
-These actions will be performed whenever you click a vertex and/or edge.
+These actions will be performed whenever you *double click* a vertex and/or an edge.
 
 ### Updating the view
 
@@ -95,7 +91,7 @@ When you make changes to the graph, you can update the visualization by calling
 graphView.update();
 ```
 
-this will add/remove the corresponding vertices and edges from the visualization. If a new vertex is connected to an existing one, it will be initially placed in the vicinity of the later. Otherwise, if it is an *isolated* vertex it will be placed randomly.
+this will add/remove the corresponding vertices and edges from the visualization. If a new vertex is connected to an existing one, it will be initially placed in the vicinity of the later. Otherwise, if it is an *isolated* vertex it will be placed in the center of the plot.
 
 ### SmartGraph Properties
 
@@ -131,7 +127,7 @@ You can set the default CSS styles in the `smartgraph.css` file:
 
 ```css
 .graph {
-    -fx-background-color: #F4FFFB;    
+    -fx-background-color: #F4FFFB;
 }
 
 .vertex {
@@ -209,13 +205,13 @@ g.insertEdge("H", "N", "12");
 g.insertEdge("A", "H", "0");
 ```
 
-#### Circular sorted placement (static)
+#### Sample Graph circular sorted placement (static)
 
-![](examples/graph_circle_placement.png)
+![graph circular placement](examples/graph_circle_placement.png)
 
-#### Automatic layout
+#### Sample Graph automatic layout
 
-![](examples/graph_automatic_layout.png)
+![graph automatic layout](examples/graph_automatic_layout.png)
 
 ### Sample Digraph (directed graph)
 
@@ -249,15 +245,13 @@ Please note that we use the property values `edge.arrow = true` and `vertex.labe
 
 Given its a small graph, we increased the `layout.repulsive-force = 25000`. You should use higher values for smaller graphs; inversely, use smaller values for larger graphs.
 
-#### Circular sorted placement (static)
+#### Sample Digraph circular sorted placement (static)
 
-![](examples/digraph_circle_placement.png)
+![digraph circular placement](examples/digraph_circle_placement.png)
 
-#### Automatic layout
+#### Sample Digraph automatic layout
 
-![](examples/digraph_automatic_layout.png)
-
-
+![digraph automatic layout](examples/digraph_automatic_layout.png)
 
 ## Contributing
 
@@ -269,7 +263,4 @@ You can fork this project or submit a pull request. Pull requests should adhere 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
-
-
-
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details. **All derivative work should include this license**.
