@@ -48,7 +48,7 @@ graphView.init();
 
 ```
 
-This will display the graph using the instantiated placement `strategy`. You can create your own by implementing the `SmartPlacementStrategy` *interface*.
+This will display the graph using the instantiated placement `strategy`. You can **create your own static placement strategies** by implementing the `SmartPlacementStrategy` *interface* (see included examples).
 
 ### Toggle automatic mode
 
