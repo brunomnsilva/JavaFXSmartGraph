@@ -84,7 +84,7 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     @Override
-    public Collection<Edge<E, V>> incidentEdges(Vertex<V> v) throws InvalidEdgeException {
+    public Collection<Edge<E, V>> incidentEdges(Vertex<V> v) throws InvalidVertexException {
 
         checkVertex(v);
 
@@ -134,9 +134,9 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     @Override
-    public synchronized Vertex<V> insertVertex(V vElement) {
+    public synchronized Vertex<V> insertVertex(V vElement) throws InvalidVertexException {
         if (existsVertexWith(vElement)) {
-            throw new IllegalArgumentException("There's already a vertex with this element.");
+            throw new InvalidVertexException("There's already a vertex with this element.");
         }
 
         MyVertex newVertex = new MyVertex(vElement);
@@ -147,10 +147,11 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     @Override
-    public synchronized Edge<E, V> insertEdge(Vertex<V> u, Vertex<V> v, E edgeElement) throws InvalidVertexException {
+    public synchronized Edge<E, V> insertEdge(Vertex<V> u, Vertex<V> v, E edgeElement) 
+            throws InvalidVertexException, InvalidEdgeException {
 
         if (existsEdgeWith(edgeElement)) {
-            throw new IllegalArgumentException("There's already an edge with this element.");
+            throw new InvalidEdgeException("There's already an edge with this element.");
         }
 
         MyVertex outVertex = checkVertex(u);
@@ -165,9 +166,11 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     @Override
-    public synchronized Edge<E, V> insertEdge(V vElement1, V vElement2, E edgeElement) throws InvalidVertexException {
+    public synchronized Edge<E, V> insertEdge(V vElement1, V vElement2, E edgeElement) 
+            throws InvalidVertexException, InvalidEdgeException {
+        
         if (existsEdgeWith(edgeElement)) {
-            throw new IllegalArgumentException("There's already an edge with this element.");
+            throw new InvalidEdgeException("There's already an edge with this element.");
         }
 
         if (!existsVertexWith(vElement1)) {
@@ -218,7 +221,7 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
     @Override
     public V replace(Vertex<V> v, V newElement) throws InvalidVertexException {
         if (existsVertexWith(newElement)) {
-            throw new IllegalArgumentException("There's already a vertex with this element.");
+            throw new InvalidVertexException("There's already a vertex with this element.");
         }
 
         MyVertex vertex = checkVertex(v);
@@ -232,7 +235,7 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
     @Override
     public E replace(Edge<E, V> e, E newElement) throws InvalidEdgeException {
         if (existsEdgeWith(newElement)) {
-            throw new IllegalArgumentException("There's already an edge with this element.");
+            throw new InvalidEdgeException("There's already an edge with this element.");
         }
 
         MyEdge edge = checkEdge(e);

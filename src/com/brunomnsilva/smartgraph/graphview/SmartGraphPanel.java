@@ -348,13 +348,13 @@ public class SmartGraphPanel<V, E> extends Pane {
 
                 Vertex<V> oppositeVertex = theGraph.opposite(vertex, edge);
 
-                SmartGraphVertexNode<V> graphVertex = vertexNodes.get(vertex);
-                SmartGraphVertexNode<V> graphVertexOpposite = vertexNodes.get(oppositeVertex);
+                SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(vertex);
+                SmartGraphVertexNode<V> graphVertexOppositeOut = vertexNodes.get(oppositeVertex);
 
-                graphVertex.addAdjacentVertex(graphVertexOpposite);
-                graphVertexOpposite.addAdjacentVertex(graphVertex);
+                graphVertexIn.addAdjacentVertex(graphVertexOppositeOut);
+                graphVertexOppositeOut.addAdjacentVertex(graphVertexIn);
 
-                SmartGraphEdgeBase graphEdge = createEdge(edge, graphVertexOpposite, graphVertex);
+                SmartGraphEdgeBase graphEdge = createEdge(edge, graphVertexIn, graphVertexOppositeOut);
 
                 /* Track Edges already placed */
                 addEdge(graphEdge, edge);
@@ -460,20 +460,22 @@ public class SmartGraphPanel<V, E> extends Pane {
 
             newVertices = new LinkedList<>();
 
-            for (Vertex<V> v : unplottedVertices) {
+            for (Vertex<V> vertex : unplottedVertices) {
                 //create node
                 //Place new nodes in the vicinity of existing adjacent ones;
                 //Place them in the middle of the plot, otherwise.
                 double x, y;
-                Collection<Edge<E, V>> incidentEdges = theGraph.incidentEdges(v);
+                Collection<Edge<E, V>> incidentEdges = theGraph.incidentEdges(vertex);
                 if (incidentEdges.isEmpty()) {
+                    /* not (yet) connected, put in the middle of the plot */
                     x = mx;
                     y = my;
                 } else {
                     Edge<E, V> firstEdge = incidentEdges.iterator().next();
-                    Vertex<V> opposite = theGraph.opposite(v, firstEdge);
+                    Vertex<V> opposite = theGraph.opposite(vertex, firstEdge);
                     SmartGraphVertexNode<V> existing = vertexNodes.get(opposite);
 
+                    /* TODO: fix -- the placing point can be set out of bounds*/
                     Point2D p = UtilitiesPoint2D.rotate(existing.getPosition().add(50.0, 50.0),
                             existing.getPosition(), Math.random() * 360);
 
@@ -482,13 +484,13 @@ public class SmartGraphPanel<V, E> extends Pane {
 
                 }
 
-                SmartGraphVertexNode newVertex = new SmartGraphVertexNode<>(v,
+                SmartGraphVertexNode newVertex = new SmartGraphVertexNode<>(vertex,
                         x, y, graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
 
                 //track new nodes
                 newVertices.add(newVertex);
                 //add to global mapping
-                vertexNodes.put(v, newVertex);
+                vertexNodes.put(vertex, newVertex);
             }
 
         }
@@ -498,16 +500,16 @@ public class SmartGraphPanel<V, E> extends Pane {
             for (Edge<E, V> edge : unplottedEdges) {
 
                 Vertex<V>[] vertices = edge.vertices();
-                Vertex<V> u = vertices[0]; //oubound
-                Vertex<V> v = vertices[1]; //inbound
+                Vertex<V> u = vertices[0]; //oubound if digraph, by javadoc requirement
+                Vertex<V> v = vertices[1]; //inbound if digraph, by javadoc requirement
 
-                SmartGraphVertexNode<V> graphVertex = vertexNodes.get(u);
-                SmartGraphVertexNode<V> graphVertexOpposite = vertexNodes.get(v);
+                SmartGraphVertexNode<V> graphVertexOut = vertexNodes.get(u);
+                SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(v);
 
-                graphVertex.addAdjacentVertex(graphVertexOpposite);
-                graphVertexOpposite.addAdjacentVertex(graphVertex);
+                graphVertexOut.addAdjacentVertex(graphVertexIn);
+                graphVertexIn.addAdjacentVertex(graphVertexOut);
 
-                SmartGraphEdgeBase graphEdge = createEdge(edge, graphVertex, graphVertexOpposite);
+                SmartGraphEdgeBase graphEdge = createEdge(edge, graphVertexIn, graphVertexOut);
 
                 if (this.edgesWithArrows) {
                     SmartArrow arrow = new SmartArrow();

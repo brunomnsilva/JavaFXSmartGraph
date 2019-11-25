@@ -78,9 +78,9 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
 
     @Override
-    public Edge<E, V> insertEdge(Vertex<V> outbound, Vertex<V> inbound, E edgeElement) throws InvalidVertexException, InvalidEdgeException {
+    public synchronized Edge<E, V> insertEdge(Vertex<V> outbound, Vertex<V> inbound, E edgeElement) throws InvalidVertexException, InvalidEdgeException {
         if (existsEdgeWith(edgeElement)) {
-            throw new IllegalArgumentException("There's already an edge with this element.");
+            throw new InvalidEdgeException("There's already an edge with this element.");
         }
 
         MyVertex outVertex = checkVertex(outbound);
@@ -94,9 +94,9 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
 
     @Override
-    public Edge<E, V> insertEdge(V outboundElement, V inboundElement, E edgeElement) throws InvalidVertexException, InvalidEdgeException {
+    public synchronized Edge<E, V> insertEdge(V outboundElement, V inboundElement, E edgeElement) throws InvalidVertexException, InvalidEdgeException {
         if (existsEdgeWith(edgeElement)) {
-            throw new IllegalArgumentException("There's already an edge with this element.");
+            throw new InvalidEdgeException("There's already an edge with this element.");
         }
 
         if (!existsVertexWith(outboundElement)) {
@@ -162,9 +162,9 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
 
     @Override
-    public synchronized Vertex<V> insertVertex(V vElement) {
+    public synchronized Vertex<V> insertVertex(V vElement) throws InvalidVertexException {
         if (existsVertexWith(vElement)) {
-            throw new IllegalArgumentException("There's already a vertex with this element.");
+            throw new InvalidVertexException("There's already a vertex with this element.");
         }
 
         MyVertex newVertex = new MyVertex(vElement);
@@ -206,7 +206,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     @Override
     public V replace(Vertex<V> v, V newElement) throws InvalidVertexException {
         if (existsVertexWith(newElement)) {
-            throw new IllegalArgumentException("There's already a vertex with this element.");
+            throw new InvalidVertexException("There's already a vertex with this element.");
         }
 
         MyVertex vertex = checkVertex(v);
@@ -220,7 +220,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     @Override
     public E replace(Edge<E, V> e, E newElement) throws InvalidEdgeException {
         if (existsEdgeWith(newElement)) {
-            throw new IllegalArgumentException("There's already an edge with this element.");
+            throw new InvalidEdgeException("There's already an edge with this element.");
         }
 
         MyEdge edge = checkEdge(e);

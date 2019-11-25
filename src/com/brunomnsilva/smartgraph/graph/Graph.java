@@ -179,7 +179,7 @@ public interface Graph<V, E> {
      *                                      method.
      */
     public Edge<E, V> insertEdge(V vElement1, V vElement2, E edgeElement)
-            throws InvalidVertexException, InvalidEdgeException;;
+            throws InvalidVertexException, InvalidEdgeException;
 
     /**
      * Removes a vertex, along with all of its incident edges, and returns the element
