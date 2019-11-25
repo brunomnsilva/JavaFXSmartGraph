@@ -82,7 +82,7 @@ public interface Digraph<V, E> extends Graph<V, E> {
      * The existing edge must be directed as <code>outbound --&gt; inbound</code>.
      * 
      * If, for example, there exists only an edge <code>outbound &lt;-- inbound</code>,
-     * there are not considered adjacent.
+     * they are not considered adjacent.
      * 
      * @param outbound    outbound vertex
      * @param inbound     inbound vertex

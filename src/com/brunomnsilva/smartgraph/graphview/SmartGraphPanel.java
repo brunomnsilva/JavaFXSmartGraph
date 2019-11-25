@@ -354,7 +354,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 graphVertex.addAdjacentVertex(graphVertexOpposite);
                 graphVertexOpposite.addAdjacentVertex(graphVertex);
 
-                SmartGraphEdgeBase graphEdge = createEdge(edge, graphVertex, graphVertexOpposite);
+                SmartGraphEdgeBase graphEdge = createEdge(edge, graphVertexOpposite, graphVertex);
 
                 /* Track Edges already placed */
                 addEdge(graphEdge, edge);
@@ -498,8 +498,8 @@ public class SmartGraphPanel<V, E> extends Pane {
             for (Edge<E, V> edge : unplottedEdges) {
 
                 Vertex<V>[] vertices = edge.vertices();
-                Vertex<V> u = vertices[0];
-                Vertex<V> v = vertices[1];
+                Vertex<V> u = vertices[0]; //oubound
+                Vertex<V> v = vertices[1]; //inbound
 
                 SmartGraphVertexNode<V> graphVertex = vertexNodes.get(u);
                 SmartGraphVertexNode<V> graphVertexOpposite = vertexNodes.get(v);
