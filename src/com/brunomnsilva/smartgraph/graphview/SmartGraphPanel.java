@@ -474,14 +474,24 @@ public class SmartGraphPanel<V, E> extends Pane {
                     Edge<E, V> firstEdge = incidentEdges.iterator().next();
                     Vertex<V> opposite = theGraph.opposite(vertex, firstEdge);
                     SmartGraphVertexNode<V> existing = vertexNodes.get(opposite);
+                    
+                    if(existing == null) {
+                        /* 
+                        Updates may be coming too fast and we can get out of sync.
+                        The opposite vertex exists in the (di)graph, but we have not yet
+                        created it for the panel. Therefore, its position is unknown,
+                        so place the vertex representation in the middle.
+                        */                        
+                        x = mx;
+                        y = my;
+                    } else {
+                        /* TODO: fix -- the placing point can be set out of bounds*/
+                        Point2D p = UtilitiesPoint2D.rotate(existing.getPosition().add(50.0, 50.0),
+                                existing.getPosition(), Math.random() * 360);
 
-                    /* TODO: fix -- the placing point can be set out of bounds*/
-                    Point2D p = UtilitiesPoint2D.rotate(existing.getPosition().add(50.0, 50.0),
-                            existing.getPosition(), Math.random() * 360);
-
-                    x = p.getX();
-                    y = p.getY();
-
+                        x = p.getX();
+                        y = p.getY();
+                    }
                 }
 
                 SmartGraphVertexNode newVertex = new SmartGraphVertexNode<>(vertex,
@@ -506,6 +516,15 @@ public class SmartGraphPanel<V, E> extends Pane {
                 SmartGraphVertexNode<V> graphVertexOut = vertexNodes.get(u);
                 SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(v);
 
+                /* 
+                Updates may be coming too fast and we can get out of sync.
+                Skip and wait for another update call, since they will surely
+                be coming at this pace.
+                */
+                if(graphVertexIn == null || graphVertexOut == null) {
+                    continue;
+                }
+                
                 graphVertexOut.addAdjacentVertex(graphVertexIn);
                 graphVertexIn.addAdjacentVertex(graphVertexOut);
 
@@ -600,7 +619,9 @@ public class SmartGraphPanel<V, E> extends Pane {
     private Bounds getPlotBounds() {
         double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
                 maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
-
+        
+        if(vertexNodes.size() == 0) return new BoundingBox(0, 0, getWidth(), getHeight());
+        
         for (SmartGraphVertexNode<V> v : vertexNodes.values()) {
             minX = Math.min(minX, v.getCenterX());
             minY = Math.min(minY, v.getCenterY());

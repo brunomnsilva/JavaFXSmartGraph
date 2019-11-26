@@ -35,7 +35,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     
     
     @Override
-    public Collection<Edge<E, V>> incidentEdges(Vertex<V> inbound) throws InvalidVertexException {
+    public synchronized Collection<Edge<E, V>> incidentEdges(Vertex<V> inbound) throws InvalidVertexException {
         checkVertex(inbound);
 
         List<Edge<E, V>> incidentEdges = new ArrayList<>();
@@ -49,7 +49,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
     
     @Override
-    public Collection<Edge<E, V>> outboundEdges(Vertex<V> outbound) throws InvalidVertexException {
+    public synchronized Collection<Edge<E, V>> outboundEdges(Vertex<V> outbound) throws InvalidVertexException {
         checkVertex(outbound);
 
         List<Edge<E, V>> outboundEdges = new ArrayList<>();
@@ -127,7 +127,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
 
     @Override
-    public Collection<Vertex<V>> vertices() {
+    public synchronized Collection<Vertex<V>> vertices() {
         List<Vertex<V>> list = new ArrayList<>();
         vertices.values().forEach((v) -> {
             list.add(v);
@@ -136,7 +136,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
 
     @Override
-    public Collection<Edge<E, V>> edges() {
+    public synchronized Collection<Edge<E, V>> edges() {
         List<Edge<E, V>> list = new ArrayList<>();
         edges.values().forEach((e) -> {
             list.add(e);
@@ -145,7 +145,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
 
     @Override
-    public Vertex<V> opposite(Vertex<V> v, Edge<E, V> e) throws InvalidVertexException, InvalidEdgeException {
+    public synchronized Vertex<V> opposite(Vertex<V> v, Edge<E, V> e) throws InvalidVertexException, InvalidEdgeException {
         checkVertex(v);
         MyEdge edge = checkEdge(e);
 
