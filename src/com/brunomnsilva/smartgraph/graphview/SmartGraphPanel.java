@@ -418,7 +418,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         if (graphProperties.getUseVertexLabel()) {
             SmartLabel label = new SmartLabel(labelText);
 
-            label.setStyle("vertex-label");
+            label.getStyleClass().add("vertex-label");
             this.getChildren().add(label);
             v.attachLabel(label);
         }
@@ -441,7 +441,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         if (graphProperties.getUseEdgeLabel()) {
             SmartLabel label = new SmartLabel(labelText);
 
-            label.setStyle("edge-label");
+            label.getStyleClass().add("edge-label");
             this.getChildren().add(label);
             e.attachLabel(label);
         }
