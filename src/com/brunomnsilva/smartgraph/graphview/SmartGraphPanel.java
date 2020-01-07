@@ -556,6 +556,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         Set<SmartGraphVertexNode<V>> verticesToRemove = new HashSet<>();
         Set<SmartGraphEdgeBase> edgesToRemove = new HashSet<>();
 
+        //filter vertices to remove and their adjacent edges
         for (Vertex<V> v : removedVertices) {
 
             for (SmartGraphEdgeBase edge : values) {
@@ -580,6 +581,14 @@ public class SmartGraphPanel<V, E> extends Pane {
         for (SmartGraphVertexNode<V> v : verticesToRemove) {
             vertexNodes.remove(v.getUnderlyingVertex());
             removeVertice(v);
+        }
+        
+        //permanently remove remaining edges that were removed from the underlying graph
+        Collection<Edge<E, V>> removedEdges = removedEdges();
+        for (Edge<E, V> e : removedEdges) {
+            SmartGraphEdgeBase edgeToRemove = edgeNodes.get(e);
+            edgeNodes.remove(e);
+            removeEdge(edgeToRemove);
         }
 
         //remove adjacencies from remaining vertices
@@ -739,7 +748,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     /**
-     * Computes the vertex collection that are currently being displayed but do
+     * Computes the collection for vertices that are currently being displayed but do
      * not longer exist in the underlying graph.
      *
      * @return collection of vertices
@@ -753,6 +762,27 @@ public class SmartGraphPanel<V, E> extends Pane {
         for (SmartGraphVertexNode<V> v : plotted) {
             if (!graphVertices.contains(v.getUnderlyingVertex())) {
                 removed.add(v.getUnderlyingVertex());
+            }
+        }
+
+        return removed;
+    }
+    
+    /**
+     * Computes the collection for edges that are currently being displayed but do
+     * not longer exist in the underlying graph.
+     *
+     * @return collection of edges
+     */
+    private Collection<Edge<E, V>> removedEdges() {
+        List<Edge<E, V>> removed = new LinkedList<>();
+
+        Collection<Edge<E, V>> graphEdges = theGraph.edges();
+        Collection<SmartGraphEdgeBase> plotted = edgeNodes.values();
+
+        for (SmartGraphEdgeBase e : plotted) {
+            if (!graphEdges.contains(e.getUnderlyingEdge())) {
+                removed.add(e.getUnderlyingEdge());
             }
         }
 

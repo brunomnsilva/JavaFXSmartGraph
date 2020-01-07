@@ -38,6 +38,7 @@ import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
+import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
 
 /**
@@ -102,6 +103,11 @@ public class Main extends Application {
             System.out.println("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
             //dynamically change the style when clicked
             graphEdge.setStyle("-fx-stroke: black; -fx-stroke-width: 2;");
+            
+            //uncomment to see edges being removed after click
+            //Edge<String, String> underlyingEdge = graphEdge.getUnderlyingEdge();
+            //g.removeEdge(underlyingEdge);
+            //graphView.update();
         });
 
         /*
