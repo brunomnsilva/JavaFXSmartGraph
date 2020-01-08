@@ -271,7 +271,13 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     /**
      * Forces a refresh of the visualization based on current state of the
-     * underlying graph.
+     * underlying graph. 
+     * 
+     * This method invokes the refresh in the graphical
+     * thread through Platform.runLater(), so its not guaranteed that the visualization is in sync
+     * immediately after this method finishes. That is, this method
+     * immediately returns to the caller without waiting for the update to the
+     * visualization.
      * <p>
      * New vertices will be added close to adjacent ones or randomly for
      * isolated vertices.
