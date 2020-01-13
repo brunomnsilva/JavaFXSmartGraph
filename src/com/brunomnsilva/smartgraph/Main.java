@@ -40,6 +40,7 @@ import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
+import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 
 /**
  *
@@ -232,13 +233,25 @@ public class Main extends Application {
                     Vertex<String> existing = get_random_vertex(g);
                     Vertex<String> vertexId = g.insertVertex(("V" + id));
                     g.insertEdge(existing, vertexId, ("E" + id));
+                    
+                    //this variant must be called to ensure the view has reflected the
+                    //underlying graph before styling a node immediately after.
+                    graphView.updateAndWait();
+                    
+                    //color new vertices
+                    SmartStylableNode stylableVertex = graphView.getStylableVertex(vertexId);
+                    if(stylableVertex != null) {
+                        stylableVertex.setStyle("-fx-fill: orange;");
+                    }
                 } else {
                     Vertex<String> existing1 = get_random_vertex(g);
                     Vertex<String> existing2 = get_random_vertex(g);
                     g.insertEdge(existing1, existing2, ("E" + id));
+                    
+                    graphView.update();
                 }
 
-                graphView.update();
+                
             }
         };
 

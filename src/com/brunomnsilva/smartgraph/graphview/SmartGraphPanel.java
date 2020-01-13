@@ -58,6 +58,9 @@ import com.brunomnsilva.smartgraph.graph.Edge;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesJavaFX.pick;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesPoint2D.attractiveForce;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesPoint2D.repellingForce;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 /**
  * JavaFX {@link Pane} that is capable of plotting a {@link Graph} or {@link Digraph}.
@@ -271,7 +274,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     /**
      * Forces a refresh of the visualization based on current state of the
-     * underlying graph. 
+     * underlying graph, immediately returning to the caller.
      * 
      * This method invokes the refresh in the graphical
      * thread through Platform.runLater(), so its not guaranteed that the visualization is in sync
@@ -295,6 +298,46 @@ public class SmartGraphPanel<V, E> extends Pane {
         Platform.runLater(() -> {
             updateNodes();
         });
+
+    }
+    
+    /**
+     * Forces a refresh of the visualization based on current state of the
+     * underlying graph and waits for completion of the update.
+     * 
+     * Use this variant only when necessary, e.g., need to style an element
+     * immediately after adding it to the underlying graph. Otherwise, use
+     * {@link #update() } instead for performance sake.
+     * <p>
+     * New vertices will be added close to adjacent ones or randomly for
+     * isolated vertices.
+     */
+    public void updateAndWait() {
+        if (this.getScene() == null) {
+            throw new IllegalStateException("You must call this method after the instance was added to a scene.");
+        }
+
+        if (!this.initialized) {
+            throw new IllegalStateException("You must call init() method before any updates.");
+        }
+        
+        final FutureTask update = new FutureTask(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                updateNodes();
+                return true;
+            }
+        });
+
+        //this will be called from a non-javafx thread, so this must be guaranteed to run of the graphics thread
+        Platform.runLater(update);
+        
+        try {
+            //wait for completion
+            update.get();
+        } catch (InterruptedException | ExecutionException ex) {
+            Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }
 
