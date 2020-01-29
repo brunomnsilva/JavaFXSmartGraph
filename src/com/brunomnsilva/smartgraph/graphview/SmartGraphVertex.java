@@ -58,6 +58,20 @@ public interface SmartGraphVertex<V> extends SmartStylableNode {
     public void setPosition(double x, double y);
     
     /**
+     * Return the center x-coordinate of this vertex in panel coordinates.
+     * 
+     * @return     x-coordinate of the vertex 
+     */
+    public double getPositionCenterX();
+    
+    /**
+     * Return the center y-coordinate of this vertex in panel coordinates.
+     * 
+     * @return     y-coordinate of the vertex 
+     */
+    public double getPositionCenterY();
+    
+    /**
      * Returns the circle radius used to represent this vertex.
      * 
      * @return      circle radius

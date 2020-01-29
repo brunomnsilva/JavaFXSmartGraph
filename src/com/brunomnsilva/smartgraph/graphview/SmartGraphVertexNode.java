@@ -30,7 +30,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 
 /**
@@ -154,6 +153,17 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         setCenterX(x);
         setCenterY(y);
     }
+    
+     @Override
+    public double getPositionCenterX() {
+        return getCenterX();
+    }
+
+    @Override
+    public double getPositionCenterY() {
+        return getCenterY();
+    }
+
 
     /**
      * Sets the position of the instance in pixels.
