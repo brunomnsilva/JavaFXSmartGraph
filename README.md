@@ -95,6 +95,9 @@ this will add/remove the corresponding vertices and edges from the visualization
 
 ### SmartGraph Properties
 
+**Note:** Either using the library or including the source code, the `smartgraph.properties` file must exist in you project folder.
+
+
 You can set the graph visualization properties in the `smartgraph.properties` file:
 
 ```properties
@@ -122,6 +125,10 @@ layout.attraction-scale = 10
 ```
 
 ### SmartGraph CSS styling
+
+**Note:** Either using the library or including the source code, the `smartgraph.css` file must exist in you project folder. 
+For example, if all your vertices turn out black, this is because this file cannot be found.
+
 
 You can set the default CSS styles in the `smartgraph.css` file:
 
