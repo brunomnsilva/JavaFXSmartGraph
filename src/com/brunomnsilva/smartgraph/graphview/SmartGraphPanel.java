@@ -679,7 +679,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             if (vertexNode != null) {
                 SmartLabel label = vertexNode.getAttachedLabel();
                 if(label != null) {
-                    label.setText(v.element().toString());
+                    label.setText(v.element() != null ? v.element().toString() : "<NULL>");
                 }
                 
             }
@@ -690,7 +690,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             if (edgeNode != null) {
                 SmartLabel label = edgeNode.getAttachedLabel();
                 if (label != null) {
-                    label.setText(e.element().toString());
+                    label.setText(e.element() != null ? e.element().toString() : "<NULL>");
                 }
             }
         });
