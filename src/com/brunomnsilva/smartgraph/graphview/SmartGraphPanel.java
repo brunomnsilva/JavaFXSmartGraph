@@ -677,16 +677,23 @@ public class SmartGraphPanel<V, E> extends Pane {
         theGraph.vertices().forEach((v) -> {
             SmartGraphVertexNode<V> vertexNode = vertexNodes.get(v);
             if (vertexNode != null) {
-                vertexNode.getAttachedLabel().setText(v.toString());
+                SmartLabel label = vertexNode.getAttachedLabel();
+                if(label != null) {
+                    label.setText(v.element().toString());
+                }
+                
             }
         });
         
-        for (Edge<E, V> e : theGraph.edges()) {
+        theGraph.edges().forEach((e) -> {
             SmartGraphEdgeBase edgeNode = edgeNodes.get(e);
-            if(edgeNode != null) {
-                edgeNode.getAttachedLabel().setText(e.toString());
+            if (edgeNode != null) {
+                SmartLabel label = edgeNode.getAttachedLabel();
+                if (label != null) {
+                    label.setText(e.element().toString());
+                }
             }
-        }
+        });
     }
     
     /**
