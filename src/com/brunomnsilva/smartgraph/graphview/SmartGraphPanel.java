@@ -344,6 +344,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private synchronized void updateNodes() {
         removeNodes();
         insertNodes();
+        updateLabels();
     }
 
     /*
@@ -669,6 +670,25 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
+    /**
+     * Updates node's labels
+     */
+    private void updateLabels() {
+        theGraph.vertices().forEach((v) -> {
+            SmartGraphVertexNode<V> vertexNode = vertexNodes.get(v);
+            if (vertexNode != null) {
+                vertexNode.getAttachedLabel().setText(v.toString());
+            }
+        });
+        
+        for (Edge<E, V> e : theGraph.edges()) {
+            SmartGraphEdgeBase edgeNode = edgeNodes.get(e);
+            if(edgeNode != null) {
+                edgeNode.getAttachedLabel().setText(e.toString());
+            }
+        }
+    }
+    
     /**
      * Computes the bounding box from all displayed vertices.
      *
