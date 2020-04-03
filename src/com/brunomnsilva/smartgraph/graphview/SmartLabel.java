@@ -46,4 +46,9 @@ public class SmartLabel extends Text implements SmartStylableNode {
         super(x, y, text);
     }
     
+    @Override
+    public void setStyleClass(String cssClass) {
+        getStyleClass().add(cssClass);
+    }
+    
 }

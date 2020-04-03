@@ -65,6 +65,12 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
         this.endXProperty().bind(inbound.centerXProperty());
         this.endYProperty().bind(inbound.centerYProperty());
     }
+    
+    @Override
+    public void setStyleClass(String cssClass) {
+        getStyleClass().add(cssClass);
+    }
+    
 
     @Override
     public void attachLabel(SmartLabel label) {

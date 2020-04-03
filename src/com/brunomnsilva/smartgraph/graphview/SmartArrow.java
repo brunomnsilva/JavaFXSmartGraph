@@ -45,5 +45,10 @@ public class SmartArrow extends Path implements SmartStylableNode {
         /* Add the corresponding css class */
         getStyleClass().add("arrow");        
     }
+
+    @Override
+    public void setStyleClass(String cssClass) {
+        getStyleClass().add(cssClass);
+    }
     
 }

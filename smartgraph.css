@@ -35,3 +35,12 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
     -fx-stroke: #FF6D66;  
     -fx-opacity: 0.8;
 }
+
+/* Custom vertex. You should revert any unwanted styling in the default element, 
+   style, since custom styles will be appended to the default style */
+.myVertex {
+    -fx-stroke-width: 5;
+    -fx-stroke: green;
+    -fx-stroke-type: inside; /* you should keep this if using arrows */
+    -fx-fill: yellowgreen;
+}

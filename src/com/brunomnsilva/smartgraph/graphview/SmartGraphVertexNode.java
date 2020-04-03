@@ -88,6 +88,11 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
             enableDrag();
         }
     }
+    
+    @Override
+    public void setStyleClass(String cssClass) {
+        getStyleClass().add(cssClass);
+    }
 
     /**
      * Adds a vertex to the internal list of adjacent vertices.

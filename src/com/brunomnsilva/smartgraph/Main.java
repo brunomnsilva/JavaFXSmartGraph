@@ -95,6 +95,9 @@ public class Main extends Application {
         graphView.setVertexDoubleClickAction(graphVertex -> {
             System.out.println("Vertex contains element: " + graphVertex.getUnderlyingVertex().element());
 
+            //style differently with other css class:
+            graphVertex.setStyleClass("myVertex");
+            
             //want fun? uncomment below with automatic layout
             //g.removeVertex(graphVertex.getUnderlyingVertex());
             //graphView.update();

@@ -88,6 +88,11 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         enableListeners();
     }
 
+    @Override
+    public void setStyleClass(String cssClass) {
+        getStyleClass().add(cssClass);
+    }
+    
     private void update() {                
         if (inbound == outbound) {
             /* Make a loop using the control points proportional to the vertex radius */

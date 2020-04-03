@@ -130,7 +130,15 @@ layout.attraction-scale = 10
 For example, if all your vertices turn out black, this is because this file cannot be found.
 
 
-You can set the default CSS styles in the `smartgraph.css` file:
+You can set the default CSS styles in the `smartgraph.css` file; see below.
+
+The style classes `graph`, `vertex`, `vertex-label`, `edge`, `edge-label` and `arrow` contain the default styling for the nodes and must exist in the file. You can, however, provide different classes to apply to specific elements, e.g., vertices, edges and labels.
+
+The following example contains an additional definition for the CSS class `.myVertex`. You can apply the style individually to an existing element, e.g., vertex, as follows:
+
+```java
+graphView.getStylableVertex("A").setStyleClass("myVertex");
+```
 
 ```css
 .graph {
@@ -165,6 +173,15 @@ You can set the default CSS styles in the `smartgraph.css` file:
     -fx-stroke-width: 2;
     -fx-stroke: #FF6D66;  
     -fx-opacity: 0.8;
+}
+
+/* Custom vertex. You should revert any unwanted styling in the default element, 
+   style, since custom styles will be appended to the default style */
+.myVertex {
+    -fx-stroke-width: 5;
+    -fx-stroke: green;
+    -fx-stroke-type: inside; /* you should keep this if using arrows */
+    -fx-fill: yellowgreen;
 }
 ```
 

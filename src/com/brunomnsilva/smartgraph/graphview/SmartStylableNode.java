@@ -43,4 +43,16 @@ public interface SmartStylableNode {
      * @param css styles
      */
     public void setStyle(String css);
+    
+    /**
+     * Applies the CSS styling defined in class selector <code>cssClass</code>.
+     * 
+     * The <code>cssClass</code> string must not contain a preceding dot, e.g.,
+     * "myClass" instead of ".myClass".
+     * 
+     * The CSS Class must be defined in <code>smartpgraph.css</code> file.
+     * 
+     * @param cssClass name of the CSS class.
+     */
+    public void setStyleClass(String cssClass);
 }
