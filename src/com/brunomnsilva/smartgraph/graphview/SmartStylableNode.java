@@ -36,7 +36,7 @@ package com.brunomnsilva.smartgraph.graphview;
 public interface SmartStylableNode {    
     
     /**
-     * Applies the <code>css</code> styles to the node.
+     * Applies cumulatively the <code>css</code> styles to the node.
      * 
      * Note that JavaFX styles are cumulative.
      * 
@@ -51,6 +51,9 @@ public interface SmartStylableNode {
      * "myClass" instead of ".myClass".
      * 
      * The CSS Class must be defined in <code>smartpgraph.css</code> file.
+     * 
+     * The expected behavior is to remove  all current styling before 
+     * applying the class css.
      * 
      * @param cssClass name of the CSS class.
      */

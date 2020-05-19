@@ -90,6 +90,8 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
 
     @Override
     public void setStyleClass(String cssClass) {
+        getStyleClass().clear();
+        setStyle(null);
         getStyleClass().add(cssClass);
     }
     

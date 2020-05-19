@@ -68,6 +68,8 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     
     @Override
     public void setStyleClass(String cssClass) {
+        getStyleClass().clear();
+        setStyle(null);
         getStyleClass().add(cssClass);
     }
     

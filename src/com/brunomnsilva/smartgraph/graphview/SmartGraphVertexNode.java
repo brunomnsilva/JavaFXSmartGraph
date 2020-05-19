@@ -91,6 +91,8 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     
     @Override
     public void setStyleClass(String cssClass) {
+        getStyleClass().clear();
+        setStyle(null);
         getStyleClass().add(cssClass);
     }
 
