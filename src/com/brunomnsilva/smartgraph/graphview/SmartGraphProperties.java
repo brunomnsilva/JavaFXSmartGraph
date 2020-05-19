@@ -99,7 +99,8 @@ public class SmartGraphProperties {
         try {
             properties.load(inputStream);
         } catch (IOException ex) {
-            System.err.println("The file provided by the input stream does not exist. Using default values.");
+            String msg = "The file provided by the input stream does not exist. Using default values.";
+            Logger.getLogger(SmartGraphProperties.class.getName()).log(Level.WARNING, msg);
         }
     }
     

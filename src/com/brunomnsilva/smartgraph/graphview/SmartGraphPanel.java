@@ -58,6 +58,7 @@ import com.brunomnsilva.smartgraph.graph.Edge;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesJavaFX.pick;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesPoint2D.attractiveForce;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesPoint2D.repellingForce;
+import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -142,7 +143,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * vertices.
      *
      * @param theGraph underlying graph
-     * @param placementStrategy placement strategy
+     * @param placementStrategy placement strategy, null for default
      */
     public SmartGraphPanel(Graph<V, E> theGraph, SmartPlacementStrategy placementStrategy) {
         this(theGraph, null, placementStrategy);
@@ -154,11 +155,27 @@ public class SmartGraphPanel<V, E> extends Pane {
      * vertices.
      *
      * @param theGraph underlying graph
-     * @param properties custom properties
-     * @param placementStrategy placement strategy
+     * @param properties custom properties, null for default
+     * @param placementStrategy placement strategy, null for default
      */
     public SmartGraphPanel(Graph<V, E> theGraph, SmartGraphProperties properties,
             SmartPlacementStrategy placementStrategy) {
+        
+        this(theGraph, properties, placementStrategy, null);
+    }
+    
+    /**
+     * Constructs a visualization of the graph referenced by
+     * <code>theGraph</code>, using custom properties and custom placement of
+     * vertices.
+     *
+     * @param theGraph underlying graph
+     * @param properties custom properties, null for default
+     * @param placementStrategy placement strategy, null for default
+     * @param cssFile alternative css file, instead of default 'smartgraph.css'
+     */
+    public SmartGraphPanel(Graph<V, E> theGraph, SmartGraphProperties properties,
+            SmartPlacementStrategy placementStrategy, URI cssFile) {
 
         if (theGraph == null) {
             throw new IllegalArgumentException("The graph cannot be null.");
@@ -177,7 +194,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         edgeNodes = new HashMap<>(); 
 
         //set stylesheet and class
-        loadStylesheet();
+        loadStylesheet(cssFile);
 
         initNodes();
 
@@ -934,13 +951,18 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     /**
-     * Loads the default stylesheet and applies the .graph class to this panel.
+     * Loads the stylesheet and applies the .graph class to this panel.
      */
-    private void loadStylesheet() {
+    private void loadStylesheet(URI cssFile) {
         try {
-            File f = new File("smartgraph.css");
+            String css;
+            if( cssFile != null ) {
+                css = cssFile.toURL().toExternalForm();
+            } else {
+                File f = new File("smartgraph.css");
+                css = f.toURI().toURL().toExternalForm();
+            }
 
-            String css = f.toURI().toURL().toExternalForm();
             getStylesheets().add(css);
             this.getStyleClass().add("graph");
         } catch (MalformedURLException ex) {
