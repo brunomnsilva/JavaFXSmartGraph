@@ -62,6 +62,9 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     private SmartArrow attachedArrow = null;
 
     private double randomAngleFactor = 0;
+    
+    /* Styling proxy */
+    private final SmartStyleProxy styleProxy;
 
     public SmartGraphEdgeCurve(Edge<E, V> edge, SmartGraphVertexNode inbound, SmartGraphVertexNode outbound) {
         this(edge, inbound, outbound, 0);
@@ -73,7 +76,8 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
 
         this.underlyingEdge = edge;
 
-        getStyleClass().add("edge");
+        styleProxy = new SmartStyleProxy(this);
+        styleProxy.addStyleClass("edge");
 
         //bind start and end positions to vertices centers through properties
         this.startXProperty().bind(outbound.centerXProperty());
@@ -90,9 +94,17 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
 
     @Override
     public void setStyleClass(String cssClass) {
-        getStyleClass().clear();
-        setStyle(null);
-        getStyleClass().add(cssClass);
+        styleProxy.setStyleClass(cssClass);
+    }
+
+    @Override
+    public void addStyleClass(String cssClass) {
+        styleProxy.addStyleClass(cssClass);
+    }
+
+    @Override
+    public boolean removeStyleClass(String cssClass) {
+        return styleProxy.removeStyleClass(cssClass);
     }
     
     private void update() {                

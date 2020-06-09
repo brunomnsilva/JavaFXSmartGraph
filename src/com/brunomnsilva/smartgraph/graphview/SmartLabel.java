@@ -34,21 +34,35 @@ import javafx.scene.text.Text;
  * @author Bruno Silva
  */
 public class SmartLabel extends Text implements SmartStylableNode {
-
+    
+    private final SmartStyleProxy styleProxy;
+    
     public SmartLabel() {
+        this(0,0,"");
     }
 
     public SmartLabel(String text) {
-        super(text);
+        this(0, 0, text);
     }
 
     public SmartLabel(double x, double y, String text) {
         super(x, y, text);
+        styleProxy = new SmartStyleProxy(this);
     }
     
     @Override
     public void setStyleClass(String cssClass) {
-        getStyleClass().add(cssClass);
+        styleProxy.setStyleClass(cssClass);
+    }
+
+    @Override
+    public void addStyleClass(String cssClass) {
+        styleProxy.addStyleClass(cssClass);
+    }
+
+    @Override
+    public boolean removeStyleClass(String cssClass) {
+        return styleProxy.removeStyleClass(cssClass);
     }
     
 }

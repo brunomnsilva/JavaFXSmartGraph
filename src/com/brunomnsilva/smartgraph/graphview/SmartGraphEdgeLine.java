@@ -47,6 +47,9 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     private SmartLabel attachedLabel = null;
     private SmartArrow attachedArrow = null;
     
+    /* Styling proxy */
+    private final SmartStyleProxy styleProxy;
+    
     public SmartGraphEdgeLine(Edge<E, V> edge, SmartGraphVertexNode inbound, SmartGraphVertexNode outbound) {
         if( inbound == null || outbound == null) {
             throw new IllegalArgumentException("Cannot connect null vertices.");
@@ -57,7 +60,8 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
         
         this.underlyingEdge = edge;
         
-        getStyleClass().add("edge");
+        styleProxy = new SmartStyleProxy(this);
+        styleProxy.addStyleClass("edge");
         
         //bind start and end positions to vertices centers through properties
         this.startXProperty().bind(outbound.centerXProperty());
@@ -68,9 +72,17 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     
     @Override
     public void setStyleClass(String cssClass) {
-        getStyleClass().clear();
-        setStyle(null);
-        getStyleClass().add(cssClass);
+        styleProxy.setStyleClass(cssClass);
+    }
+
+    @Override
+    public void addStyleClass(String cssClass) {
+        styleProxy.addStyleClass(cssClass);
+    }
+
+    @Override
+    public boolean removeStyleClass(String cssClass) {
+        return styleProxy.removeStyleClass(cssClass);
     }
     
 

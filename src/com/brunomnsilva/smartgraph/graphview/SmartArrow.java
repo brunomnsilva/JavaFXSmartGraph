@@ -34,6 +34,9 @@ import javafx.scene.shape.Path;
  */
 public class SmartArrow extends Path implements SmartStylableNode {
     
+    /* Styling proxy */
+    private final SmartStyleProxy styleProxy;
+    
     public SmartArrow() {
         
         /* Create this arrow shape */
@@ -43,12 +46,23 @@ public class SmartArrow extends Path implements SmartStylableNode {
         getElements().add(new LineTo(-5, -5));    
         
         /* Add the corresponding css class */
-        getStyleClass().add("arrow");        
+        styleProxy = new SmartStyleProxy(this);
+        styleProxy.addStyleClass("arrow");      
     }
 
     @Override
     public void setStyleClass(String cssClass) {
-        getStyleClass().add(cssClass);
+        styleProxy.setStyleClass(cssClass);
+    }
+
+    @Override
+    public void addStyleClass(String cssClass) {
+        styleProxy.addStyleClass(cssClass);
+    }
+
+    @Override
+    public boolean removeStyleClass(String cssClass) {
+        return styleProxy.removeStyleClass(cssClass);
     }
     
 }

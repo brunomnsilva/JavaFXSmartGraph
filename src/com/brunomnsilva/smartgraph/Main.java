@@ -38,7 +38,6 @@ import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
-import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 
@@ -95,8 +94,14 @@ public class Main extends Application {
         graphView.setVertexDoubleClickAction(graphVertex -> {
             System.out.println("Vertex contains element: " + graphVertex.getUnderlyingVertex().element());
 
-            //style differently with other css class:
-            graphVertex.setStyleClass("myVertex");
+            //toggle different styling
+            if( !graphVertex.removeStyleClass("myVertex") ) {
+                /* for the golden vertex, this is necessary to clear the inline
+                   css class. Otherwise, it has priority. Test and uncomment. */
+                //graphVertex.setStyle(null); 
+                
+                graphVertex.addStyleClass("myVertex");
+            }            
             
             //want fun? uncomment below with automatic layout
             //g.removeVertex(graphVertex.getUnderlyingVertex());
@@ -107,6 +112,7 @@ public class Main extends Application {
             System.out.println("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
             //dynamically change the style when clicked
             graphEdge.setStyle("-fx-stroke: black; -fx-stroke-width: 2;");
+            
             
             //uncomment to see edges being removed after click
             //Edge<String, String> underlyingEdge = graphEdge.getUnderlyingEdge();

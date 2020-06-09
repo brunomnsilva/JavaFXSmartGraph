@@ -64,6 +64,9 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     private final PointVector forceVector = new PointVector(0, 0);
     private final PointVector updatedPosition = new PointVector(0, 0);
 
+    /* Styling proxy */
+    private final SmartStyleProxy styleProxy;
+    
     /**
      * Constructor which sets the instance attributes.
      *
@@ -82,20 +85,14 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
 
         this.adjacentVertices = new HashSet<>();
 
-        getStyleClass().add("vertex");
+        styleProxy = new SmartStyleProxy(this);
+        styleProxy.addStyleClass("vertex");
 
         if (allowMove) {
             enableDrag();
         }
     }
     
-    @Override
-    public void setStyleClass(String cssClass) {
-        getStyleClass().clear();
-        setStyle(null);
-        getStyleClass().add(cssClass);
-    }
-
     /**
      * Adds a vertex to the internal list of adjacent vertices.
      *
@@ -334,6 +331,22 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     @Override
     public Vertex<T> getUnderlyingVertex() {
         return underlyingVertex;
+    }
+
+     
+    @Override
+    public void setStyleClass(String cssClass) {
+        styleProxy.setStyleClass(cssClass);
+    }
+
+    @Override
+    public void addStyleClass(String cssClass) {
+        styleProxy.addStyleClass(cssClass);
+    }
+
+    @Override
+    public boolean removeStyleClass(String cssClass) {
+        return styleProxy.removeStyleClass(cssClass);
     }
 
     /**
