@@ -39,6 +39,7 @@ import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 
 /**
@@ -90,18 +91,18 @@ public class Main extends Application {
 
         /*
         Bellow you can see how to attach actions for when vertices and edges are double clicked
-         */
-        graphView.setVertexDoubleClickAction(graphVertex -> {
+         */        
+        graphView.setVertexDoubleClickAction((SmartGraphVertex<String> graphVertex) -> {
             System.out.println("Vertex contains element: " + graphVertex.getUnderlyingVertex().element());
-
+                      
             //toggle different styling
             if( !graphVertex.removeStyleClass("myVertex") ) {
                 /* for the golden vertex, this is necessary to clear the inline
-                   css class. Otherwise, it has priority. Test and uncomment. */
-                //graphVertex.setStyle(null); 
+                css class. Otherwise, it has priority. Test and uncomment. */
+                //graphVertex.setStyle(null);
                 
                 graphVertex.addStyleClass("myVertex");
-            }            
+            }
             
             //want fun? uncomment below with automatic layout
             //g.removeVertex(graphVertex.getUnderlyingVertex());

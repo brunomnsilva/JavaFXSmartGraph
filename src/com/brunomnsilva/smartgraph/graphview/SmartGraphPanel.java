@@ -62,6 +62,8 @@ import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * JavaFX {@link Pane} that is capable of plotting a {@link Graph} or {@link Digraph}.
@@ -345,17 +347,22 @@ public class SmartGraphPanel<V, E> extends Pane {
                 return true;
             }
         });
-
-        //this will be called from a non-javafx thread, so this must be guaranteed to run of the graphics thread
-        Platform.runLater(update);
         
-        try {
-            //wait for completion
-            update.get();
-        } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
+        //
+        if(!Platform.isFxApplicationThread()) {            
+            //this will be called from a non-javafx thread, so this must be guaranteed to run of the graphics thread
+            Platform.runLater(update);
+        
+            //wait for completion, only outside javafx thread; otherwise -> deadlock
+            try {            
+                update.get(1, TimeUnit.SECONDS);
+            } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+                Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            updateNodes();
         }
-
+        
     }
 
     private synchronized void updateNodes() {
@@ -898,6 +905,51 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         return unplotted;
+    }
+    
+    /**
+     * Sets a vertex position (its center) manually.
+     * 
+     * The positioning should be inside the boundaries of the panel, but
+     * no restrictions are enforced by this method, so be aware. 
+     * 
+     * @param v underlying vertex
+     * @param x x-coordinate on panel
+     * @param y y-coordinate on panel
+     */
+    public void setVertexPosition(Vertex<V> v, double x, double y) {
+        SmartGraphVertexNode<V> node = vertexNodes.get(v);
+        if(node != null) {
+            node.setPosition(x, y);
+        }
+    }
+    
+    /**
+     * Return the current x-coordinate (relative to the panel) of a vertex.
+     * 
+     * @param v underlying vertex
+     * @return the x-coordinate or NaN if the vertex does not exist 
+     */
+    public double getVertexPositionX(Vertex<V> v) {
+        SmartGraphVertexNode<V> node = vertexNodes.get(v);
+        if(node != null) {
+            return node.getPositionCenterX();
+        }
+        return Double.NaN;
+    }
+    
+    /**
+     * Return the current y-coordinate (relative to the panel) of a vertex.
+     * 
+     * @param v underlying vertex
+     * @return the y-coordinate or NaN if the vertex does not exist 
+     */
+    public double getVertexPositionY(Vertex<V> v) {
+        SmartGraphVertexNode<V> node = vertexNodes.get(v);
+        if(node != null) {
+            return node.getPositionCenterY();
+        }
+        return Double.NaN;
     }
 
     /**
