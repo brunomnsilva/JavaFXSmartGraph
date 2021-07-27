@@ -29,6 +29,7 @@ import javafx.scene.shape.CubicCurve;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import com.brunomnsilva.smartgraph.graph.Edge;
+import java.util.Iterator;
 
 /**
  * Concrete implementation of a curved edge.
@@ -39,10 +40,10 @@ import com.brunomnsilva.smartgraph.graph.Edge;
  * is updated automatically as the vertices move.
  * <br>
  * Given there can be several curved edges connecting two vertices, when calling
- * the constructor {@link #SmartGraphEdgeCurve(com.brunomnsilva.smartgraph.graph.Edge, 
- * com.brunomnsilva.smartgraph.graphview.SmartGraphVertexNode, 
- * com.brunomnsilva.smartgraph.graphview.SmartGraphVertexNode, int) } the <code>edgeIndex</code>
- * can be specified as to create non-overlaping curves.
+ * the constructor {@link #SmartGraphEdgeCurve(com.brunomnsilva.smartgraph.graph.Edge,
+ * com.brunomnsilva.smartgraph.graphview.SmartGraphVertexNode,
+ * com.brunomnsilva.smartgraph.graphview.SmartGraphVertexNode, int) } the
+ * <code>edgeIndex</code> can be specified as to create non-overlaping curves.
  *
  * @param <E> Type stored in the underlying edge
  * @param <V> Type of connecting vertex
@@ -51,7 +52,7 @@ import com.brunomnsilva.smartgraph.graph.Edge;
  */
 public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphEdgeBase<E, V> {
 
-    private static final double MAX_EDGE_CURVE_ANGLE = 20;
+    private static final double MAX_EDGE_CURVE_ANGLE = 75;
 
     private final Edge<E, V> underlyingEdge;
 
@@ -62,7 +63,8 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     private SmartArrow attachedArrow = null;
 
     private double randomAngleFactor = 0;
-    
+    private int edgeIndex = 0;
+
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
 
@@ -86,7 +88,8 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         this.endYProperty().bind(inbound.centerYProperty());
 
         //TODO: improve this solution taking into account even indices, etc.
-        randomAngleFactor = edgeIndex == 0 ? 0 : 1.0 / edgeIndex; //Math.random();
+        randomAngleFactor = edgeIndex;// == 0 ? 0 : 1.0 / edgeIndex; //Math.random();
+        this.edgeIndex = edgeIndex;
 
         //update();
         enableListeners();
@@ -106,45 +109,40 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     public boolean removeStyleClass(String cssClass) {
         return styleProxy.removeStyleClass(cssClass);
     }
-    
-    private void update() {                
+
+    private void update() {
         if (inbound == outbound) {
+            Point2D startpoint = new Point2D(inbound.getCenterX(), inbound.getCenterY());
             /* Make a loop using the control points proportional to the vertex radius */
-            
-            //TODO: take into account several "self-loops" with randomAngleFactor
-            double midpointX1 = outbound.getCenterX() - inbound.getRadius() * 5;
-            double midpointY1 = outbound.getCenterY() - inbound.getRadius() * 2;
-            
-            double midpointX2 = outbound.getCenterX() + inbound.getRadius() * 5;
-            double midpointY2 = outbound.getCenterY() - inbound.getRadius() * 2;
-            
-            setControlX1(midpointX1);
-            setControlY1(midpointY1);
-            setControlX2(midpointX2);
-            setControlY2(midpointY2);
-            
-        } else {          
-            /* Make a curved edge. The curve is proportional to the distance  */
-            double midpointX = (outbound.getCenterX() + inbound.getCenterX()) / 2;
-            double midpointY = (outbound.getCenterY() + inbound.getCenterY()) / 2;
+            int x = 0, y = 0;
+            Iterator<SmartGraphVertexNode<V>> it = inbound.getAdjacentVertices().iterator();
+            while (it.hasNext()) {
+                SmartGraphVertexNode<V> vertex = it.next();
+                x += (int) (startpoint.getX() - vertex.getCenterX());
+                y += (int) (startpoint.getY() - vertex.getCenterY());
+            }
 
-            Point2D midpoint = new Point2D(midpointX, midpointY);
+            double distance = inbound.getRadius() + 75;
+            double angle = Math.atan2(y, x) * 180 / Math.PI;
 
+            int angleFactor = 15;
+            int newEdgeIndex = edgeIndex % 2 == 0 ? edgeIndex * 2 : (edgeIndex * 2) + 1;
+            Point2D endpoint = new Point2D(inbound.getCenterX() + (distance * Math.cos(angle * Math.PI / 180)),
+                    inbound.getCenterY() + (distance * Math.sin(angle * Math.PI / 180)));
+            angle = getAngle(newEdgeIndex == 0 ? 1 : newEdgeIndex - 2, angleFactor);
+            Point2D midpoint1 = UtilitiesPoint2D.rotate(endpoint, startpoint, angle);
+            angle = getAngle(newEdgeIndex + 2, angleFactor);
+            Point2D midpoint2 = UtilitiesPoint2D.rotate(endpoint, startpoint, angle);
+
+            setControlX1(midpoint1.getX());
+            setControlY1(midpoint1.getY());
+            setControlX2(midpoint2.getX());
+            setControlY2(midpoint2.getY());
+
+        } else {
             Point2D startpoint = new Point2D(inbound.getCenterX(), inbound.getCenterY());
             Point2D endpoint = new Point2D(outbound.getCenterX(), outbound.getCenterY());
-
-            //TODO: improvement lower max_angle_placement according to distance between vertices
-            double angle = MAX_EDGE_CURVE_ANGLE;
-
-            double distance = startpoint.distance(endpoint);
-
-            //TODO: remove "magic number" 1500 and provide a distance function for the 
-            //decreasing angle with distance
-            angle = angle - (distance / 1500 * angle);
-
-            midpoint = UtilitiesPoint2D.rotate(midpoint,
-                    startpoint,
-                    (-angle) + randomAngleFactor * (angle - (-angle)));
+            Point2D midpoint = getCurveControlPoint(startpoint, endpoint, edgeIndex, MAX_EDGE_CURVE_ANGLE);
 
             setControlX1(midpoint.getX());
             setControlY1(midpoint.getY());
@@ -154,10 +152,45 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
 
     }
 
+    private Point2D getCurveControlPoint(Point2D startpoint, Point2D endpoint, int edgeIndex, double maxAngle) {
+        /* Make a curved edge. The curve is proportional to the distance  */
+        double midpointX = (endpoint.getX() + startpoint.getX()) / 2;
+        double midpointY = (endpoint.getY() + startpoint.getY()) / 2;
+
+        Point2D midpoint = new Point2D(midpointX, midpointY);
+
+        double lineAngle = 0;
+        double rotationAngle = Math.atan2(endpoint.getY() - startpoint.getY(), endpoint.getX() - startpoint.getX()) * 180.0 / Math.PI;
+        double distance = startpoint.distance(endpoint);
+
+        midpoint = UtilitiesPoint2D.rotate(midpoint, startpoint, -rotationAngle);
+
+        // make angle denpends on edge index and distance
+        double controlLength = 100;
+        int angleFactor = 20;
+        lineAngle = getAngle(edgeIndex, 15);
+        if (lineAngle > maxAngle) {
+            lineAngle = (lineAngle % maxAngle) + getAngle(0, angleFactor) / 2;
+        }
+        lineAngle = distance > controlLength ? lineAngle * (controlLength / distance) : lineAngle;
+
+        double y = (distance / 2.0) * Math.tan(lineAngle * Math.PI / 180.0);
+        midpoint = new Point2D(midpoint.getX(), midpoint.getY() + y);
+        midpoint = UtilitiesPoint2D.rotate(midpoint, startpoint, rotationAngle);
+
+        return midpoint;
+    }
+
+    private double getAngle(int index, int angleFactor) {
+        double offset = (index % 2) + (index / 2);
+        double angle = angleFactor * offset * (index % 2 > 0 ? -1 : 1);
+        return angle;
+    }
+
     /*
     With a curved edge we need to continuously update the control points.
     TODO: Maybe we can achieve this solely with bindings.
-    */
+     */
     private void enableListeners() {
         this.startXProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
             update();

@@ -34,6 +34,7 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
     -fx-stroke-width: 2;
     -fx-stroke: #FF6D66;  
     -fx-opacity: 0.8;
+    -fx-fill: #FF6D66; 
 }
 
 /* Custom vertex. You should revert any unwanted styling in the default element, 

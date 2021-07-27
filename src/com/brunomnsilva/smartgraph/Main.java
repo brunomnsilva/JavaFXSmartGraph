@@ -87,7 +87,7 @@ public class Main extends Application {
         IMPORTANT: Must call init() after scene is displayed so we can have width and height values
         to initially place the vertices according to the placement strategy
         */
-        graphView.init();
+        //graphView.init();
 
         /*
         Bellow you can see how to attach actions for when vertices and edges are double clicked
@@ -125,15 +125,15 @@ public class Main extends Application {
         Should proceed with automatic layout or keep original placement?
         If using SmartGraphDemoContainer you can toggle this in the UI 
          */
-        //graphView.setAutomaticLayout(true);
+        graphView.setAutomaticLayout(true);
 
         /* 
         Uncomment lines to test adding of new elements
          */
-        //continuously_test_adding_elements(g, graphView);
-        //stage.setOnCloseRequest(event -> {
-        //    running = false;
-        //});
+        continuously_test_adding_elements(g, graphView);
+        stage.setOnCloseRequest(event -> {
+            running = false;
+        });
     }
 
     /**

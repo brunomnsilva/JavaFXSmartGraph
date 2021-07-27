@@ -41,9 +41,10 @@ public class SmartArrow extends Path implements SmartStylableNode {
         
         /* Create this arrow shape */
         getElements().add(new MoveTo(0, 0));  
-        getElements().add(new LineTo(-5, 5));
-        getElements().add(new MoveTo(0, 0));        
-        getElements().add(new LineTo(-5, -5));    
+        getElements().add(new LineTo(-6, 3));
+        //getElements().add(new MoveTo(0, 0));        
+        getElements().add(new LineTo(-6, -3));    
+        getElements().add(new LineTo(0, 0));    
         
         /* Add the corresponding css class */
         styleProxy = new SmartStyleProxy(this);

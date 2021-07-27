@@ -362,4 +362,8 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
             this.y = y;
         }
     }
+    
+    public Set<SmartGraphVertexNode<T>> getAdjacentVertices(){
+        return this.adjacentVertices;
+    }
 }
