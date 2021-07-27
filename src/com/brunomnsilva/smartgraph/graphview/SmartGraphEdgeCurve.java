@@ -30,6 +30,7 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import com.brunomnsilva.smartgraph.graph.Edge;
 import java.util.Iterator;
+import javafx.scene.Scene;
 
 /**
  * Concrete implementation of a curved edge.
@@ -129,10 +130,10 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
             int newEdgeIndex = edgeIndex % 2 == 0 ? edgeIndex * 2 : (edgeIndex * 2) + 1;
             Point2D endpoint = new Point2D(inbound.getCenterX() + (distance * Math.cos(angle * Math.PI / 180)),
                     inbound.getCenterY() + (distance * Math.sin(angle * Math.PI / 180)));
-            angle = getAngle(newEdgeIndex == 0 ? 1 : newEdgeIndex - 2, angleFactor);
-            Point2D midpoint1 = UtilitiesPoint2D.rotate(endpoint, startpoint, angle);
-            angle = getAngle(newEdgeIndex + 2, angleFactor);
-            Point2D midpoint2 = UtilitiesPoint2D.rotate(endpoint, startpoint, angle);
+            double angle1 = getAngle(newEdgeIndex == 0 ? 1 : newEdgeIndex - 2, angleFactor);
+            double angle2 = getAngle(newEdgeIndex + 2, angleFactor);
+            Point2D midpoint1 = UtilitiesPoint2D.rotate(endpoint, startpoint, edgeIndex % 2 == 0 ? angle1 : angle2);
+            Point2D midpoint2 = UtilitiesPoint2D.rotate(endpoint, startpoint,  edgeIndex % 2 == 0 ? angle2 : angle1);
 
             setControlX1(midpoint1.getX());
             setControlY1(midpoint1.getY());
@@ -169,8 +170,8 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         double controlLength = 100;
         int angleFactor = 20;
         lineAngle = getAngle(edgeIndex, 15);
-        if (lineAngle > maxAngle) {
-            lineAngle = (lineAngle % maxAngle) + getAngle(0, angleFactor) / 2;
+        if (Math.abs(lineAngle) >= maxAngle) {
+            lineAngle = (lineAngle % maxAngle) + getAngle(1, angleFactor) / (1 + (int)(lineAngle / maxAngle));
         }
         lineAngle = distance > controlLength ? lineAngle * (controlLength / distance) : lineAngle;
 
@@ -226,7 +227,9 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     @Override
     public void attachArrow(SmartArrow arrow) {
         this.attachedArrow = arrow;
-
+        
+        System.out.println("Arrow bw, bh: " + arrow.getBoundsInParent().getWidth() + ", " + arrow.getBoundsInParent().getHeight());
+        
         /* attach arrow to line's endpoint */
         arrow.translateXProperty().bind(endXProperty());
         arrow.translateYProperty().bind(endYProperty());
@@ -243,7 +246,7 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         arrow.getTransforms().add(rotation);
 
         /* add translation transform to put the arrow touching the circle's bounds */
-        Translate t = new Translate(-outbound.getRadius(), 0);
+        Translate t = new Translate(-1 * outbound.getRadius(), 0);
         arrow.getTransforms().add(t);
     }
 

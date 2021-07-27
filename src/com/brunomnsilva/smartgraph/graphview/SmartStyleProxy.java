@@ -5,6 +5,7 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
+import javafx.scene.Node;
 import javafx.scene.shape.Shape;
 
 /**
@@ -19,9 +20,9 @@ import javafx.scene.shape.Shape;
  */
 public class SmartStyleProxy implements SmartStylableNode {
 
-    private final Shape client;
+    private final Node client;
     
-    public SmartStyleProxy(Shape client) {
+    public SmartStyleProxy(Node client) {
         this.client = client;
     }
     

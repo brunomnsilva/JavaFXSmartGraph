@@ -31,6 +31,7 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 }
 
 .arrow {
+    -fx-shape : "M 6 0 L 0 3 L 2 0 L 0 -3 Z";
     -fx-stroke-width: 2;
     -fx-stroke: #FF6D66;  
     -fx-opacity: 0.8;

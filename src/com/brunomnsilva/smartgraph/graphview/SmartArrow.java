@@ -48,7 +48,8 @@ public class SmartArrow extends Path implements SmartStylableNode {
         
         /* Add the corresponding css class */
         styleProxy = new SmartStyleProxy(this);
-        styleProxy.addStyleClass("arrow");      
+        styleProxy.addStyleClass("arrow"); 
+  
     }
 
     @Override

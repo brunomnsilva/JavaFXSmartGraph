@@ -57,7 +57,6 @@ import com.brunomnsilva.smartgraph.graph.Edge;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesJavaFX.pick;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesPoint2D.attractiveForce;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesPoint2D.repellingForce;
-import java.awt.Toolkit;
 import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -225,16 +224,15 @@ public class SmartGraphPanel<V, E> extends Pane {
         });
 
         // auto initialiser
-        ChangeListener cl = new ChangeListener() {
+        ChangeListener initialiser = new ChangeListener() {
             @Override
             public void changed(ObservableValue obs, Object ov, Object nv) {
-                System.out.println("Height changed: " + ov + " -> " + nv);
                 SmartGraphPanel.this.init();
                 SmartGraphPanel.this.heightProperty().removeListener(this);
             }
         };
 
-        this.heightProperty().addListener(cl);
+        this.heightProperty().addListener(initialiser);
     }
 
     private synchronized void runLayoutIteration() {
@@ -751,7 +749,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
                 maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
 
-        if (vertexNodes.size() == 0) {
+        if (vertexNodes.isEmpty()) {
             return new BoundingBox(0, 0, getWidth(), getHeight());
         }
 

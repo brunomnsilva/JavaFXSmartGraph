@@ -129,12 +129,12 @@ public class Test extends Application {
         g.insertEdge("G2", "F", "GF2");
         g.insertEdge("G3", "F", "GF3");
         g.insertEdge("G4", "F", "GF4");
-        g.insertEdge("G5", "F", "GF5");
-        g.insertEdge("G6", "F", "GF6");
-        g.insertEdge("G7", "F", "GF7");
-        g.insertEdge("G8", "F", "GF8");
-        g.insertEdge("G9", "F", "GF9");
-        g.insertEdge("G10", "F", "GF10");
+        g.insertEdge("F", "G5", "FG1");
+        g.insertEdge("F", "G6", "FG2");
+        g.insertEdge("F", "G7", "FG3");
+        g.insertEdge("F", "G8", "FG4");
+        g.insertEdge("F", "G9", "FG5");
+        g.insertEdge("F", "G10", "FG6");
 
         //yep, its a loop!
         g.insertEdge("A", "A", "AA1");
