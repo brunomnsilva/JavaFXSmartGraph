@@ -23,16 +23,14 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
+import javafx.scene.layout.Region;
 
 /**
  * A shape of an arrow to be attached to a {@link SmartGraphEdge}.
  * 
  * @author brunomnsilva
  */
-public class SmartArrow extends Path implements SmartStylableNode {
+public class SmartArrow extends Region implements SmartStylableNode {
     
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
@@ -40,10 +38,11 @@ public class SmartArrow extends Path implements SmartStylableNode {
     public SmartArrow() {
         
         /* Create this arrow shape */
-        getElements().add(new MoveTo(0, 0));  
-        getElements().add(new LineTo(-5, 5));
-        getElements().add(new MoveTo(0, 0));        
-        getElements().add(new LineTo(-5, -5));    
+//        getElements().add(new MoveTo(0, 0));  
+//        getElements().add(new LineTo(-6, 3));
+//        //getElements().add(new MoveTo(0, 0));        
+//        getElements().add(new LineTo(-6, -3));    
+//        getElements().add(new LineTo(0, 0));    
         
         /* Add the corresponding css class */
         styleProxy = new SmartStyleProxy(this);

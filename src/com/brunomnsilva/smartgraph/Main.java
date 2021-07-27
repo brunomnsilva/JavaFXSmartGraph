@@ -38,6 +38,7 @@ import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
+import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
@@ -87,7 +88,7 @@ public class Main extends Application {
         IMPORTANT: Must call init() after scene is displayed so we can have width and height values
         to initially place the vertices according to the placement strategy
         */
-        graphView.init();
+        //graphView.init();
 
         /*
         Bellow you can see how to attach actions for when vertices and edges are double clicked
@@ -105,8 +106,8 @@ public class Main extends Application {
             }
             
             //want fun? uncomment below with automatic layout
-            //g.removeVertex(graphVertex.getUnderlyingVertex());
-            //graphView.update();
+            g.removeVertex(graphVertex.getUnderlyingVertex());
+            graphView.update();
         });
 
         graphView.setEdgeDoubleClickAction(graphEdge -> {
@@ -116,24 +117,24 @@ public class Main extends Application {
             
             
             //uncomment to see edges being removed after click
-            //Edge<String, String> underlyingEdge = graphEdge.getUnderlyingEdge();
-            //g.removeEdge(underlyingEdge);
-            //graphView.update();
+            Edge<String, String> underlyingEdge = graphEdge.getUnderlyingEdge();
+            g.removeEdge(underlyingEdge);
+            graphView.update();
         });
 
         /*
         Should proceed with automatic layout or keep original placement?
         If using SmartGraphDemoContainer you can toggle this in the UI 
          */
-        //graphView.setAutomaticLayout(true);
+        graphView.setAutomaticLayout(true);
 
         /* 
         Uncomment lines to test adding of new elements
          */
-        //continuously_test_adding_elements(g, graphView);
-        //stage.setOnCloseRequest(event -> {
-        //    running = false;
-        //});
+        continuously_test_adding_elements(g, graphView);
+        stage.setOnCloseRequest(event -> {
+            running = false;
+        });
     }
 
     /**
@@ -257,7 +258,6 @@ public class Main extends Application {
                     Vertex<String> existing1 = get_random_vertex(g);
                     Vertex<String> existing2 = get_random_vertex(g);
                     g.insertEdge(existing1, existing2, ("E" + id));
-                    
                     graphView.update();
                 }
 

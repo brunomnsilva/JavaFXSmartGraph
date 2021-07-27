@@ -18,7 +18,7 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 }
 
 .edge {
-    -fx-stroke-width: 2;
+    -fx-stroke-width: 1;
     -fx-stroke: #FF6D66;  
     -fx-stroke-dash-array: 2 5 2 5; /* remove for clean edges */  
     -fx-fill: transparent; /*important for curved edges */
@@ -29,11 +29,20 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 .edge-label {
     -fx-font: normal 5pt "sans-serif";
 }
-
+/*
 .arrow {
     -fx-stroke-width: 2;
     -fx-stroke: #FF6D66;  
     -fx-opacity: 0.8;
+}
+*/
+.arrow {
+    -fx-shape: "M 0 3 L 6 0 L 0 -3 L 2 0 L 0 3";
+    -fx-min-width: 10;
+    -fx-min-height: 10;
+    -fx-border-color: rgba(255, 0, 0, 0.25);
+    -fx-border-width: 1;
+    -fx-background-color: rgba(255, 0, 0, 0.5);
 }
 
 /* Custom vertex. You should revert any unwanted styling in the default element, 
