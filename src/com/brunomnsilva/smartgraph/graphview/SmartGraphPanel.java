@@ -434,7 +434,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 addEdge(graphEdge, edge);
 
                 if (this.edgesWithArrows) {
-                    SmartArrow arrow = new SmartArrow();
+                    SmartArrow arrow = new SmartArrow(this.graphProperties.getEdgeArrowSize());
                     graphEdge.attachArrow(arrow);
                     this.getChildren().add(arrow);
                 }
@@ -605,7 +605,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 SmartGraphEdgeBase graphEdge = createEdge(edge, graphVertexIn, graphVertexOut);
 
                 if (this.edgesWithArrows) {
-                    SmartArrow arrow = new SmartArrow();
+                    SmartArrow arrow = new SmartArrow(this.graphProperties.getEdgeArrowSize());
                     graphEdge.attachArrow(arrow);
                     this.getChildren().add(arrow);
                 }
@@ -1001,6 +1001,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
         return null;
     }
+        
 
     /**
      * Loads the stylesheet and applies the .graph class to this panel.

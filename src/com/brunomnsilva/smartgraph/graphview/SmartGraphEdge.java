@@ -50,4 +50,13 @@ public interface SmartGraphEdge<E, V> extends SmartStylableNode {
      * @see SmartGraphPanel
      */
     public Edge<E, V> getUnderlyingEdge();
+    
+    /**
+     * Returns the attached arrow of the edge, for styling purposes.
+     * 
+     * The arrows are only used with directed graphs.
+     * 
+     * @return arrow reference; null if does not exist.
+     */
+    public SmartStylableNode getStylableArrow();
 }

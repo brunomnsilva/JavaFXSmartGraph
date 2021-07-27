@@ -218,4 +218,9 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     public SmartArrow getAttachedArrow() {
         return this.attachedArrow;
     }
+    
+    @Override
+    public SmartStylableNode getStylableArrow() {
+        return this.attachedArrow;
+    }
 }

@@ -112,8 +112,9 @@ public class Main extends Application {
         graphView.setEdgeDoubleClickAction(graphEdge -> {
             System.out.println("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
             //dynamically change the style when clicked
-            graphEdge.setStyle("-fx-stroke: black; -fx-stroke-width: 2;");
+            graphEdge.setStyle("-fx-stroke: black; -fx-stroke-width: 3;");
             
+            graphEdge.getStylableArrow().setStyle("-fx-stroke: black; -fx-stroke-width: 3;");
             
             //uncomment to see edges being removed after click
             //Edge<String, String> underlyingEdge = graphEdge.getUnderlyingEdge();

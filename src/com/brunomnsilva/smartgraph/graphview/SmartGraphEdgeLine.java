@@ -102,6 +102,8 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     public Edge<E, V> getUnderlyingEdge() {
         return underlyingEdge;
     }
+    
+    
 
     @Override
     public void attachArrow(SmartArrow arrow) {
@@ -130,6 +132,11 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
 
     @Override
     public SmartArrow getAttachedArrow() {
+        return this.attachedArrow;
+    }
+
+    @Override
+    public SmartStylableNode getStylableArrow() {
         return this.attachedArrow;
     }
     

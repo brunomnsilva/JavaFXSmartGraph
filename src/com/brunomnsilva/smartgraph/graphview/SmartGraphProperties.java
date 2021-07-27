@@ -62,6 +62,9 @@ public class SmartGraphProperties {
     
     private static final boolean DEFAULT_EDGE_USE_ARROW = true;
     private static final String PROPERTY_EDGE_USE_ARROW = "edge.arrow";
+    
+    private static final int DEFAULT_ARROW_SIZE = 5;
+    private static final String PROPERTY_ARROW_SIZE = "edge.arrowsize";
 
     private static final double DEFAULT_REPULSION_FORCE = 1000;
     private static final String PROPERTY_REPULSION_FORCE = "layout.repulsive-force";
@@ -199,6 +202,15 @@ public class SmartGraphProperties {
      */
     public boolean getUseEdgeArrow() {
         return getBooleanProperty(PROPERTY_EDGE_USE_ARROW, DEFAULT_EDGE_USE_ARROW);
+    }
+    
+    /**
+     * Returns a property that indicates the size of the {@link SmartArrow}.
+     * 
+     * @return corresponding property value
+     */
+    public double getEdgeArrowSize() {
+        return getDoubleProperty(PROPERTY_ARROW_SIZE, DEFAULT_ARROW_SIZE);
     }
     
     
