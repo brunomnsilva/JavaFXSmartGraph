@@ -39,7 +39,9 @@ import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphBigPanel;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
+import com.brunomnsilva.smartgraph.graphview.SmartRandomNearCenterPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
@@ -59,8 +61,8 @@ public class Test extends Application {
         Graph<String, String> g = build_sample_digraph();
         System.out.println(g);
         
-        SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
-        SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, strategy);
+        SmartPlacementStrategy strategy = new SmartRandomNearCenterPlacementStrategy();
+        SmartGraphBigPanel<String, String> graphView = new SmartGraphBigPanel<>(g, strategy);
 
         /*
         Basic usage:            

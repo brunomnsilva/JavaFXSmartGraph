@@ -223,18 +223,6 @@ public class SmartGraphPanel<V, E> extends Pane {
                 timer.stop();
             }
         });
-
-        // auto initialiser
-        ChangeListener cl = new ChangeListener() {
-            @Override
-            public void changed(ObservableValue obs, Object ov, Object nv) {
-                System.out.println("Height changed: " + ov + " -> " + nv);
-                SmartGraphPanel.this.init();
-                SmartGraphPanel.this.heightProperty().removeListener(this);
-            }
-        };
-
-        this.heightProperty().addListener(cl);
     }
 
     private synchronized void runLayoutIteration() {
@@ -288,6 +276,14 @@ public class SmartGraphPanel<V, E> extends Pane {
         this.initialized = true;
     }
 
+    /**
+     * Gets whether the graph panel is initialized.
+     * @return true if the graph panel is initialized, false otherwise.
+     */
+    public boolean isInitialized(){
+        return this.initialized;
+    }
+    
     /**
      * Returns the property used to toggle the automatic layout of vertices.
      *
@@ -751,7 +747,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
                 maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
 
-        if (vertexNodes.size() == 0) {
+        if (vertexNodes.isEmpty()) {
             return new BoundingBox(0, 0, getWidth(), getHeight());
         }
 

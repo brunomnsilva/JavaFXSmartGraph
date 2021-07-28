@@ -40,7 +40,10 @@ import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphBigPanel;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
+import com.brunomnsilva.smartgraph.graphview.SmartRandomNearCenterPlacementStrategy;
+import com.brunomnsilva.smartgraph.graphview.SmartRandomPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 
 /**
@@ -58,8 +61,9 @@ public class Main extends Application {
         //Graph<String, String> g = build_flower_graph();
         System.out.println(g);
         
-        SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
+        //SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
         //SmartPlacementStrategy strategy = new SmartRandomPlacementStrategy();
+        SmartPlacementStrategy strategy = new SmartRandomNearCenterPlacementStrategy();
         SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, strategy);
 
         /*
@@ -75,7 +79,7 @@ public class Main extends Application {
         Use SmartGraphDemoContainer if you want zoom capabilities and automatic layout toggling
         */
         //Scene scene = new Scene(graphView, 1024, 768);
-        Scene scene = new Scene(new SmartGraphDemoContainer(graphView), 1024, 768);
+        Scene scene = new Scene(new SmartGraphDemoContainer(new SmartGraphBigPanel(graphView)), 1024, 768);
 
         Stage stage = new Stage(StageStyle.DECORATED);
         stage.setTitle("JavaFX SmartGraph Visualization");
@@ -126,12 +130,12 @@ public class Main extends Application {
         Should proceed with automatic layout or keep original placement?
         If using SmartGraphDemoContainer you can toggle this in the UI 
          */
-        graphView.setAutomaticLayout(true);
+        //graphView.setAutomaticLayout(true);
 
         /* 
         Uncomment lines to test adding of new elements
          */
-        continuously_test_adding_elements(g, graphView);
+        //continuously_test_adding_elements(g, graphView);
         stage.setOnCloseRequest(event -> {
             running = false;
         });

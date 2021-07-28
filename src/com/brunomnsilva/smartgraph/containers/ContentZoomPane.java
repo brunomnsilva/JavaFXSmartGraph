@@ -75,6 +75,7 @@ public class ContentZoomPane extends BorderPane {
         setRight(createSlider());
 
         enablePanAndZoom();
+    
     }
 
     private Node createSlider() {

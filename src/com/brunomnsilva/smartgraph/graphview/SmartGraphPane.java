@@ -1,7 +1,7 @@
-/*
+/* 
  * The MIT License
  *
- * Copyright 2019 brunomnsilva.
+ * Copyright 2019 pantape.k@gmail.com.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,32 +23,13 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
-import java.util.Collection;
-import java.util.Random;
-import com.brunomnsilva.smartgraph.graph.Graph;
-
 /**
- * Scatters the vertices randomly.
- * 
- * @see SmartPlacementStrategy
- * 
- * @author brunomnsilva
+ *
+ * @author pantape.k@gmail.com
  */
-public class SmartRandomPlacementStrategy implements SmartPlacementStrategy {
 
-    @Override
-    public <V, E> void place(double width, double height, Graph<V, E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices) {
-        
-        Random rand = new Random();
-        System.out.println("w, h : " + width + ", " + height);
-        for (SmartGraphVertex<V> vertex : vertices) {
-            
-            double x = rand.nextDouble() * width;
-            double y = rand.nextDouble() * height;
-                        
-            vertex.setPosition(x, y);
-          
-        }
-    }
-    
+import javafx.scene.layout.Pane;
+
+public abstract class SmartGraphPane extends Pane {
+    public abstract SmartGraphPanel getGraphView();
 }

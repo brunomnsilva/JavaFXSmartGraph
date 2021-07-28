@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019 Bruno Silva.
+ * Copyright 2019 pantape.k@gmail.com.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,41 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.brunomnsilva.smartgraph.containers;
+package com.brunomnsilva.smartgraph.graphview;
 
-import com.brunomnsilva.smartgraph.graphview.SmartGraphPane;
-import javafx.scene.control.CheckBox;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
+import java.util.Collection;
+import java.util.Random;
+import com.brunomnsilva.smartgraph.graph.Graph;
 
 /**
+ * Scatters the vertices randomly.
  *
- * @author Bruno Silva
+ * @see SmartPlacementStrategy
+ *
+ * @author pantape.k@gmail.com
  */
-public class SmartGraphDemoContainer extends BorderPane {
+public class SmartRandomNearCenterPlacementStrategy implements SmartPlacementStrategy {
 
-    public SmartGraphDemoContainer(SmartGraphPanel graphView) {
-       this(new SmartGraphPane(){
-           @Override
-           public SmartGraphPanel getGraphView(){
-               return graphView;
-           }
-       });         
+    @Override
+    public <V, E> void place(double width, double height, Graph<V, E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices) {
+
+        Random rand = new Random();
+        int maxRadius = (int)(width < height ? width : height)/4;
+        for (SmartGraphVertex<V> vertex : vertices) {
+            int radius = rand.nextInt(maxRadius);
+            int angle = (int)(2 * Math.PI * rand.nextDouble());
+            int x = (int)(width / 2 + radius * Math.cos(angle));
+            int y = (int)(height / 2 + radius * Math.sin(angle));
+            vertex.setPosition(x, y);
+        }
     }
-    
-    public SmartGraphDemoContainer(SmartGraphPane pane){ 
-        
-        this.setCenter(new ContentZoomPane(pane));
-        
-        //create bottom pane with controls
-        HBox bottom = new HBox(10);
-        
-        CheckBox automatic = new CheckBox("Automatic layout");
-        automatic.selectedProperty().bindBidirectional(pane.getGraphView().automaticLayoutProperty());
-        
-        bottom.getChildren().add(automatic);
-        
-        setBottom(bottom);        
-    } 
+
 }
