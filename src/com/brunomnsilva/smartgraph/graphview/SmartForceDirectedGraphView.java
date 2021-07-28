@@ -1,7 +1,7 @@
 /* 
  * The MIT License
  *
- * Copyright 2019 brunomnsilva@gmail.com.
+ * Copyright 2021
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -83,7 +83,7 @@ import java.util.concurrent.TimeoutException;
  *
  * @author brunomnsilva
  */
-public class SmartGraphPanel<V, E> extends Pane {
+public class SmartForceDirectedGraphView<V, E> extends Pane {
 
     /* 
     CONFIGURATION PROPERTIES
@@ -95,9 +95,9 @@ public class SmartGraphPanel<V, E> extends Pane {
      */
     private final Graph<V, E> theGraph;
     private final SmartPlacementStrategy placementStrategy;
-    private final Map<Vertex<V>, SmartGraphVertexNode<V>> vertexNodes;
+    private final Map<Vertex<V>, SmartForceDirectedVertexNode<V>> vertexNodes;
     private final Map<Edge<E, V>, SmartGraphEdgeBase> edgeNodes;
-    private final Map<Tuple<SmartGraphVertexNode>, Integer> placedEdges = new HashMap<>();
+    private final Map<Tuple<SmartForceDirectedVertexNode>, Integer> placedEdges = new HashMap<>();
     private boolean initialized = false;
     private final boolean edgesWithArrows;
     /*
@@ -124,7 +124,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      *
      * @see Graph
      */
-    public SmartGraphPanel(Graph<V, E> theGraph) {
+    public SmartForceDirectedGraphView(Graph<V, E> theGraph) {
         this(theGraph, new SmartGraphProperties(), null);
     }
 
@@ -136,7 +136,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @param theGraph underlying graph
      * @param properties custom properties
      */
-    public SmartGraphPanel(Graph<V, E> theGraph, SmartGraphProperties properties) {
+    public SmartForceDirectedGraphView(Graph<V, E> theGraph, SmartGraphProperties properties) {
         this(theGraph, properties, null);
     }
 
@@ -148,7 +148,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @param theGraph underlying graph
      * @param placementStrategy placement strategy, null for default
      */
-    public SmartGraphPanel(Graph<V, E> theGraph, SmartPlacementStrategy placementStrategy) {
+    public SmartForceDirectedGraphView(Graph<V, E> theGraph, SmartPlacementStrategy placementStrategy) {
         this(theGraph, null, placementStrategy);
     }
 
@@ -161,7 +161,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @param properties custom properties, null for default
      * @param placementStrategy placement strategy, null for default
      */
-    public SmartGraphPanel(Graph<V, E> theGraph, SmartGraphProperties properties,
+    public SmartForceDirectedGraphView(Graph<V, E> theGraph, SmartGraphProperties properties,
             SmartPlacementStrategy placementStrategy) {
 
         this(theGraph, properties, placementStrategy, null);
@@ -177,7 +177,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @param placementStrategy placement strategy, null for default
      * @param cssFile alternative css file, instead of default 'smartgraph.css'
      */
-    public SmartGraphPanel(Graph<V, E> theGraph, SmartGraphProperties properties,
+    public SmartForceDirectedGraphView(Graph<V, E> theGraph, SmartGraphProperties properties,
             SmartPlacementStrategy placementStrategy, URI cssFile) {
 
         if (theGraph == null) {
@@ -365,7 +365,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             try {
                 update.get(1, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-                Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SmartForceDirectedGraphView.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
             updateNodes();
@@ -407,9 +407,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         /* create vertex graphical representations */
         for (Vertex<V> vertex : listOfVertices()) {
-            SmartGraphVertexNode<V> vertexAnchor = new SmartGraphVertexNode(vertex, 0, 0,
-                    graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
-
+            SmartForceDirectedVertexNode<V> vertexAnchor = new SmartForceDirectedVertexNode(vertex, graphProperties.getVertexAllowUserMove());
             vertexNodes.put(vertex, vertexAnchor);
         }
 
@@ -430,8 +428,8 @@ public class SmartGraphPanel<V, E> extends Pane {
 
                 Vertex<V> oppositeVertex = theGraph.opposite(vertex, edge);
 
-                SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(vertex);
-                SmartGraphVertexNode<V> graphVertexOppositeOut = vertexNodes.get(oppositeVertex);
+                SmartForceDirectedVertexNode<V> graphVertexIn = vertexNodes.get(vertex);
+                SmartForceDirectedVertexNode<V> graphVertexOppositeOut = vertexNodes.get(oppositeVertex);
 
                 graphVertexIn.addAdjacentVertex(graphVertexOppositeOut);
                 graphVertexOppositeOut.addAdjacentVertex(graphVertexIn);
@@ -454,13 +452,13 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         /* place vertices above lines */
         for (Vertex<V> vertex : vertexNodes.keySet()) {
-            SmartGraphVertexNode<V> v = vertexNodes.get(vertex);
+            SmartForceDirectedVertexNode<V> v = vertexNodes.get(vertex);
 
             addVertex(v);
         }
     }
 
-    private SmartGraphEdgeBase createEdge(Edge<E, V> edge, SmartGraphVertexNode<V> graphVertexInbound, SmartGraphVertexNode<V> graphVertexOutbound) {
+    private SmartGraphEdgeBase createEdge(Edge<E, V> edge, SmartForceDirectedVertexNode<V> graphVertexInbound, SmartForceDirectedVertexNode<V> graphVertexOutbound) {
         /*
         Even if edges are later removed, the corresponding index remains the same. Otherwise, we would have to
         regenerate the appropriate edges.
@@ -479,7 +477,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         SmartGraphEdgeBase graphEdge;
         // can set edge to curve edge since all edges have index.
         // for index = 0 the curve will appear as straight line.
-        graphEdge = new SmartGraphEdgeCurve_1(edge, graphVertexInbound, graphVertexOutbound, edgeIndex);
+        graphEdge = new SmartGraphEdgeCurve(edge, graphVertexInbound, graphVertexOutbound, edgeIndex);
 
 //        if (getTotalEdgesBetween(graphVertexInbound.getUnderlyingVertex(), graphVertexOutbound.getUnderlyingVertex()) > 1
 //                || graphVertexInbound == graphVertexOutbound) {
@@ -492,7 +490,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         return graphEdge;
     }
 
-    private void addVertex(SmartGraphVertexNode<V> v) {
+    private void addVertex(SmartForceDirectedVertexNode<V> v) {
         this.getChildren().add(v);
 
         String labelText = (v.getUnderlyingVertex().element() != null)
@@ -539,7 +537,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private void insertNodes() {
         Collection<Vertex<V>> unplottedVertices = unplottedVertices();
 
-        List<SmartGraphVertexNode<V>> newVertices = null;
+        List<SmartForceDirectedVertexNode<V>> newVertices = null;
 
         Bounds bounds = getPlotBounds();
         double mx = bounds.getMinX() + bounds.getWidth() / 2.0;
@@ -562,7 +560,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 } else {
                     Edge<E, V> firstEdge = incidentEdges.iterator().next();
                     Vertex<V> opposite = theGraph.opposite(vertex, firstEdge);
-                    SmartGraphVertexNode<V> existing = vertexNodes.get(opposite);
+                    SmartForceDirectedVertexNode<V> existing = vertexNodes.get(opposite);
 
                     if (existing == null) {
                         /* 
@@ -583,8 +581,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                     }
                 }
 
-                SmartGraphVertexNode newVertex = new SmartGraphVertexNode<>(vertex,
-                        x, y, graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
+                SmartForceDirectedVertexNode newVertex = new SmartForceDirectedVertexNode<>(vertex, graphProperties.getVertexAllowUserMove());
 
                 //track new nodes
                 newVertices.add(newVertex);
@@ -602,8 +599,8 @@ public class SmartGraphPanel<V, E> extends Pane {
                 Vertex<V> u = vertices[0]; //oubound if digraph, by javadoc requirement
                 Vertex<V> v = vertices[1]; //inbound if digraph, by javadoc requirement
 
-                SmartGraphVertexNode<V> graphVertexOut = vertexNodes.get(u);
-                SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(v);
+                SmartForceDirectedVertexNode<V> graphVertexOut = vertexNodes.get(u);
+                SmartForceDirectedVertexNode<V> graphVertexIn = vertexNodes.get(v);
 
                 /* 
                 Updates may be coming too fast and we can get out of sync.
@@ -631,7 +628,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         if (newVertices != null) {
-            for (SmartGraphVertexNode<V> v : newVertices) {
+            for (SmartForceDirectedVertexNode<V> v : newVertices) {
                 addVertex(v);
             }
         }
@@ -642,7 +639,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         Collection<Vertex<V>> removedVertices = removedVertices();
         Collection<SmartGraphEdgeBase> values = new LinkedList<>(edgeNodes.values());
 
-        Set<SmartGraphVertexNode<V>> verticesToRemove = new HashSet<>();
+        Set<SmartForceDirectedVertexNode<V>> verticesToRemove = new HashSet<>();
         Set<SmartGraphEdgeBase> edgesToRemove = new HashSet<>();
 
         //filter vertices to remove and their adjacent edges
@@ -656,7 +653,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 }
             }
 
-            SmartGraphVertexNode<V> get = vertexNodes.get(v);
+            SmartForceDirectedVertexNode<V> get = vertexNodes.get(v);
             verticesToRemove.add(get);
         }
 
@@ -667,7 +664,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         //permanently remove vertices
-        for (SmartGraphVertexNode<V> v : verticesToRemove) {
+        for (SmartForceDirectedVertexNode<V> v : verticesToRemove) {
             vertexNodes.remove(v.getUnderlyingVertex());
             removeVertice(v);
         }
@@ -681,7 +678,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         //remove adjacencies from remaining vertices
-        for (SmartGraphVertexNode<V> v : vertexNodes.values()) {
+        for (SmartForceDirectedVertexNode<V> v : vertexNodes.values()) {
             v.removeAdjacentVertices(verticesToRemove);
         }
     }
@@ -700,7 +697,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
-    private void removeVertice(SmartGraphVertexNode v) {
+    private void removeVertice(SmartForceDirectedVertexNode v) {
         getChildren().remove(v);
 
         Text attachedLabel = v.getAttachedLabel();
@@ -714,7 +711,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      */
     private void updateLabels() {
         theGraph.vertices().forEach((v) -> {
-            SmartGraphVertexNode<V> vertexNode = vertexNodes.get(v);
+            SmartForceDirectedVertexNode<V> vertexNode = vertexNodes.get(v);
             if (vertexNode != null) {
                 SmartLabel label = vertexNode.getAttachedLabel();
                 if (label != null) {
@@ -748,11 +745,11 @@ public class SmartGraphPanel<V, E> extends Pane {
             return new BoundingBox(0, 0, getWidth(), getHeight());
         }
 
-        for (SmartGraphVertexNode<V> v : vertexNodes.values()) {
-            minX = Math.min(minX, v.getCenterX());
-            minY = Math.min(minY, v.getCenterY());
-            maxX = Math.max(maxX, v.getCenterX());
-            maxY = Math.max(maxY, v.getCenterY());
+        for (SmartForceDirectedVertexNode<V> v : vertexNodes.values()) {
+            minX = Math.min(minX, v.getPositionCenterX());
+            minY = Math.min(minY, v.getPositionCenterY());
+            maxX = Math.max(maxX, v.getPositionCenterX());
+            maxY = Math.max(maxY, v.getPositionCenterY());
         }
 
         return new BoundingBox(minX, minY, maxX - minX, maxY - minY);
@@ -763,8 +760,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     * AUTOMATIC LAYOUT 
      */
     private void computeForces() {
-        for (SmartGraphVertexNode<V> v : vertexNodes.values()) {
-            for (SmartGraphVertexNode<V> other : vertexNodes.values()) {
+        for (SmartForceDirectedVertexNode<V> v : vertexNodes.values()) {
+            for (SmartForceDirectedVertexNode<V> other : vertexNodes.values()) {
                 if (v == other) {
                     continue; //NOP
                 }
@@ -794,7 +791,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
-    private boolean areAdjacent(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> u) {
+    private boolean areAdjacent(SmartForceDirectedVertexNode<V> v, SmartForceDirectedVertexNode<V> u) {
         return v.isAdjacentTo(u);
     }
 
@@ -873,9 +870,9 @@ public class SmartGraphPanel<V, E> extends Pane {
         List<Vertex<V>> removed = new LinkedList<>();
 
         Collection<Vertex<V>> graphVertices = theGraph.vertices();
-        Collection<SmartGraphVertexNode<V>> plotted = vertexNodes.values();
+        Collection<SmartForceDirectedVertexNode<V>> plotted = vertexNodes.values();
 
-        for (SmartGraphVertexNode<V> v : plotted) {
+        for (SmartForceDirectedVertexNode<V> v : plotted) {
             if (!graphVertices.contains(v.getUnderlyingVertex())) {
                 removed.add(v.getUnderlyingVertex());
             }
@@ -934,7 +931,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @param y y-coordinate on panel
      */
     public void setVertexPosition(Vertex<V> v, double x, double y) {
-        SmartGraphVertexNode<V> node = vertexNodes.get(v);
+        SmartForceDirectedVertexNode<V> node = vertexNodes.get(v);
         if (node != null) {
             node.setPosition(x, y);
         }
@@ -947,7 +944,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @return the x-coordinate or NaN if the vertex does not exist
      */
     public double getVertexPositionX(Vertex<V> v) {
-        SmartGraphVertexNode<V> node = vertexNodes.get(v);
+        SmartForceDirectedVertexNode<V> node = vertexNodes.get(v);
         if (node != null) {
             return node.getPositionCenterX();
         }
@@ -961,7 +958,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @return the y-coordinate or NaN if the vertex does not exist
      */
     public double getVertexPositionY(Vertex<V> v) {
-        SmartGraphVertexNode<V> node = vertexNodes.get(v);
+        SmartForceDirectedVertexNode<V> node = vertexNodes.get(v);
         if (node != null) {
             return node.getPositionCenterY();
         }
@@ -1034,7 +1031,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             getStylesheets().add(css);
             this.getStyleClass().add("graph");
         } catch (MalformedURLException ex) {
-            Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SmartForceDirectedGraphView.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -1053,7 +1050,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                         return;
                     }
 
-                    Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
+                    Node node = pick(SmartForceDirectedGraphView.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
                     if (node == null) {
                         return;
                     }
