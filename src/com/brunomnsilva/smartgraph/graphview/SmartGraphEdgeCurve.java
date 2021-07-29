@@ -30,6 +30,10 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import com.brunomnsilva.smartgraph.graph.Edge;
 import java.util.Iterator;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.ObservableDoubleValue;
 
 /**
  * Concrete implementation of a curved edge.
@@ -83,12 +87,10 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
 
         //bind start and end positions to vertices centers through properties
         this.startXProperty().bind(outbound.layoutXProperty().add(outbound.widthProperty().divide(2)));
-        this.startYProperty().bind(outbound.layoutYProperty().add(outbound.widthProperty().divide(2)));
-        this.endXProperty().bind(inbound.layoutXProperty().add(inbound.heightProperty().divide(2)));
+        this.startYProperty().bind(outbound.layoutYProperty().add(outbound.heightProperty().divide(2)));
+        this.endXProperty().bind(inbound.layoutXProperty().add(inbound.widthProperty().divide(2)));
         this.endYProperty().bind(inbound.layoutYProperty().add(inbound.heightProperty().divide(2)));
-
-        //TODO: improve this solution taking into account even indices, etc.
-        randomAngleFactor = edgeIndex;// == 0 ? 0 : 1.0 / edgeIndex; //Math.random();
+        
         this.edgeIndex = edgeIndex;
 
         //update();
@@ -234,7 +236,6 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
 
         /* rotate arrow around itself based on this line's angle */
         Rotate rotation = new Rotate();
-
         rotation.pivotXProperty().bind(translateXProperty());
         rotation.pivotYProperty().bind(translateYProperty());
         rotation.angleProperty().bind(UtilitiesBindings.toDegrees(
@@ -245,9 +246,82 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         arrow.getTransforms().add(rotation);
 
         /* add translation transform to put the arrow touching the circle's bounds */
-        Translate translate = new Translate(-outbound.getRadius(), 0);
-        translate.xProperty().bind(arrow.widthProperty().multiply(-1).subtract(outbound.radiusProperty()));
-        translate.yProperty().bind(arrow.heightProperty().divide(2.0).multiply(-1));
+        Translate translate = new Translate();
+//        translate.xProperty().bind(arrow.widthProperty().multiply(-1).subtract(outbound.radiusProperty()));
+//        translate.yProperty().bind(arrow.heightProperty().divide(2.0).multiply(-1));
+        translate.xProperty().bind(
+                Bindings.when(
+                        UtilitiesBindings.remainder(
+                            UtilitiesBindings.toDegrees(
+                                UtilitiesBindings.atan2(
+                                    endYProperty().subtract(controlY2Property()),
+                                    endXProperty().subtract(controlX2Property())
+                                )
+                            ),
+                            Bindings.createDoubleBinding(()-> 90.0)
+                        )
+                        .greaterThan(
+                            UtilitiesBindings.toDegrees(
+                                UtilitiesBindings.atan2(
+                                    outbound.heightProperty(),
+                                    outbound.widthProperty()
+                                )
+                            ) 
+                        )
+                )
+                .then(
+                        outbound.heightProperty()
+                                .divide(-2)
+                                .divide(
+                                    UtilitiesBindings.tan(
+                                        UtilitiesBindings.atan2(
+                                            endYProperty().subtract(controlY2Property()),
+                                            endXProperty().subtract(controlX2Property())
+                                        )
+                                    )
+                                )
+                )
+                .otherwise(
+                        outbound.widthProperty().divide(-2)
+                )
+        );
+        translate.yProperty().bind(
+                Bindings.when(
+                        UtilitiesBindings.remainder(
+                            UtilitiesBindings.toDegrees(
+                                UtilitiesBindings.atan2(
+                                    endYProperty().subtract(controlY2Property()),
+                                    endXProperty().subtract(controlX2Property())
+                                )
+                            ),
+                            Bindings.createDoubleBinding(()-> 90.0)
+                        )
+                        .greaterThan(
+                            UtilitiesBindings.toDegrees(
+                                UtilitiesBindings.atan2(
+                                    outbound.heightProperty(),
+                                    outbound.widthProperty()
+                                )
+                            ) 
+                        )
+                )
+                .then(
+                    outbound.heightProperty().divide(-2)
+                )
+                .otherwise(
+                        outbound.widthProperty()
+                                .divide(-2)
+                                .multiply(
+                                    UtilitiesBindings.tan(
+                                        UtilitiesBindings.atan2(
+                                            endYProperty().subtract(controlY2Property()),
+                                            endXProperty().subtract(controlX2Property())
+                                        )
+                                    )
+                                )
+                )
+        );
+
         arrow.getTransforms().add(translate);
     }
 

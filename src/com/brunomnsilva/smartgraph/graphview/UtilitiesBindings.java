@@ -45,6 +45,7 @@ public class UtilitiesBindings {
      *          (<i>x</i>,&nbsp;<i>y</i>) in Cartesian coordinates.
      */
     public static DoubleBinding atan2(final ObservableDoubleValue y, final ObservableDoubleValue x) {
+        System.out.println("Angle: " + (Math.atan2(y.get(), x.get())*180/Math.PI));
         return createDoubleBinding(() -> Math.atan2(y.get(), x.get()), y, x);
     }
     
@@ -58,4 +59,45 @@ public class UtilitiesBindings {
     public static DoubleBinding toDegrees(final ObservableDoubleValue angrad) {
         return createDoubleBinding(() -> Math.toDegrees(angrad.get()), angrad);
     }
+    
+    /**
+     * Binding for {@link java.lang.Math#sin(double)}
+     *
+     * @param   angrad   an angle, in radians
+     * @return  the sine value of the angle {@code angrad}
+     */
+    public static DoubleBinding sin(final ObservableDoubleValue angrad) {
+        return createDoubleBinding(() -> Math.sin(angrad.get()));
+    }  
+    
+    /**
+     * Binding for {@link java.lang.Math#cos(double)}
+     *
+     * @param   angrad   an angle, in radians
+     * @return  the cosine value of the angle {@code angrad}
+     */
+    public static DoubleBinding cos(final ObservableDoubleValue angrad) {
+        return createDoubleBinding(() -> Math.cos(angrad.get()));
+    } 
+   
+    /**
+     * Binding for {@link java.lang.Math#tan(double)}
+     *
+     * @param   angrad   an angle, in radians
+     * @return  the tangent value of the angle {@code angrad}
+     */
+    public static DoubleBinding tan(final ObservableDoubleValue angrad) {
+        return createDoubleBinding(() -> Math.tan(angrad.get()));
+    }
+    
+    /**
+     * Binding for {@link java.lang.Math#remain(double)}
+     *
+     * @param dividend dividend or numerator
+     * @param divisor divisor or denominator
+     * @return  remainder 
+     */
+    public static DoubleBinding remainder(final ObservableDoubleValue dividend, final ObservableDoubleValue divisor) {
+        return createDoubleBinding(() -> Math.IEEEremainder(dividend.get(), divisor.get()));
+    }    
 }

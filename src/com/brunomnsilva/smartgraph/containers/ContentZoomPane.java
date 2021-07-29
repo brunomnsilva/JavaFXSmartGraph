@@ -57,7 +57,7 @@ public class ContentZoomPane extends BorderPane {
     private final DoubleProperty scaleFactorProperty = new ReadOnlyDoubleWrapper(1);
     private final Node content;
 
-    private static final double MIN_SCALE = 1;
+    private static final double MIN_SCALE = 0.25;
     private static final double MAX_SCALE = 5;
     private static final double SCROLL_DELTA = 0.25;
 
@@ -135,10 +135,10 @@ public class ContentZoomPane extends BorderPane {
                 content.setScaleX(computedScale);
                 content.setScaleY(computedScale);
 
-                if (computedScale == 1) {
-                    content.setTranslateX(-getTranslateX());
-                    content.setTranslateY(-getTranslateY());
-                } else {
+//                if (computedScale == 1) {
+//                    content.setTranslateX(-getTranslateX());
+//                    content.setTranslateY(-getTranslateY());
+//                } else {
                     scaleFactorProperty.setValue(computedScale);
 
                     Bounds bounds = content.localToScene(content.getBoundsInLocal());
@@ -147,7 +147,7 @@ public class ContentZoomPane extends BorderPane {
                     double dy = (event.getY() - (bounds.getHeight() / 2 + bounds.getMinY()));
 
                     setContentPivot(f * dx, f * dy);
-                }
+//                }
 
             }
             //do not propagate
@@ -159,7 +159,7 @@ public class ContentZoomPane extends BorderPane {
 
         setOnMousePressed((MouseEvent event) -> {
 
-            if (event.isSecondaryButtonDown()) {
+            if (event.isPrimaryButtonDown()) {
                 getScene().setCursor(Cursor.MOVE);
 
                 sceneDragContext.mouseAnchorX = event.getX();
@@ -176,7 +176,7 @@ public class ContentZoomPane extends BorderPane {
         });
 
         setOnMouseDragged((MouseEvent event) -> {
-            if (event.isSecondaryButtonDown()) {
+            if (event.isPrimaryButtonDown()) {
                 
                 content.setTranslateX(sceneDragContext.translateAnchorX + event.getX() - sceneDragContext.mouseAnchorX);
                 content.setTranslateY(sceneDragContext.translateAnchorY + event.getY() - sceneDragContext.mouseAnchorY);

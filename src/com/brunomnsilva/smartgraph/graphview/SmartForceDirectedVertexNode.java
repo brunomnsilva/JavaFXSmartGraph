@@ -35,8 +35,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 
 /**
@@ -88,11 +86,11 @@ public class SmartForceDirectedVertexNode<T> extends StackPane implements SmartG
         this.isDragging = false;
 
         this.radiusProperty = new SimpleDoubleProperty();
-        this.radiusProperty.set(20);
 //        this.radiusProperty.bind(Bindings
 //                .when(this.widthProperty().greaterThan(this.heightProperty()))
 //                .then(this.widthProperty().divide(2))
 //                .otherwise(this.heightProperty().divide(2)));
+        this.radiusProperty.bind(this.widthProperty().divide(2).add(this.heightProperty().divide(2)).divide(2));
 
         this.adjacentVertices = new HashSet<>();
 
@@ -171,12 +169,12 @@ public class SmartForceDirectedVertexNode<T> extends StackPane implements SmartG
 
     @Override
     public double getPositionCenterX() {
-        return this.getPosition().getX();// + this.getWidth() / 2;
+        return this.getPosition().getX() + this.getWidth() / 2;
     }
 
     @Override
     public double getPositionCenterY() {
-        return this.getPosition().getY();// + this.getHeight() / 2;
+        return this.getPosition().getY() + this.getHeight() / 2;
     }
 
     /**

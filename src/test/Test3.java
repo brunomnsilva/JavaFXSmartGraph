@@ -92,16 +92,16 @@ public class Test3 extends Application {
 //        g.insertVertex(d);
 
         g.insertEdge(a, b, "AB");
-        g.insertEdge(b, a, "BA");
+//        g.insertEdge(b, a, "BA");
 //        g.insertEdge(a, c, "AC");
 //        g.insertEdge(a, d, "AD");
 //        g.insertEdge(b, c, "BC");
 //        g.insertEdge(c, d, "CD");
-
-       //yep, its a loop!
-        g.insertEdge(a, a, "AA1");
-        g.insertEdge(a, a, "AA2");
-        g.insertEdge(a, a, "AA3");
+//
+//        //yep, its a loop!
+//        g.insertEdge(a, a, "AA1");
+//        g.insertEdge(a, a, "AA2");
+//        g.insertEdge(a, a, "AA3");
 
         return g;
     }   

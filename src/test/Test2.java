@@ -80,6 +80,7 @@ public class Test2 extends Application {
 
         Digraph<String, String> g = new DigraphEdgeList<>();
 
+        g.insertVertex("A");
         g.insertVertex("B");
         g.insertVertex("C");
         g.insertVertex("D");
