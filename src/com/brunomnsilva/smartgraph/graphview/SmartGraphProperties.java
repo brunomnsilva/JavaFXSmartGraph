@@ -54,10 +54,10 @@ public class SmartGraphProperties {
     private static final boolean DEFAULT_VERTEX_USE_LABEL = false;
     private static final String PROPERTY_VERTEX_USE_LABEL = "vertex.label";
 
-    private static final boolean DEFAULT_EDGE_USE_TOOLTIP = true;
+    private static final boolean DEFAULT_EDGE_USE_TOOLTIP = false;
     private static final String PROPERTY_EDGE_USE_TOOLTIP = "edge.tooltip";
     
-    private static final boolean DEFAULT_EDGE_USE_LABEL = true;
+    private static final boolean DEFAULT_EDGE_USE_LABEL = false;
     private static final String PROPERTY_EDGE_USE_LABEL = "edge.label";
     
     private static final boolean DEFAULT_EDGE_USE_ARROW = true;
@@ -66,10 +66,10 @@ public class SmartGraphProperties {
     private static final int DEFAULT_ARROW_SIZE = 5;
     private static final String PROPERTY_ARROW_SIZE = "edge.arrowsize";
 
-    private static final double DEFAULT_REPULSION_FORCE = 1000;
+    private static final double DEFAULT_REPULSION_FORCE = 500;
     private static final String PROPERTY_REPULSION_FORCE = "layout.repulsive-force";
     
-    private static final double DEFAULT_ATTRACTION_FORCE = 20;
+    private static final double DEFAULT_ATTRACTION_FORCE = 10;
     private static final String PROPERTY_ATTRACTION_FORCE = "layout.attraction-force";
 
     private static final double DEFAULT_ATTRACTION_SCALE = 1;
