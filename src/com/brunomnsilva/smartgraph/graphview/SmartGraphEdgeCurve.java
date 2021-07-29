@@ -228,8 +228,6 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     public void attachArrow(SmartArrow arrow) {
         this.attachedArrow = arrow;
         
-        System.out.println("Arrow bw, bh: " + arrow.getBoundsInParent().getWidth() + ", " + arrow.getBoundsInParent().getHeight());
-        
         /* attach arrow to line's endpoint */
         arrow.translateXProperty().bind(endXProperty());
         arrow.translateYProperty().bind(endYProperty());
