@@ -6,7 +6,6 @@
 package com.brunomnsilva.smartgraph.graphview;
 
 import javafx.scene.Node;
-import javafx.scene.shape.Shape;
 
 /**
  * This class acts as a proxy for styling of nodes.

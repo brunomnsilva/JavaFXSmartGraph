@@ -40,7 +40,7 @@ public class SmartRandomPlacementStrategy implements SmartPlacementStrategy {
     public <V, E> void place(double width, double height, Graph<V, E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices) {
         
         Random rand = new Random();
-
+        System.out.println("w, h : " + width + ", " + height);
         for (SmartGraphVertex<V> vertex : vertices) {
             
             double x = rand.nextDouble() * width;

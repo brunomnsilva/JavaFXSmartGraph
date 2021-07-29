@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019 Bruno Silva.
+ * Copyright 2019 pantape.k@gmail.com.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,45 +23,30 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
-import javafx.scene.layout.Region;
+import java.util.Collection;
+import java.util.Random;
+import com.brunomnsilva.smartgraph.graph.Graph;
 
 /**
- * A shape of an arrow to be attached to a {@link SmartGraphEdge}.
- * 
- * @author brunomnsilva
+ * Scatters the vertices randomly.
+ *
+ * @see SmartPlacementStrategy
+ *
+ * @author pantape.k@gmail.com
  */
-public class SmartArrow extends Region implements SmartStylableNode {
-    
-    /* Styling proxy */
-    private final SmartStyleProxy styleProxy;
-    
-    public SmartArrow() {
-        
-        /* Create this arrow shape */
-//        getElements().add(new MoveTo(0, 0));  
-//        getElements().add(new LineTo(-6, 3));
-//        //getElements().add(new MoveTo(0, 0));        
-//        getElements().add(new LineTo(-6, -3));    
-//        getElements().add(new LineTo(0, 0));    
-        
-        /* Add the corresponding css class */
-        styleProxy = new SmartStyleProxy(this);
-        styleProxy.addStyleClass("arrow");      
-    }
+public class SmartRandomNearCenterPlacementStrategy implements SmartPlacementStrategy {
 
     @Override
-    public void setStyleClass(String cssClass) {
-        styleProxy.setStyleClass(cssClass);
+    public <V, E> void place(double width, double height, Graph<V, E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices) {
+        Random rand = new Random();
+        int maxRadius = (int)(width < height ? width : height)/4;
+        for (SmartGraphVertex<V> vertex : vertices) {
+            int radius = rand.nextInt(maxRadius);
+            int angle = (int)(2 * Math.PI * rand.nextDouble());
+            int x = (int)(width / 2 + radius * Math.cos(angle));
+            int y = (int)(height / 2 + radius * Math.sin(angle));
+            vertex.setPosition(x, y);
+        }
     }
 
-    @Override
-    public void addStyleClass(String cssClass) {
-        styleProxy.addStyleClass(cssClass);
-    }
-
-    @Override
-    public boolean removeStyleClass(String cssClass) {
-        return styleProxy.removeStyleClass(cssClass);
-    }
-    
 }

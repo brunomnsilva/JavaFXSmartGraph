@@ -38,8 +38,12 @@ import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
+import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
+import com.brunomnsilva.smartgraph.graphview.BigSmartGraphPane;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
+import com.brunomnsilva.smartgraph.graphview.SmartRandomNearCenterPlacementStrategy;
+import com.brunomnsilva.smartgraph.graphview.SmartRandomPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 
 /**
@@ -57,8 +61,9 @@ public class Main extends Application {
         //Graph<String, String> g = build_flower_graph();
         System.out.println(g);
         
-        SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
+        //SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
         //SmartPlacementStrategy strategy = new SmartRandomPlacementStrategy();
+        SmartPlacementStrategy strategy = new SmartRandomNearCenterPlacementStrategy();
         SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, strategy);
 
         /*
@@ -74,7 +79,7 @@ public class Main extends Application {
         Use SmartGraphDemoContainer if you want zoom capabilities and automatic layout toggling
         */
         //Scene scene = new Scene(graphView, 1024, 768);
-        Scene scene = new Scene(new SmartGraphDemoContainer(graphView), 1024, 768);
+        Scene scene = new Scene(new SmartGraphDemoContainer(new BigSmartGraphPane(graphView)), 1024, 768);
 
         Stage stage = new Stage(StageStyle.DECORATED);
         stage.setTitle("JavaFX SmartGraph Visualization");
@@ -105,8 +110,8 @@ public class Main extends Application {
             }
             
             //want fun? uncomment below with automatic layout
-            //g.removeVertex(graphVertex.getUnderlyingVertex());
-            //graphView.update();
+            g.removeVertex(graphVertex.getUnderlyingVertex());
+            graphView.update();
         });
 
         graphView.setEdgeDoubleClickAction(graphEdge -> {
@@ -116,21 +121,21 @@ public class Main extends Application {
             
             
             //uncomment to see edges being removed after click
-            //Edge<String, String> underlyingEdge = graphEdge.getUnderlyingEdge();
-            //g.removeEdge(underlyingEdge);
-            //graphView.update();
+            Edge<String, String> underlyingEdge = graphEdge.getUnderlyingEdge();
+            g.removeEdge(underlyingEdge);
+            graphView.update();
         });
 
         /*
         Should proceed with automatic layout or keep original placement?
         If using SmartGraphDemoContainer you can toggle this in the UI 
          */
-        graphView.setAutomaticLayout(true);
+        //graphView.setAutomaticLayout(true);
 
         /* 
         Uncomment lines to test adding of new elements
          */
-        continuously_test_adding_elements(g, graphView);
+        //continuously_test_adding_elements(g, graphView);
         stage.setOnCloseRequest(event -> {
             running = false;
         });
@@ -257,7 +262,6 @@ public class Main extends Application {
                     Vertex<String> existing1 = get_random_vertex(g);
                     Vertex<String> existing2 = get_random_vertex(g);
                     g.insertEdge(existing1, existing2, ("E" + id));
-                    
                     graphView.update();
                 }
 

@@ -1,7 +1,7 @@
-/*
+/* 
  * The MIT License
  *
- * Copyright 2019 Bruno Silva.
+ * Copyright 2019 pantape.k@gmail.com.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,31 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.brunomnsilva.smartgraph.containers;
-
-import com.brunomnsilva.smartgraph.graphview.SmartGraphView;
-import javafx.scene.control.CheckBox;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+package com.brunomnsilva.smartgraph.graphview;
 
 /**
  *
- * @author Bruno Silva
+ * @author pantape.k@gmail.com
  */
-public class SmartGraphDemoContainer extends BorderPane {
 
-    public SmartGraphDemoContainer(SmartGraphView graphView) {
+import javafx.beans.property.BooleanProperty;
+import javafx.scene.layout.Pane;
 
-        this.setCenter(new ContentZoomPane(graphView));
-
-        //create bottom pane with controls
-        HBox bottom = new HBox(10);
-
-        CheckBox automatic = new CheckBox("Automatic layout");
-        automatic.selectedProperty().bindBidirectional(graphView.automaticLayoutProperty());
-
-        bottom.getChildren().add(automatic);
-
-        setBottom(bottom);
-    }
+public abstract class SmartGraphView extends Pane {
+    public abstract void init();
+    public abstract boolean isInitialized();
+    public abstract BooleanProperty automaticLayoutProperty();
 }

@@ -6,11 +6,25 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
     -fx-background-color: #F4FFFB;    
 }
 
-.vertex {
+/*.vertex {
     -fx-stroke-width: 3;
     -fx-stroke: #61B5F1;
-    -fx-stroke-type: inside; /* you should keep this if using arrows */
+    -fx-stroke-type: inside;  you should keep this if using arrows 
     -fx-fill: #B1DFF7;
+}*/
+
+.vertex {
+    /*-fx-shape: "M 0 0 L 5 2 L 6 1 L 5 0 L 6 -1 L 5 -2 L 0 0 Z";
+    -fx-min-width: 30; 
+    -fx-min-height: 30;
+    -fx-max-width: 30; 
+    -fx-max-height: 30;*/
+    -fx-padding: 3 3 3 3;
+    -fx-border-width: 1; 
+    -fx-border-color: gray;
+    -fx-border-radius: 5; 
+    -fx-background-color: rgba(255, 255, 255, 1.0); 
+    -fx-background-radius: 5;
 }
 
 .vertex-label {
@@ -18,7 +32,7 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 }
 
 .edge {
-    -fx-stroke-width: 2;
+    -fx-stroke-width: 1;
     -fx-stroke: #FF6D66;  
     -fx-stroke-dash-array: 2 5 2 5; /* remove for clean edges */  
     -fx-fill: transparent; /*important for curved edges */
@@ -29,13 +43,20 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 .edge-label {
     -fx-font: normal 5pt "sans-serif";
 }
-
+/*
 .arrow {
-    -fx-shape : "M 6 0 L 0 3 L 2 0 L 0 -3 Z";
     -fx-stroke-width: 2;
     -fx-stroke: #FF6D66;  
     -fx-opacity: 0.8;
-    -fx-fill: #FF6D66; 
+}
+*/
+.arrow {
+    -fx-shape: "M 0 3 L 6 0 L 0 -3 L 2 0 L 0 3";
+    -fx-min-width: 10;
+    -fx-min-height: 10;
+    -fx-border-color: rgba(255, 0, 0, 0.25);
+    -fx-border-width: 1;
+    -fx-background-color: rgba(255, 0, 0, 0.5);
 }
 
 /* Custom vertex. You should revert any unwanted styling in the default element, 
