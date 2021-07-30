@@ -37,6 +37,7 @@ import com.brunomnsilva.smartgraph.graphview.BigSmartGraphPane;
 import com.brunomnsilva.smartgraph.graphview.SmartRandomNearCenterPlacementStrategy;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.shape.Circle;
 
 /**
  *
@@ -49,7 +50,7 @@ public class Test3 extends Application {
     @Override
     public void start(Stage ignored) {
 
-        Graph<Node, String> g = build_sample_digraph();
+        Graph<Object, String> g = build_sample_digraph();
         System.out.println(g);
         
         SmartPlacementStrategy strategy = new SmartRandomNearCenterPlacementStrategy();
@@ -77,31 +78,39 @@ public class Test3 extends Application {
         launch(args);
     }
 
-    private Graph<Node, String> build_sample_digraph() {
+    private Graph<Object, String> build_sample_digraph() {
 
-        Digraph<Node, String> g = new DigraphEdgeList<>();
+        Digraph<Object, String> g = new DigraphEdgeList<>();
         
         Label a = new Label("Ants are waling down the street.");
         Label b = new Label("Birds are singing");
-//        Label c = new Label("Cats are watching the singing birds");
-//        Label d = new Label("Dogs ard sleeping");
+        Label c = new Label("Cats are watching the singing birds");
+        Label d = new Label("Dogs ard sleeping");
+        Circle e = new Circle(0, 0, 50);
+        e.setStyle("-fx-stroke-color: blue; -fx-fill: rgba(0, 0, 255, 0.25);");
 
         g.insertVertex(a);
         g.insertVertex(b);
-//        g.insertVertex(c);
-//        g.insertVertex(d);
+        g.insertVertex(c);
+        g.insertVertex(d);
+        g.insertVertex(e);
+        g.insertVertex("F");
 
         g.insertEdge(a, b, "AB");
-//        g.insertEdge(b, a, "BA");
-//        g.insertEdge(a, c, "AC");
-//        g.insertEdge(a, d, "AD");
-//        g.insertEdge(b, c, "BC");
-//        g.insertEdge(c, d, "CD");
-//
-//        //yep, its a loop!
-//        g.insertEdge(a, a, "AA1");
-//        g.insertEdge(a, a, "AA2");
-//        g.insertEdge(a, a, "AA3");
+        g.insertEdge(b, a, "BA");
+        g.insertEdge(a, c, "AC");
+        g.insertEdge(a, d, "AD");
+        g.insertEdge(a, e, "AE");
+        g.insertEdge(b, c, "BC");
+        g.insertEdge(c, d, "CD1");
+        g.insertEdge(c, d, "CD2");
+        g.insertEdge(c, d, "CD3");
+        g.insertEdge(d, "F", "DF");
+
+        //yep, its a loop!
+        g.insertEdge(a, a, "AA1");
+        g.insertEdge(a, a, "AA2");
+        g.insertEdge(a, a, "AA3");
 
         return g;
     }   

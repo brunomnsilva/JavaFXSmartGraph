@@ -95,9 +95,9 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
      */
     private final Graph<V, E> theGraph;
     private final SmartPlacementStrategy placementStrategy;
-    private final Map<Vertex<V>, SmartGraphVertexNode<V>> vertexNodes;
+    private final Map<Vertex<V>, SmartGraphCircleVertexNode<V>> vertexNodes;
     private final Map<Edge<E, V>, SmartGraphEdgeBase> edgeNodes;
-    private final Map<Tuple<SmartGraphVertexNode>, Integer> placedEdges = new HashMap<>();
+    private final Map<Tuple<SmartGraphCircleVertexNode>, Integer> placedEdges = new HashMap<>();
     private boolean initialized = false;
     private final boolean edgesWithArrows;
     /*
@@ -410,7 +410,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
 
         /* create vertex graphical representations */
         for (Vertex<V> vertex : listOfVertices()) {
-            SmartGraphVertexNode<V> vertexAnchor = new SmartGraphVertexNode(vertex, 0, 0,
+            SmartGraphCircleVertexNode<V> vertexAnchor = new SmartGraphCircleVertexNode(vertex, 0, 0,
                     graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
 
             vertexNodes.put(vertex, vertexAnchor);
@@ -433,8 +433,8 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
 
                 Vertex<V> oppositeVertex = theGraph.opposite(vertex, edge);
 
-                SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(vertex);
-                SmartGraphVertexNode<V> graphVertexOppositeOut = vertexNodes.get(oppositeVertex);
+                SmartGraphCircleVertexNode<V> graphVertexIn = vertexNodes.get(vertex);
+                SmartGraphCircleVertexNode<V> graphVertexOppositeOut = vertexNodes.get(oppositeVertex);
 
                 graphVertexIn.addAdjacentVertex(graphVertexOppositeOut);
                 graphVertexOppositeOut.addAdjacentVertex(graphVertexIn);
@@ -496,7 +496,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
     }
 
     private void addVertex(SmartGraphVertexNode<V> v) {
-        this.getChildren().add(v);
+        this.getChildren().add(v.getNode());
 
         String labelText = (v.getUnderlyingVertex().element() != null)
                 ? v.getUnderlyingVertex().element().toString()
@@ -504,7 +504,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
 
         if (graphProperties.getUseVertexTooltip()) {
             Tooltip t = new Tooltip(labelText);
-            Tooltip.install(v, t);
+            Tooltip.install(v.getNode(), t);
         }
 
         if (graphProperties.getUseVertexLabel()) {
@@ -565,7 +565,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
                 } else {
                     Edge<E, V> firstEdge = incidentEdges.iterator().next();
                     Vertex<V> opposite = theGraph.opposite(vertex, firstEdge);
-                    SmartGraphVertexNode<V> existing = vertexNodes.get(opposite);
+                    SmartGraphCircleVertexNode<V> existing = vertexNodes.get(opposite);
 
                     if (existing == null) {
                         /* 
@@ -586,7 +586,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
                     }
                 }
 
-                SmartGraphVertexNode newVertex = new SmartGraphVertexNode<>(vertex,
+                SmartGraphCircleVertexNode newVertex = new SmartGraphCircleVertexNode<>(vertex,
                         x, y, graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
 
                 //track new nodes
@@ -605,8 +605,8 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
                 Vertex<V> u = vertices[0]; //oubound if digraph, by javadoc requirement
                 Vertex<V> v = vertices[1]; //inbound if digraph, by javadoc requirement
 
-                SmartGraphVertexNode<V> graphVertexOut = vertexNodes.get(u);
-                SmartGraphVertexNode<V> graphVertexIn = vertexNodes.get(v);
+                SmartGraphCircleVertexNode<V> graphVertexOut = vertexNodes.get(u);
+                SmartGraphCircleVertexNode<V> graphVertexIn = vertexNodes.get(v);
 
                 /* 
                 Updates may be coming too fast and we can get out of sync.
@@ -645,7 +645,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
         Collection<Vertex<V>> removedVertices = removedVertices();
         Collection<SmartGraphEdgeBase> values = new LinkedList<>(edgeNodes.values());
 
-        Set<SmartGraphVertexNode<V>> verticesToRemove = new HashSet<>();
+        Set<SmartGraphCircleVertexNode<V>> verticesToRemove = new HashSet<>();
         Set<SmartGraphEdgeBase> edgesToRemove = new HashSet<>();
 
         //filter vertices to remove and their adjacent edges
@@ -659,7 +659,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
                 }
             }
 
-            SmartGraphVertexNode<V> get = vertexNodes.get(v);
+            SmartGraphCircleVertexNode<V> get = vertexNodes.get(v);
             verticesToRemove.add(get);
         }
 
@@ -670,7 +670,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
         }
 
         //permanently remove vertices
-        for (SmartGraphVertexNode<V> v : verticesToRemove) {
+        for (SmartGraphCircleVertexNode<V> v : verticesToRemove) {
             vertexNodes.remove(v.getUnderlyingVertex());
             removeVertice(v);
         }
@@ -684,7 +684,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
         }
 
         //remove adjacencies from remaining vertices
-        for (SmartGraphVertexNode<V> v : vertexNodes.values()) {
+        for (SmartGraphCircleVertexNode<V> v : vertexNodes.values()) {
             v.removeAdjacentVertices(verticesToRemove);
         }
     }
@@ -751,7 +751,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
             return new BoundingBox(0, 0, getWidth(), getHeight());
         }
 
-        for (SmartGraphVertexNode<V> v : vertexNodes.values()) {
+        for (SmartGraphCircleVertexNode<V> v : vertexNodes.values()) {
             minX = Math.min(minX, v.getCenterX());
             minY = Math.min(minY, v.getCenterY());
             maxX = Math.max(maxX, v.getCenterX());
@@ -766,8 +766,8 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
     * AUTOMATIC LAYOUT 
      */
     private void computeForces() {
-        for (SmartGraphVertexNode<V> v : vertexNodes.values()) {
-            for (SmartGraphVertexNode<V> other : vertexNodes.values()) {
+        for (SmartGraphCircleVertexNode<V> v : vertexNodes.values()) {
+            for (SmartGraphCircleVertexNode<V> other : vertexNodes.values()) {
                 if (v == other) {
                     continue; //NOP
                 }
@@ -797,7 +797,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
         }
     }
 
-    private boolean areAdjacent(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> u) {
+    private boolean areAdjacent(SmartGraphCircleVertexNode<V> v, SmartGraphCircleVertexNode<V> u) {
         return v.isAdjacentTo(u);
     }
 
@@ -876,9 +876,9 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
         List<Vertex<V>> removed = new LinkedList<>();
 
         Collection<Vertex<V>> graphVertices = theGraph.vertices();
-        Collection<SmartGraphVertexNode<V>> plotted = vertexNodes.values();
+        Collection<SmartGraphCircleVertexNode<V>> plotted = vertexNodes.values();
 
-        for (SmartGraphVertexNode<V> v : plotted) {
+        for (SmartGraphCircleVertexNode<V> v : plotted) {
             if (!graphVertices.contains(v.getUnderlyingVertex())) {
                 removed.add(v.getUnderlyingVertex());
             }

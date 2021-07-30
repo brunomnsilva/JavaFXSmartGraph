@@ -14,11 +14,18 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 }*/
 
 .vertex {
+    -fx-stroke-width: 3;
+    -fx-stroke: #61B5F1;
+    -fx-stroke-type: inside;  /*you should keep this if using arrows*/ 
+    -fx-fill: #B1DFF7;
+    -fx-opacity: 0.75;
+    
     /*-fx-shape: "M 0 0 L 5 2 L 6 1 L 5 0 L 6 -1 L 5 -2 L 0 0 Z";
-    -fx-min-width: 30; 
-    -fx-min-height: 30;
     -fx-max-width: 30; 
     -fx-max-height: 30;*/
+
+    -fx-min-width: 120; 
+    -fx-min-height: 120;
     -fx-padding: 3 3 3 3;
     -fx-border-width: 1; 
     -fx-border-color: gray;

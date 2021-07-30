@@ -45,7 +45,6 @@ public class UtilitiesBindings {
      *          (<i>x</i>,&nbsp;<i>y</i>) in Cartesian coordinates.
      */
     public static DoubleBinding atan2(final ObservableDoubleValue y, final ObservableDoubleValue x) {
-        System.out.println("Angle: " + (Math.atan2(y.get(), x.get())*180/Math.PI));
         return createDoubleBinding(() -> Math.atan2(y.get(), x.get()), y, x);
     }
     
@@ -99,5 +98,15 @@ public class UtilitiesBindings {
      */
     public static DoubleBinding remainder(final ObservableDoubleValue dividend, final ObservableDoubleValue divisor) {
         return createDoubleBinding(() -> Math.IEEEremainder(dividend.get(), divisor.get()));
+    } 
+    
+    /**
+     * Binding for {@link java.lang.Math#abs(double)}
+     *
+     * @param   value   any value
+     * @return  an absolute value of the value
+     */
+    public static DoubleBinding abs(final ObservableDoubleValue value) {
+        return createDoubleBinding(() -> Math.abs(value.get()));
     }    
 }

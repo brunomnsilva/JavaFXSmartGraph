@@ -65,6 +65,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Region;
 
 /**
  * JavaFX {@link Pane} that is capable of plotting a {@link Graph} or
@@ -99,7 +100,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
     private final SmartPlacementStrategy placementStrategy;
     private final Map<Vertex<V>, SmartForceDirectedVertexNode<V>> vertexNodes;
     private final Map<Edge<E, V>, SmartGraphEdgeBase> edgeNodes;
-    private final Map<Tuple<SmartForceDirectedVertexNode>, Integer> placedEdges = new HashMap<>();
+    private final Map<Tuple<SmartGraphVertexNode>, Integer> placedEdges = new HashMap<>();
     private boolean initialized = false;
     private final boolean edgesWithArrows;
     /*
@@ -490,22 +491,15 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
     }
 
     private void addVertex(SmartForceDirectedVertexNode<V> v) {
-        if (v.getUnderlyingVertex().element() instanceof Node) {
-            Label node = (Label)v.getUnderlyingVertex().element();
-            v.getChildren().add(node);
-            Scene scene = new Scene(v);
-            v.applyCss();
-            v.layout();
-            node.applyCss();
-            node.layout();
-        } else {
+        Node node = v.getNode();
+        if(!(v.getUnderlyingVertex().element() instanceof Node)){
             String labelText = (v.getUnderlyingVertex().element() != null)
                     ? v.getUnderlyingVertex().element().toString()
                     : "<NULL>";
 
             if (graphProperties.getUseVertexTooltip()) {
                 Tooltip t = new Tooltip(labelText);
-                Tooltip.install(v, t);
+                Tooltip.install(node, t);
             }
 
             if (graphProperties.getUseVertexLabel()) {
@@ -516,7 +510,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                 v.attachLabel(label);
             }
         }
-        this.getChildren().add(v);
+        this.getChildren().add(v.getNode());
     }
 
     private void addEdge(SmartGraphEdgeBase e, Edge<E, V> edge) {
@@ -572,7 +566,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
 
                     if (existing == null) {
                         /* 
-                        Updates may be coming too fast and we can get out of sync.
+                        Updates may be coming too fast and we can getNode out of sync.
                         The opposite vertex exists in the (di)graph, but we have not yet
                         created it for the panel. Therefore, its position is unknown,
                         so place the vertex representation in the middle.
@@ -611,7 +605,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                 SmartForceDirectedVertexNode<V> graphVertexIn = vertexNodes.get(v);
 
                 /* 
-                Updates may be coming too fast and we can get out of sync.
+                Updates may be coming too fast and we can getNode out of sync.
                 Skip and wait for another update call, since they will surely
                 be coming at this pace.
                  */
@@ -768,6 +762,14 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
     * AUTOMATIC LAYOUT 
      */
     private void computeForces() {
+        System.out.println("\nRepulsionForce: " + this.repulsionForce);
+        double extra = 0;
+        for (SmartForceDirectedVertexNode<V> v : vertexNodes.values()) {
+            extra = v.getRadius() > extra ? v.getRadius() : extra; 
+        }
+        System.out.println("extra: " + extra);
+        System.out.println("so: " + (extra * this.repulsionForce));
+       
         for (SmartForceDirectedVertexNode<V> v : vertexNodes.values()) {
             for (SmartForceDirectedVertexNode<V> other : vertexNodes.values()) {
                 if (v == other) {
@@ -775,7 +777,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                 }
 
                 //double k = Math.sqrt(getWidth() * getHeight() / graphVertexMap.size());
-                Point2D repellingForce = repellingForce(v.getUpdatedPosition(), other.getUpdatedPosition(), this.repulsionForce);
+                Point2D repellingForce = repellingForce(v.getUpdatedPosition(), other.getUpdatedPosition(), this.repulsionForce * extra / 10);
 
                 double deltaForceX = 0, deltaForceY = 0;
 

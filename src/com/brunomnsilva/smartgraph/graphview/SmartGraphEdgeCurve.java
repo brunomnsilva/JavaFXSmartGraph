@@ -31,9 +31,6 @@ import javafx.scene.transform.Translate;
 import com.brunomnsilva.smartgraph.graph.Edge;
 import java.util.Iterator;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.value.ObservableDoubleValue;
 
 /**
  * Concrete implementation of a curved edge.
@@ -60,23 +57,22 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
 
     private final Edge<E, V> underlyingEdge;
 
-    private final SmartForceDirectedVertexNode<V> inbound;
-    private final SmartForceDirectedVertexNode<V> outbound;
+    private final SmartGraphVertexNode<V> inbound;
+    private final SmartGraphVertexNode<V> outbound;
 
     private SmartLabel attachedLabel = null;
     private SmartArrow attachedArrow = null;
 
-    private double randomAngleFactor = 0;
     private int edgeIndex = 0;
 
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
 
-    public SmartGraphEdgeCurve(Edge<E, V> edge, SmartForceDirectedVertexNode inbound, SmartForceDirectedVertexNode outbound) {
+    public SmartGraphEdgeCurve(Edge<E, V> edge, SmartGraphVertexNode inbound, SmartGraphVertexNode outbound) {
         this(edge, inbound, outbound, 0);
     }
 
-    public SmartGraphEdgeCurve(Edge<E, V> edge, SmartForceDirectedVertexNode inbound, SmartForceDirectedVertexNode outbound, int edgeIndex) {
+    public SmartGraphEdgeCurve(Edge<E, V> edge, SmartGraphVertexNode inbound, SmartGraphVertexNode outbound, int edgeIndex) {
         this.inbound = inbound;
         this.outbound = outbound;
 
@@ -90,7 +86,7 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         this.startYProperty().bind(outbound.layoutYProperty().add(outbound.heightProperty().divide(2)));
         this.endXProperty().bind(inbound.layoutXProperty().add(inbound.widthProperty().divide(2)));
         this.endYProperty().bind(inbound.layoutYProperty().add(inbound.heightProperty().divide(2)));
-        
+
         this.edgeIndex = edgeIndex;
 
         //update();
@@ -117,24 +113,26 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
             Point2D startpoint = new Point2D(inbound.getPositionCenterX(), inbound.getPositionCenterY());
             /* Make a loop using the control points proportional to the vertex radius */
             int x = 0, y = 0;
-            Iterator<SmartForceDirectedVertexNode<V>> it = inbound.getAdjacentVertices().iterator();
+            Iterator<SmartGraphVertexNode<V>> it = inbound.getAdjacentVertices().iterator();
             while (it.hasNext()) {
-                SmartForceDirectedVertexNode<V> vertex = it.next();
+                SmartGraphVertex<V> vertex = it.next();
                 x += (int) (startpoint.getX() - vertex.getPositionCenterX());
                 y += (int) (startpoint.getY() - vertex.getPositionCenterY());
             }
-
-            double distance = inbound.getRadius() + 75;
+            
+            double distance = inbound.getRadius() * 2;
+            distance = distance < 100 ? 100 : distance;
+            
             double angle = Math.atan2(y, x) * 180 / Math.PI;
 
             int angleFactor = 15;
             int newEdgeIndex = edgeIndex % 2 == 0 ? edgeIndex * 2 : (edgeIndex * 2) + 1;
             Point2D endpoint = new Point2D(inbound.getPositionCenterX() + (distance * Math.cos(angle * Math.PI / 180)),
                     inbound.getPositionCenterY() + (distance * Math.sin(angle * Math.PI / 180)));
-           double angle1 = getAngle(newEdgeIndex == 0 ? 1 : newEdgeIndex - 2, angleFactor);
+            double angle1 = getAngle(newEdgeIndex == 0 ? 1 : newEdgeIndex - 2, angleFactor);
             double angle2 = getAngle(newEdgeIndex + 2, angleFactor);
             Point2D midpoint1 = UtilitiesPoint2D.rotate(endpoint, startpoint, edgeIndex % 2 == 0 ? angle1 : angle2);
-            Point2D midpoint2 = UtilitiesPoint2D.rotate(endpoint, startpoint,  edgeIndex % 2 == 0 ? angle2 : angle1);
+            Point2D midpoint2 = UtilitiesPoint2D.rotate(endpoint, startpoint, edgeIndex % 2 == 0 ? angle2 : angle1);
 
             setControlX1(midpoint1.getX());
             setControlY1(midpoint1.getY());
@@ -144,7 +142,7 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         } else {
             Point2D startpoint = new Point2D(inbound.getPositionCenterX(), inbound.getPositionCenterY());
             Point2D endpoint = new Point2D(outbound.getPositionCenterX(), outbound.getPositionCenterY());
-            
+
             Point2D midpoint = getCurveControlPoint(startpoint, endpoint, edgeIndex, MAX_EDGE_CURVE_ANGLE);
 
             setControlX1(midpoint.getX());
@@ -152,7 +150,6 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
             setControlX2(midpoint.getX());
             setControlY2(midpoint.getY());
         }
-
     }
 
     private Point2D getCurveControlPoint(Point2D startpoint, Point2D endpoint, int edgeIndex, double maxAngle) {
@@ -173,7 +170,7 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         int angleFactor = 20;
         lineAngle = getAngle(edgeIndex, 15);
         if (Math.abs(lineAngle) >= maxAngle) {
-            lineAngle = (lineAngle % maxAngle) + getAngle(1, angleFactor) / (1 + (int)(lineAngle / maxAngle));
+            lineAngle = (lineAngle % maxAngle) + getAngle(1, angleFactor) / (1 + (int) (lineAngle / maxAngle));
         }
         lineAngle = distance > controlLength ? lineAngle * (controlLength / distance) : lineAngle;
 
@@ -231,97 +228,28 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         this.attachedArrow = arrow;
 
         /* attach arrow to line's endpoint */
-        arrow.translateXProperty().bind(this.endXProperty());
-        arrow.translateYProperty().bind(this.endYProperty());
+        arrow.layoutXProperty().bind(this.endXProperty());
+        arrow.layoutYProperty().bind(this.endYProperty());
 
         /* rotate arrow around itself based on this line's angle */
         Rotate rotation = new Rotate();
         rotation.pivotXProperty().bind(translateXProperty());
         rotation.pivotYProperty().bind(translateYProperty());
-        rotation.angleProperty().bind(UtilitiesBindings.toDegrees(
-                UtilitiesBindings.atan2(endYProperty().subtract(controlY2Property()),
-                        endXProperty().subtract(controlX2Property()))
-        ));
-        
+        rotation.angleProperty().bind(
+                UtilitiesBindings.toDegrees(
+                        UtilitiesBindings.atan2(
+                                endYProperty().subtract(controlY2Property()),
+                                endXProperty().subtract(controlX2Property())
+                        )
+                )
+        );
+
         arrow.getTransforms().add(rotation);
 
         /* add translation transform to put the arrow touching the circle's bounds */
         Translate translate = new Translate();
-//        translate.xProperty().bind(arrow.widthProperty().multiply(-1).subtract(outbound.radiusProperty()));
-//        translate.yProperty().bind(arrow.heightProperty().divide(2.0).multiply(-1));
-        translate.xProperty().bind(
-                Bindings.when(
-                        UtilitiesBindings.remainder(
-                            UtilitiesBindings.toDegrees(
-                                UtilitiesBindings.atan2(
-                                    endYProperty().subtract(controlY2Property()),
-                                    endXProperty().subtract(controlX2Property())
-                                )
-                            ),
-                            Bindings.createDoubleBinding(()-> 90.0)
-                        )
-                        .greaterThan(
-                            UtilitiesBindings.toDegrees(
-                                UtilitiesBindings.atan2(
-                                    outbound.heightProperty(),
-                                    outbound.widthProperty()
-                                )
-                            ) 
-                        )
-                )
-                .then(
-                        outbound.heightProperty()
-                                .divide(-2)
-                                .divide(
-                                    UtilitiesBindings.tan(
-                                        UtilitiesBindings.atan2(
-                                            endYProperty().subtract(controlY2Property()),
-                                            endXProperty().subtract(controlX2Property())
-                                        )
-                                    )
-                                )
-                )
-                .otherwise(
-                        outbound.widthProperty().divide(-2)
-                )
-        );
-        translate.yProperty().bind(
-                Bindings.when(
-                        UtilitiesBindings.remainder(
-                            UtilitiesBindings.toDegrees(
-                                UtilitiesBindings.atan2(
-                                    endYProperty().subtract(controlY2Property()),
-                                    endXProperty().subtract(controlX2Property())
-                                )
-                            ),
-                            Bindings.createDoubleBinding(()-> 90.0)
-                        )
-                        .greaterThan(
-                            UtilitiesBindings.toDegrees(
-                                UtilitiesBindings.atan2(
-                                    outbound.heightProperty(),
-                                    outbound.widthProperty()
-                                )
-                            ) 
-                        )
-                )
-                .then(
-                    outbound.heightProperty().divide(-2)
-                )
-                .otherwise(
-                        outbound.widthProperty()
-                                .divide(-2)
-                                .multiply(
-                                    UtilitiesBindings.tan(
-                                        UtilitiesBindings.atan2(
-                                            endYProperty().subtract(controlY2Property()),
-                                            endXProperty().subtract(controlX2Property())
-                                        )
-                                    )
-                                )
-                )
-        );
-
+        translate.xProperty().bind(arrow.widthProperty().multiply(-1).subtract(this.inbound.radiusProperty()));
+        translate.yProperty().bind(arrow.heightProperty().divide(2.0).multiply(-1));
         arrow.getTransforms().add(translate);
     }
 

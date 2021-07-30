@@ -112,14 +112,14 @@ public class SmartGraphEdgeCurve_1<E, V> extends CubicCurve implements SmartGrap
 
     private void update() {
         if (inbound == outbound) {
-            Point2D startpoint = new Point2D(inbound.getCenterX(), inbound.getCenterY());
+            Point2D startpoint = new Point2D(inbound.getPositionCenterX(), inbound.getPositionCenterY());
             /* Make a loop using the control points proportional to the vertex radius */
             int x = 0, y = 0;
             Iterator<SmartGraphVertexNode<V>> it = inbound.getAdjacentVertices().iterator();
             while (it.hasNext()) {
                 SmartGraphVertexNode<V> vertex = it.next();
-                x += (int) (startpoint.getX() - vertex.getCenterX());
-                y += (int) (startpoint.getY() - vertex.getCenterY());
+                x += (int) (startpoint.getX() - vertex.getPositionCenterX());
+                y += (int) (startpoint.getY() - vertex.getPositionCenterY());
             }
 
             double distance = inbound.getRadius() + 75;
@@ -127,8 +127,8 @@ public class SmartGraphEdgeCurve_1<E, V> extends CubicCurve implements SmartGrap
 
             int angleFactor = 15;
             int newEdgeIndex = edgeIndex % 2 == 0 ? edgeIndex * 2 : (edgeIndex * 2) + 1;
-            Point2D endpoint = new Point2D(inbound.getCenterX() + (distance * Math.cos(angle * Math.PI / 180)),
-                    inbound.getCenterY() + (distance * Math.sin(angle * Math.PI / 180)));
+            Point2D endpoint = new Point2D(inbound.getPositionCenterX() + (distance * Math.cos(angle * Math.PI / 180)),
+                    inbound.getPositionCenterY() + (distance * Math.sin(angle * Math.PI / 180)));
             angle = getAngle(newEdgeIndex == 0 ? 1 : newEdgeIndex - 2, angleFactor);
             Point2D midpoint1 = UtilitiesPoint2D.rotate(endpoint, startpoint, angle);
             angle = getAngle(newEdgeIndex + 2, angleFactor);
@@ -140,8 +140,8 @@ public class SmartGraphEdgeCurve_1<E, V> extends CubicCurve implements SmartGrap
             setControlY2(midpoint2.getY());
 
         } else {
-            Point2D startpoint = new Point2D(inbound.getCenterX(), inbound.getCenterY());
-            Point2D endpoint = new Point2D(outbound.getCenterX(), outbound.getCenterY());
+            Point2D startpoint = new Point2D(inbound.getPositionCenterX(), inbound.getPositionCenterY());
+            Point2D endpoint = new Point2D(outbound.getPositionCenterX(), outbound.getPositionCenterY());
             Point2D midpoint = getCurveControlPoint(startpoint, endpoint, edgeIndex, MAX_EDGE_CURVE_ANGLE);
 
             setControlX1(midpoint.getX());

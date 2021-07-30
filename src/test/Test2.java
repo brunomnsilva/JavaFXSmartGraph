@@ -35,7 +35,6 @@ import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graphview.SmartForceDirectedGraphView;
 import com.brunomnsilva.smartgraph.graphview.BigSmartGraphPane;
 import com.brunomnsilva.smartgraph.graphview.SmartRandomNearCenterPlacementStrategy;
-import javafx.scene.control.Label;
 
 /**
  *
