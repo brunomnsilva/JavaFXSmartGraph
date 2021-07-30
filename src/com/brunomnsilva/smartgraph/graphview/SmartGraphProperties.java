@@ -23,6 +23,7 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,13 +46,13 @@ public class SmartGraphProperties {
     private static final boolean DEFAULT_VERTEX_ALLOW_USER_MOVE = true;
     private static final String PROPERTY_VERTEX_ALLOW_USER_MOVE = "vertex.allow-user-move";
     
-    private static final double DEFAULT_VERTEX_RADIUS = 5;
+    private static final double DEFAULT_VERTEX_RADIUS = 15;
     private static final String PROPERTY_VERTEX_RADIUS = "vertex.radius";
 
     private static final boolean DEFAULT_VERTEX_USE_TOOLTIP = true;
     private static final String PROPERTY_VERTEX_USE_TOOLTIP = "vertex.tooltip";
     
-    private static final boolean DEFAULT_VERTEX_USE_LABEL = false;
+    private static final boolean DEFAULT_VERTEX_USE_LABEL = true;
     private static final String PROPERTY_VERTEX_USE_LABEL = "vertex.label";
 
     private static final boolean DEFAULT_EDGE_USE_TOOLTIP = true;
@@ -66,13 +67,13 @@ public class SmartGraphProperties {
     private static final int DEFAULT_ARROW_SIZE = 5;
     private static final String PROPERTY_ARROW_SIZE = "edge.arrowsize";
 
-    private static final double DEFAULT_REPULSION_FORCE = 1000;
+    private static final double DEFAULT_REPULSION_FORCE = 25000;
     private static final String PROPERTY_REPULSION_FORCE = "layout.repulsive-force";
     
-    private static final double DEFAULT_ATTRACTION_FORCE = 20;
+    private static final double DEFAULT_ATTRACTION_FORCE = 30;
     private static final String PROPERTY_ATTRACTION_FORCE = "layout.attraction-force";
 
-    private static final double DEFAULT_ATTRACTION_SCALE = 1;
+    private static final double DEFAULT_ATTRACTION_SCALE = 10;
     private static final String PROPERTY_ATTRACTION_SCALE = "layout.attraction-scale";
 
     private static final String DEFAULT_FILE = "smartgraph.properties";
@@ -103,6 +104,17 @@ public class SmartGraphProperties {
             properties.load(inputStream);
         } catch (IOException ex) {
             String msg = "The file provided by the input stream does not exist. Using default values.";
+            Logger.getLogger(SmartGraphProperties.class.getName()).log(Level.WARNING, msg);
+        }
+    }
+    
+    public SmartGraphProperties(String content) {
+        properties = new Properties();
+        try {
+            InputStream targetStream = new ByteArrayInputStream(content.getBytes());
+            properties.load(targetStream);
+        } catch (IOException ex) {
+            String msg = "The string contents could not be loaded. Using default values.";
             Logger.getLogger(SmartGraphProperties.class.getName()).log(Level.WARNING, msg);
         }
     }

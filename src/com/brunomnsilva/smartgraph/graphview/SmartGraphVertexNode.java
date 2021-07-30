@@ -349,6 +349,11 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         return styleProxy.removeStyleClass(cssClass);
     }
 
+    @Override
+    public SmartStylableNode getStylableLabel() {
+        return this.attachedLabel;
+    }
+
     /**
      * Internal representation of a 2D point or vector for quick access to its
      * attributes.
