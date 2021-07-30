@@ -23,6 +23,8 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import javafx.beans.property.BooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -31,7 +33,7 @@ import javafx.scene.layout.Pane;
  *
  * @author pantape.k@gmail.com
  */
-public class BigSmartGraphPane extends SmartGraphView {
+public class SmartGraphPaneBig extends SmartGraphView {
 
     private final SmartGraphView graphView;
     private double iniWidth, iniHeight;
@@ -42,7 +44,7 @@ public class BigSmartGraphPane extends SmartGraphView {
      * Constructs a visualization of the graph from existing SmartGraphPanel
      * @param graphView graph view
      */
-    public BigSmartGraphPane(SmartGraphView graphView) {
+    public SmartGraphPaneBig(SmartGraphView graphView) {
         this.iniWidth = 0;
         this.iniHeight = 0;
         this.isInitialized = false;
@@ -66,11 +68,12 @@ public class BigSmartGraphPane extends SmartGraphView {
 
             if (!this.isInitialized) {
                 // set size of the graph panel, 2 time of its parent
-                this.iniWidth = w * 2;
-                this.iniHeight = h * 2;
+                Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+                this.iniWidth = dimension.getWidth() * 2;
+                this.iniHeight = dimension.getHeight() * 2;
 
                 // get graph panel size
-                this.graphView.setPrefSize(this.iniWidth, this.iniHeight);
+                this.graphView.setMinSize(this.iniWidth, this.iniHeight);
                 Scene scene = new Scene(this.graphView, this.iniWidth, this.iniHeight);
                 this.graphView.applyCss();
                 this.graphView.layout();

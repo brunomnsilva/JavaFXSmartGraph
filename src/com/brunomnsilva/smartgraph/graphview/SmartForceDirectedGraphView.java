@@ -58,14 +58,10 @@ import static com.brunomnsilva.smartgraph.graphview.UtilitiesJavaFX.pick;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesPoint2D.attractiveForce;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesPoint2D.repellingForce;
 import java.net.URI;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javafx.scene.Parent;
-import javafx.scene.control.Label;
-import javafx.scene.layout.Region;
 
 /**
  * JavaFX {@link Pane} that is capable of plotting a {@link Graph} or
@@ -114,7 +110,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
      */
     public final BooleanProperty automaticLayoutProperty;
     private AnimationTimer timer;
-    private final double repulsionForce;
+    private double repulsionForce;
     private final double attractionForce;
     private final double attractionScale;
 
@@ -196,18 +192,18 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
         this.attractionForce = this.graphProperties.getAttractionForce();
         this.attractionScale = this.graphProperties.getAttractionScale();
 
-        vertexNodes = new HashMap<>();
-        edgeNodes = new HashMap<>();
+        this.vertexNodes = new HashMap<>();
+        this.edgeNodes = new HashMap<>();
 
         //set stylesheet and class
-        loadStylesheet(cssFile);
+        this.loadStylesheet(cssFile);
 
-        initNodes();
+        this.initNodes();
 
-        enableDoubleClickListener();
+        this.enableDoubleClickListener();
 
         //automatic layout initializations        
-        timer = new AnimationTimer() {
+        this.timer = new AnimationTimer() {
 
             @Override
             public void handle(long now) {
@@ -218,20 +214,28 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
         this.automaticLayoutProperty = new SimpleBooleanProperty(false);
         this.automaticLayoutProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                timer.start();
+                // make repulsion force proportional to average vertex radius
+                double radius = 0;
+                for (SmartForceDirectedVertexNode<V> v : this.vertexNodes.values()) {
+                    radius += v.getRadius(); 
+                }
+                radius /= this.vertexNodes.size();
+                this.repulsionForce = 75 * Math.pow((int)radius, 2);
+
+                this.timer.start();
             } else {
-                timer.stop();
+                this.timer.stop();
             }
         });
     }
 
     private synchronized void runLayoutIteration() {
         for (int i = 0; i < 25; i++) {
-            resetForces();
-            computeForces();
-            updateForces();
+            this.resetForces();
+            this.computeForces();
+            this.updateForces();
         }
-        applyForces();
+        this.applyForces();
     }
 
     /**
@@ -257,9 +261,9 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
             throw new IllegalStateException("Already initialized. Use update() method instead.");
         }
 
-        if (placementStrategy != null) {
+        if (this.placementStrategy != null) {
             // call strategy to place the vertices in their initial locations 
-            placementStrategy.place(this.widthProperty().doubleValue(),
+            this.placementStrategy.place(this.widthProperty().doubleValue(),
                     this.heightProperty().doubleValue(),
                     this.theGraph,
                     this.vertexNodes.values());
@@ -271,7 +275,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                     this.vertexNodes.values());
 
             //start automatic layout
-            timer.start();
+            this.timer.start();
         }
 
         this.initialized = true;
@@ -303,7 +307,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
      * @param value true if enabling; false, otherwise
      */
     public void setAutomaticLayout(boolean value) {
-        automaticLayoutProperty.set(value);
+        this.automaticLayoutProperty.set(value);
     }
 
     /**
@@ -330,7 +334,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
 
         //this will be called from a non-javafx thread, so this must be guaranteed to run of the graphics thread
         Platform.runLater(() -> {
-            updateNodes();
+            this.updateNodes();
         });
 
     }
@@ -355,12 +359,9 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
             throw new IllegalStateException("You must call init() method before any updates.");
         }
 
-        final FutureTask update = new FutureTask(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                updateNodes();
-                return true;
-            }
+        final FutureTask update = new FutureTask(() -> {
+            this.updateNodes();
+            return true;
         });
 
         //
@@ -375,15 +376,15 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                 Logger.getLogger(SmartForceDirectedGraphView.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            updateNodes();
+            this.updateNodes();
         }
 
     }
 
     private synchronized void updateNodes() {
-        removeNodes();
-        insertNodes();
-        updateLabels();
+        this.removeNodes();
+        this.insertNodes();
+        this.updateLabels();
     }
 
     /*
@@ -414,15 +415,15 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
 
         /* create vertex graphical representations */
         for (Vertex<V> vertex : listOfVertices()) {
-            SmartForceDirectedVertexNode<V> vertexAnchor = new SmartForceDirectedVertexNode(vertex, graphProperties.getVertexAllowUserMove());
-            vertexNodes.put(vertex, vertexAnchor);
+            SmartForceDirectedVertexNode<V> vertexAnchor = new SmartForceDirectedVertexNode(vertex, this.graphProperties.getVertexAllowUserMove());
+            this.vertexNodes.put(vertex, vertexAnchor);
         }
 
         /* create edges graphical representations between existing vertices */
         //this is used to guarantee that no duplicate edges are ever inserted
         List<Edge<E, V>> edgesToPlace = listOfEdges();
 
-        for (Vertex<V> vertex : vertexNodes.keySet()) {
+        for (Vertex<V> vertex : this.vertexNodes.keySet()) {
 
             Iterable<Edge<E, V>> incidentEdges = theGraph.incidentEdges(vertex);
 
@@ -433,7 +434,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                     continue;
                 }
 
-                Vertex<V> oppositeVertex = theGraph.opposite(vertex, edge);
+                Vertex<V> oppositeVertex = this.theGraph.opposite(vertex, edge);
 
                 SmartForceDirectedVertexNode<V> graphVertexIn = vertexNodes.get(vertex);
                 SmartForceDirectedVertexNode<V> graphVertexOppositeOut = vertexNodes.get(oppositeVertex);
@@ -460,7 +461,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
         /* place vertices above lines */
         for (Vertex<V> vertex : vertexNodes.keySet()) {
             SmartForceDirectedVertexNode<V> v = vertexNodes.get(vertex);
-            addVertex(v);
+            this.addVertex(v);
         }
     }
 
@@ -492,17 +493,17 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
 
     private void addVertex(SmartForceDirectedVertexNode<V> v) {
         Node node = v.getNode();
-        if(!(v.getUnderlyingVertex().element() instanceof Node)){
+        if (!(v.getUnderlyingVertex().element() instanceof Node)) {
             String labelText = (v.getUnderlyingVertex().element() != null)
                     ? v.getUnderlyingVertex().element().toString()
                     : "<NULL>";
 
-            if (graphProperties.getUseVertexTooltip()) {
+            if (this.graphProperties.getUseVertexTooltip()) {
                 Tooltip t = new Tooltip(labelText);
                 Tooltip.install(node, t);
             }
 
-            if (graphProperties.getUseVertexLabel()) {
+            if (this.graphProperties.getUseVertexLabel()) {
                 SmartLabel label = new SmartLabel(labelText);
 
                 label.addStyleClass("vertex-label");
@@ -516,18 +517,18 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
     private void addEdge(SmartGraphEdgeBase e, Edge<E, V> edge) {
         //edges to the back
         this.getChildren().add(0, (Node) e);
-        edgeNodes.put(edge, e);
+        this.edgeNodes.put(edge, e);
 
         String labelText = (edge.element() != null)
                 ? edge.element().toString()
                 : "<NULL>";
 
-        if (graphProperties.getUseEdgeTooltip()) {
+        if (this.graphProperties.getUseEdgeTooltip()) {
             Tooltip t = new Tooltip(labelText);
             Tooltip.install((Node) e, t);
         }
 
-        if (graphProperties.getUseEdgeLabel()) {
+        if (this.graphProperties.getUseEdgeLabel()) {
             SmartLabel label = new SmartLabel(labelText);
 
             label.addStyleClass("edge-label");
@@ -537,11 +538,11 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
     }
 
     private void insertNodes() {
-        Collection<Vertex<V>> unplottedVertices = unplottedVertices();
+        Collection<Vertex<V>> unplottedVertices = this.unplottedVertices();
 
         List<SmartForceDirectedVertexNode<V>> newVertices = null;
 
-        Bounds bounds = getPlotBounds();
+        Bounds bounds = this.getPlotBounds();
         double mx = bounds.getMinX() + bounds.getWidth() / 2.0;
         double my = bounds.getMinY() + bounds.getHeight() / 2.0;
 
@@ -583,17 +584,17 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                     }
                 }
 
-                SmartForceDirectedVertexNode newVertex = new SmartForceDirectedVertexNode<>(vertex, graphProperties.getVertexAllowUserMove());
+                SmartForceDirectedVertexNode newVertex = new SmartForceDirectedVertexNode<>(vertex, this.graphProperties.getVertexAllowUserMove());
 
                 //track new nodes
                 newVertices.add(newVertex);
                 //add to global mapping
-                vertexNodes.put(vertex, newVertex);
+                this.vertexNodes.put(vertex, newVertex);
             }
 
         }
 
-        Collection<Edge<E, V>> unplottedEdges = unplottedEdges();
+        Collection<Edge<E, V>> unplottedEdges = this.unplottedEdges();
         if (!unplottedEdges.isEmpty()) {
             for (Edge<E, V> edge : unplottedEdges) {
 
@@ -601,8 +602,8 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                 Vertex<V> u = vertices[0]; //oubound if digraph, by javadoc requirement
                 Vertex<V> v = vertices[1]; //inbound if digraph, by javadoc requirement
 
-                SmartForceDirectedVertexNode<V> graphVertexOut = vertexNodes.get(u);
-                SmartForceDirectedVertexNode<V> graphVertexIn = vertexNodes.get(v);
+                SmartForceDirectedVertexNode<V> graphVertexOut = this.vertexNodes.get(u);
+                SmartForceDirectedVertexNode<V> graphVertexIn = this.vertexNodes.get(v);
 
                 /* 
                 Updates may be coming too fast and we can getNode out of sync.
@@ -624,22 +625,22 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                     this.getChildren().add(arrow);
                 }
 
-                addEdge(graphEdge, edge);
+                this.addEdge(graphEdge, edge);
 
             }
         }
 
         if (newVertices != null) {
             for (SmartForceDirectedVertexNode<V> v : newVertices) {
-                addVertex(v);
+                this.addVertex(v);
             }
         }
 
     }
 
     private void removeNodes() {
-        Collection<Vertex<V>> removedVertices = removedVertices();
-        Collection<SmartGraphEdgeBase> values = new LinkedList<>(edgeNodes.values());
+        Collection<Vertex<V>> removedVertices = this.removedVertices();
+        Collection<SmartGraphEdgeBase> values = new LinkedList<>(this.edgeNodes.values());
 
         Set<SmartForceDirectedVertexNode<V>> verticesToRemove = new HashSet<>();
         Set<SmartGraphEdgeBase> edgesToRemove = new HashSet<>();
@@ -655,56 +656,54 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                 }
             }
 
-            SmartForceDirectedVertexNode<V> get = vertexNodes.get(v);
+            SmartForceDirectedVertexNode<V> get = this.vertexNodes.get(v);
             verticesToRemove.add(get);
         }
 
         //permanently remove edges
         for (SmartGraphEdgeBase e : edgesToRemove) {
-            edgeNodes.remove(e.getUnderlyingEdge());
-            removeEdge(e);
+            this.edgeNodes.remove(e.getUnderlyingEdge());
+            this.removeEdge(e);
         }
 
         //permanently remove vertices
         for (SmartForceDirectedVertexNode<V> v : verticesToRemove) {
-            vertexNodes.remove(v.getUnderlyingVertex());
+            this.vertexNodes.remove(v.getUnderlyingVertex());
             removeVertice(v);
         }
 
         //permanently remove remaining edges that were removed from the underlying graph
         Collection<Edge<E, V>> removedEdges = removedEdges();
         for (Edge<E, V> e : removedEdges) {
-            SmartGraphEdgeBase edgeToRemove = edgeNodes.get(e);
-            edgeNodes.remove(e);
-            removeEdge(edgeToRemove);
+            this.removeEdge(this.edgeNodes.remove(e));
         }
 
         //remove adjacencies from remaining vertices
-        for (SmartForceDirectedVertexNode<V> v : vertexNodes.values()) {
+        for (SmartForceDirectedVertexNode<V> v : this.vertexNodes.values()) {
             v.removeAdjacentVertices(verticesToRemove);
         }
     }
 
     private void removeEdge(SmartGraphEdgeBase e) {
-        getChildren().remove((Node) e);
+        this.getChildren().remove((Node) e);
 
         SmartArrow attachedArrow = e.getAttachedArrow();
         if (attachedArrow != null) {
-            getChildren().remove(attachedArrow);
+            this.getChildren().remove(attachedArrow);
         }
 
         Text attachedLabel = e.getAttachedLabel();
         if (attachedLabel != null) {
-            getChildren().remove(attachedLabel);
+            this.getChildren().remove(attachedLabel);
         }
     }
 
-    private void removeVertice(SmartForceDirectedVertexNode v) {
-        getChildren().remove(v);
+    private void removeVertice(SmartGraphVertexNode v) {
+        this.getChildren().remove(v);
 
         Text attachedLabel = v.getAttachedLabel();
         if (attachedLabel != null) {
-            getChildren().remove(attachedLabel);
+            this.getChildren().remove(attachedLabel);
         }
     }
 
@@ -712,19 +711,18 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
      * Updates node's labels
      */
     private void updateLabels() {
-        theGraph.vertices().forEach((v) -> {
-            SmartForceDirectedVertexNode<V> vertexNode = vertexNodes.get(v);
+        this.theGraph.vertices().forEach((v) -> {
+            SmartGraphVertexNode<V> vertexNode = this.vertexNodes.get(v);
             if (vertexNode != null) {
                 SmartLabel label = vertexNode.getAttachedLabel();
                 if (label != null) {
                     label.setText(v.element() != null ? v.element().toString() : "<NULL>");
                 }
-
             }
         });
 
-        theGraph.edges().forEach((e) -> {
-            SmartGraphEdgeBase edgeNode = edgeNodes.get(e);
+        this.theGraph.edges().forEach((e) -> {
+            SmartGraphEdgeBase edgeNode = this.edgeNodes.get(e);
             if (edgeNode != null) {
                 SmartLabel label = edgeNode.getAttachedLabel();
                 if (label != null) {
@@ -743,11 +741,11 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
         double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
                 maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
 
-        if (vertexNodes.isEmpty()) {
-            return new BoundingBox(0, 0, getWidth(), getHeight());
+        if (this.vertexNodes.isEmpty()) {
+            return new BoundingBox(0, 0, this.getWidth(), this.getHeight());
         }
 
-        for (SmartForceDirectedVertexNode<V> v : vertexNodes.values()) {
+        for (SmartGraphVertexNode<V> v : vertexNodes.values()) {
             minX = Math.min(minX, v.getPositionCenterX());
             minY = Math.min(minY, v.getPositionCenterY());
             maxX = Math.max(maxX, v.getPositionCenterX());
@@ -762,14 +760,6 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
     * AUTOMATIC LAYOUT 
      */
     private void computeForces() {
-        System.out.println("\nRepulsionForce: " + this.repulsionForce);
-        double extra = 0;
-        for (SmartForceDirectedVertexNode<V> v : vertexNodes.values()) {
-            extra = v.getRadius() > extra ? v.getRadius() : extra; 
-        }
-        System.out.println("extra: " + extra);
-        System.out.println("so: " + (extra * this.repulsionForce));
-       
         for (SmartForceDirectedVertexNode<V> v : vertexNodes.values()) {
             for (SmartForceDirectedVertexNode<V> other : vertexNodes.values()) {
                 if (v == other) {
@@ -777,7 +767,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                 }
 
                 //double k = Math.sqrt(getWidth() * getHeight() / graphVertexMap.size());
-                Point2D repellingForce = repellingForce(v.getUpdatedPosition(), other.getUpdatedPosition(), this.repulsionForce * extra / 10);
+                Point2D repellingForce = repellingForce(v.getUpdatedPosition(), other.getUpdatedPosition(), this.repulsionForce);
 
                 double deltaForceX = 0, deltaForceY = 0;
 

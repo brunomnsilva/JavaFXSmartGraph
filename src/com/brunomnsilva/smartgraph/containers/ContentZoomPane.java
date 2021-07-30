@@ -58,7 +58,7 @@ public class ContentZoomPane extends BorderPane {
     private final Node content;
 
     private static final double MIN_SCALE = 0.25;
-    private static final double MAX_SCALE = 5;
+    private static final double MAX_SCALE = 5.0;
     private static final double SCROLL_DELTA = 0.25;
 
     public ContentZoomPane(Node content) {
@@ -84,10 +84,10 @@ public class ContentZoomPane extends BorderPane {
         slider.setOrientation(Orientation.VERTICAL);
         slider.setShowTickMarks(true);
         slider.setShowTickLabels(true);
+        slider.setSnapToTicks(true);
         slider.setMajorTickUnit(SCROLL_DELTA);
         slider.setMinorTickCount(1);
         slider.setBlockIncrement(0.125f);
-        slider.setSnapToTicks(true);
 
         Text label = new Text("Zoom");
 

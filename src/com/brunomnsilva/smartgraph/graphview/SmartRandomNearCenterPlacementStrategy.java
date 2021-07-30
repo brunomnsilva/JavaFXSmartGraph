@@ -40,6 +40,7 @@ public class SmartRandomNearCenterPlacementStrategy implements SmartPlacementStr
     public <V, E> void place(double width, double height, Graph<V, E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices) {
         Random rand = new Random();
         int maxRadius = (int)(width < height ? width : height)/4;
+        maxRadius = maxRadius > 250 ? 250 : maxRadius;
         for (SmartGraphVertex<V> vertex : vertices) {
             int radius = rand.nextInt(maxRadius);
             int angle = (int)(2 * Math.PI * rand.nextDouble());

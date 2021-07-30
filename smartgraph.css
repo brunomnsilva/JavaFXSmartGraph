@@ -20,18 +20,22 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
     -fx-fill: #B1DFF7;
     -fx-opacity: 0.75;
     
-    /*-fx-shape: "M 0 0 L 5 2 L 6 1 L 5 0 L 6 -1 L 5 -2 L 0 0 Z";
+    
+    /*
+    -fx-shape: "M 0 0 L 5 2 L 6 1 L 5 0 L 6 -1 L 5 -2 L 0 0 Z";
     -fx-max-width: 30; 
-    -fx-max-height: 30;*/
+    -fx-max-height: 30;
+    */
+   
 
-    -fx-min-width: 120; 
-    -fx-min-height: 120;
+    -fx-min-width: 40; 
+    -fx-min-height: 40;
     -fx-padding: 3 3 3 3;
-    -fx-border-width: 1; 
-    -fx-border-color: gray;
-    -fx-border-radius: 5; 
+    -fx-border-width: 3; 
+    -fx-border-color: #61B5F1;
+    -fx-border-radius: 20; 
     -fx-background-color: rgba(255, 255, 255, 1.0); 
-    -fx-background-radius: 5;
+    -fx-background-radius: 20;
 }
 
 .vertex-label {

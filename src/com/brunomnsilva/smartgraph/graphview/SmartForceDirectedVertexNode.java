@@ -116,18 +116,20 @@ public class SmartForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> 
         this.centerYProperty.bind(this.heightProperty.divide(2));
 
         this.node = new StackPane();
-        Node element;
+        Node element = null;
         if (node == null) {
             if (this.underlyingVertex.element() instanceof Node) {
                 element = (Node) this.underlyingVertex.element();
-            } else {
-                element = new Circle(0, 0, 15);
-            }            
+            }           
         } else {
             element = node;
         }
+        if(element != null){
         this.node.getChildren().add(element);
-        this.styleProxy = new SmartStyleProxy(element);
+            this.styleProxy = new SmartStyleProxy(element);
+        }else{
+            this.styleProxy = new SmartStyleProxy(this.node);
+        }
         this.styleProxy.addStyleClass("vertex");
                 
         this.node.boundsInLocalProperty().addListener((obs, ov, nv) -> {

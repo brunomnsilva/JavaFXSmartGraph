@@ -30,7 +30,6 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import com.brunomnsilva.smartgraph.graph.Edge;
 import java.util.Iterator;
-import javafx.beans.binding.Bindings;
 
 /**
  * Concrete implementation of a curved edge.
@@ -81,11 +80,11 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         styleProxy = new SmartStyleProxy(this);
         styleProxy.addStyleClass("edge");
 
-        //bind start and end positions to vertices centers through properties
-        this.startXProperty().bind(outbound.layoutXProperty().add(outbound.widthProperty().divide(2)));
-        this.startYProperty().bind(outbound.layoutYProperty().add(outbound.heightProperty().divide(2)));
-        this.endXProperty().bind(inbound.layoutXProperty().add(inbound.widthProperty().divide(2)));
-        this.endYProperty().bind(inbound.layoutYProperty().add(inbound.heightProperty().divide(2)));
+        //bind start and end positions to vertices centers through properties        
+        this.startXProperty().bind(outbound.centerXProperty());
+        this.startYProperty().bind(outbound.centerYProperty());
+        this.endXProperty().bind(inbound.centerXProperty());
+        this.endYProperty().bind(inbound.centerYProperty());
 
         this.edgeIndex = edgeIndex;
 
@@ -111,7 +110,8 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     private void update() {
         if (inbound == outbound) {
             Point2D startpoint = new Point2D(inbound.getPositionCenterX(), inbound.getPositionCenterY());
-            /* Make a loop using the control points proportional to the vertex radius */
+            
+            /* Make a loop to be on the ohter side of those adjecent vertices */
             int x = 0, y = 0;
             Iterator<SmartGraphVertexNode<V>> it = inbound.getAdjacentVertices().iterator();
             while (it.hasNext()) {
@@ -120,11 +120,14 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
                 y += (int) (startpoint.getY() - vertex.getPositionCenterY());
             }
             
+            // Make the loop length
             double distance = inbound.getRadius() * 2;
             distance = distance < 100 ? 100 : distance;
             
+            // Calculate the loop angle
             double angle = Math.atan2(y, x) * 180 / Math.PI;
 
+            // Calculate control points
             int angleFactor = 15;
             int newEdgeIndex = edgeIndex % 2 == 0 ? edgeIndex * 2 : (edgeIndex * 2) + 1;
             Point2D endpoint = new Point2D(inbound.getPositionCenterX() + (distance * Math.cos(angle * Math.PI / 180)),
@@ -134,6 +137,7 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
             Point2D midpoint1 = UtilitiesPoint2D.rotate(endpoint, startpoint, edgeIndex % 2 == 0 ? angle1 : angle2);
             Point2D midpoint2 = UtilitiesPoint2D.rotate(endpoint, startpoint, edgeIndex % 2 == 0 ? angle2 : angle1);
 
+            // Set
             setControlX1(midpoint1.getX());
             setControlY1(midpoint1.getY());
             setControlX2(midpoint2.getX());
@@ -159,7 +163,7 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
 
         Point2D midpoint = new Point2D(midpointX, midpointY);
 
-        double lineAngle = 0;
+        double lineAngle;
         double rotationAngle = Math.atan2(endpoint.getY() - startpoint.getY(), endpoint.getX() - startpoint.getX()) * 180.0 / Math.PI;
         double distance = startpoint.distance(endpoint);
 

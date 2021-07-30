@@ -39,7 +39,7 @@ import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
-import com.brunomnsilva.smartgraph.graphview.BigSmartGraphPane;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphPaneBig;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import com.brunomnsilva.smartgraph.graphview.SmartRandomNearCenterPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
@@ -62,7 +62,8 @@ public class Test extends Application {
         System.out.println(g);
         
         SmartPlacementStrategy strategy = new SmartRandomNearCenterPlacementStrategy();
-        BigSmartGraphPane graphView = new BigSmartGraphPane(new SmartGraphPanel(g, strategy));
+        SmartGraphPanel graphView = new SmartGraphPanel(g, strategy);
+        //SmartGraphPaneBig graphPane = new SmartGraphPaneBig(new SmartGraphPanel(g, strategy));
 
         /*
         Basic usage:            
@@ -74,8 +75,8 @@ public class Test extends Application {
 
         Stage stage = new Stage(StageStyle.DECORATED);
         stage.setTitle("JavaFX SmartGraph Visualization");
-        stage.setMinHeight(500);
-        stage.setMinWidth(800);
+        stage.setHeight(500);
+        stage.setWidth(800);
         stage.setScene(scene);
         stage.show();
 
@@ -83,7 +84,7 @@ public class Test extends Application {
         IMPORTANT: Must call init() after scene is displayed so we can have width and height values
         to initially place the vertices according to the placement strategy
         */
-        //graphView.init();
+        graphView.init();
     }
 
     /**

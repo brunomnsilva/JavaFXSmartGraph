@@ -60,8 +60,8 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
     private final Set<SmartGraphVertexNode<T>> adjacentVertices;
     
     /* Some missing required properties */
-    private DoubleProperty widthProperty;
-    private DoubleProperty heightProperty;
+    private final DoubleProperty widthProperty;
+    private final DoubleProperty heightProperty;
 
     private SmartLabel attachedLabel = null;
     private boolean isDragging = false;

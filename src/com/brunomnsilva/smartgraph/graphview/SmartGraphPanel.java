@@ -223,7 +223,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
     }
 
     private synchronized void runLayoutIteration() {
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 20; i++) {
             resetForces();
             computeForces();
             updateForces();
@@ -482,7 +482,7 @@ public class SmartGraphPanel<V, E> extends SmartGraphView {
         SmartGraphEdgeBase graphEdge;
         // can set edge to curve edge since all edges have index.
         // for index = 0 the curve will appear as straight line.
-        graphEdge = new SmartGraphEdgeCurve_1(edge, graphVertexInbound, graphVertexOutbound, edgeIndex);
+        graphEdge = new SmartGraphEdgeCurve(edge, graphVertexInbound, graphVertexOutbound, edgeIndex);
 
 //        if (getTotalEdgesBetween(graphVertexInbound.getUnderlyingVertex(), graphVertexOutbound.getUnderlyingVertex()) > 1
 //                || graphVertexInbound == graphVertexOutbound) {

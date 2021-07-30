@@ -33,7 +33,7 @@ import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graphview.SmartForceDirectedGraphView;
-import com.brunomnsilva.smartgraph.graphview.BigSmartGraphPane;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphPaneBig;
 import com.brunomnsilva.smartgraph.graphview.SmartRandomNearCenterPlacementStrategy;
 
 /**
@@ -51,7 +51,7 @@ public class Test2 extends Application {
         System.out.println(g);
         
         SmartPlacementStrategy strategy = new SmartRandomNearCenterPlacementStrategy();
-        BigSmartGraphPane graphView = new BigSmartGraphPane(new SmartForceDirectedGraphView(g, strategy));
+        SmartGraphPaneBig graphView = new SmartGraphPaneBig(new SmartForceDirectedGraphView(g, strategy));
 
         /*
         Basic usage:            
