@@ -33,9 +33,9 @@ import javafx.scene.layout.Pane;
  *
  * @author pantape.k@gmail.com
  */
-public class SmartGraphPaneBig extends SmartGraphView {
+public class SmartGraphPaneBig extends SmartGraphPane {
 
-    private final SmartGraphView graphView;
+    private final SmartGraphPane graphView;
     private double iniWidth, iniHeight;
     private boolean isInitialized;
 
@@ -44,7 +44,7 @@ public class SmartGraphPaneBig extends SmartGraphView {
      * Constructs a visualization of the graph from existing SmartGraphPanel
      * @param graphView graph view
      */
-    public SmartGraphPaneBig(SmartGraphView graphView) {
+    public SmartGraphPaneBig(SmartGraphPane graphView) {
         this.iniWidth = 0;
         this.iniHeight = 0;
         this.isInitialized = false;

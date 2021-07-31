@@ -35,7 +35,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
 /**
@@ -55,7 +54,7 @@ import javafx.scene.layout.StackPane;
  *
  * @author brunomnsilva
  */
-public class SmartForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> {
+public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
 
     private final Vertex<T> underlyingVertex;
 
@@ -71,37 +70,18 @@ public class SmartForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> 
     private DoubleProperty centerXProperty;
     private DoubleProperty centerYProperty;
 
-    /*
-    Automatic layout functionality members
-     */
-    private final PointVector forceVector = new PointVector(0, 0);
-    private final PointVector updatedPosition = new PointVector(0, 0);
-
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
 
     private StackPane node;
 
     /**
-     * Constructor which sets the instance attributes and having {@link Circle}
-     * as a vertex node
+     * Constructor which sets the instance attributes
      *
      * @param v the underlying vertex
      * @param allowMove should the vertex able to be dragged with the mouse
      */
-    public SmartForceDirectedVertexNode(Vertex<T> v, boolean allowMove) {
-        this(null, v, allowMove);
-    }
-
-    /**
-     * Constructor which sets the instance attributes and having the specified
-     * {@link Node} as a vertex node
-     *
-     * @param node {@link Node}
-     * @param v the underlying vertex
-     * @param allowMove should the vertex able to be dragged with the mouse
-     */
-    public SmartForceDirectedVertexNode(Node node, Vertex<T> v, boolean allowMove) {
+    public SmartGraphVertexNodeBasic(Vertex<T> v, boolean allowMove) {
         this.underlyingVertex = v;
         this.attachedLabel = null;
         this.isDragging = false;
@@ -117,34 +97,29 @@ public class SmartForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> 
 
         this.node = new StackPane();
         Node element = null;
-        if (node == null) {
-            if (this.underlyingVertex.element() instanceof Node) {
-                element = (Node) this.underlyingVertex.element();
-            }           
-        } else {
-            element = node;
+        if (this.underlyingVertex.element() instanceof Node) {
+            element = (Node) this.underlyingVertex.element();
         }
-        if(element != null){
-        this.node.getChildren().add(element);
+        if (element != null) {
+            this.node.getChildren().add(element);
             this.styleProxy = new SmartStyleProxy(element);
-        }else{
+        } else {
             this.styleProxy = new SmartStyleProxy(this.node);
         }
         this.styleProxy.addStyleClass("vertex");
-                
+
         this.node.boundsInLocalProperty().addListener((obs, ov, nv) -> {
             Bounds bounds = (Bounds) nv;
             double width, height, radius;
             width = bounds.getWidth();
             height = bounds.getHeight();
-            radius = (Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)))/2;
+            radius = (Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2))) / 2;
             this.widthProperty.set(width);
             this.heightProperty.set(height);
             this.radiusProperty.set(radius);
         });
         this.centerXProperty.bind(this.node.layoutXProperty().add(this.widthProperty.divide(2)));
         this.centerYProperty.bind(this.node.layoutYProperty().add(this.heightProperty.divide(2)));
-
 
         if (allowMove) {
             this.enableDrag();
@@ -156,8 +131,14 @@ public class SmartForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> 
      *
      * @param v vertex to add
      */
-    public void addAdjacentVertex(SmartForceDirectedVertexNode<T> v) {
+    @Override
+    public void addAdjacentVertex(SmartGraphVertexNode<T> v) {
         this.adjacentVertices.add(v);
+    }
+
+    @Override
+    public Set<SmartGraphVertexNode<T>> getAdjacentVertices() {
+        return this.adjacentVertices;
     }
 
     /**
@@ -166,7 +147,8 @@ public class SmartForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> 
      * @param v vertex to remove
      * @return true if <code>v</code> existed; false otherwise.
      */
-    public boolean removeAdjacentVertex(SmartForceDirectedVertexNode<T> v) {
+    @Override
+    public boolean removeAdjacentVertex(SmartGraphVertexNode<T> v) {
         return this.adjacentVertices.remove(v);
     }
 
@@ -177,7 +159,7 @@ public class SmartForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> 
      * @param col collection of vertices
      * @return true if any vertex was effectively removed
      */
-    public boolean removeAdjacentVertices(Collection<SmartForceDirectedVertexNode<T>> col) {
+    public boolean removeAdjacentVertices(Collection<SmartGraphVertexNode<T>> col) {
         return this.adjacentVertices.removeAll(col);
     }
 
@@ -187,7 +169,8 @@ public class SmartForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> 
      * @param v vertex to check
      * @return true if adjacent; false otherwise
      */
-    public boolean isAdjacentTo(SmartForceDirectedVertexNode<T> v) {
+    @Override
+    public boolean isAdjacentTo(SmartGraphVertexNode<T> v) {
         return this.adjacentVertices.contains(v);
     }
 
@@ -233,148 +216,6 @@ public class SmartForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> 
      */
     public void setPosition(Point2D p) {
         this.setPosition(p.getX(), p.getY());
-    }
-
-    /**
-     * Resets the current computed external force vector.
-     *
-     */
-    public void resetForces() {
-        this.forceVector.x = this.forceVector.y = 0;
-        this.updatedPosition.x = this.getPosition().getX();
-        this.updatedPosition.y = this.getPosition().getY();
-    }
-
-    /**
-     * Adds the vector represented by <code>(x,y)</code> to the current external
-     * force vector.
-     *
-     * @param x x-component of the force vector
-     * @param y y-component of the force vector
-     *
-     */
-    public void addForceVector(double x, double y) {
-        this.forceVector.x += x;
-        this.forceVector.y += y;
-    }
-
-    /**
-     * Returns the current external force vector.
-     *
-     * @return force vector
-     */
-    public Point2D getForceVector() {
-        return new Point2D(this.forceVector.x, this.forceVector.y);
-    }
-
-    /**
-     * Returns the future position of the vertex.
-     *
-     * @return future position
-     */
-    public Point2D getUpdatedPosition() {
-        return new Point2D(this.updatedPosition.x, this.updatedPosition.y);
-    }
-
-    /**
-     * Updates the future position according to the current internal force
-     * vector.
-     *
-     * @see SmartGraphPanel#updateForces()
-     */
-    public void updateDelta() {
-        this.updatedPosition.x += this.forceVector.x;
-        this.updatedPosition.y += this.forceVector.y;
-    }
-
-    /**
-     * Moves the vertex position to the computed future position.
-     * <p>
-     * Moves are constrained within the parent pane dimensions.
-     *
-     * @see SmartGraphPanel#applyForces()
-     */
-    public void moveFromForces() {
-        //limit movement to parent bounds
-        double height = this.node.getParent().getLayoutBounds().getHeight();
-        double width = this.node.getParent().getLayoutBounds().getWidth();
-
-        this.updatedPosition.x = this.boundCenterCoordinate(this.updatedPosition.x, 0, width);
-        this.updatedPosition.y = boundCenterCoordinate(this.updatedPosition.y, 0, height);
-
-        this.setPosition(this.updatedPosition.x, this.updatedPosition.y);
-    }
-
-    /**
-     * Make a node movable by dragging it around with the mouse primary button.
-     */
-    private void enableDrag() {
-        final PointVector dragDelta = new PointVector(0, 0);
-
-        this.node.setOnMousePressed((MouseEvent mouseEvent) -> {
-            if (mouseEvent.isPrimaryButtonDown()) {
-                // record a delta distance for the drag and drop operation.
-                dragDelta.x = mouseEvent.getX();
-                dragDelta.y = mouseEvent.getY();
-                this.isDragging = true;
-
-                mouseEvent.consume();
-            }
-
-        });
-
-        this.node.setOnMouseReleased((MouseEvent mouseEvent) -> {
-            this.node.getScene().setCursor(Cursor.HAND);
-            this.isDragging = false;
-
-            mouseEvent.consume();
-        });
-
-        this.node.setOnDragDetected((MouseEvent mouseEvent) -> {
-            this.node.getScene().setCursor(Cursor.MOVE);
-        });
-
-        this.node.setOnMouseDragged((MouseEvent mouseEvent) -> {
-            if (mouseEvent.isPrimaryButtonDown()) {
-                double newX = this.node.getLayoutX() + mouseEvent.getX() - dragDelta.x;
-                double newY = this.node.getLayoutY() + mouseEvent.getY() - dragDelta.y;
-
-                double x = this.boundCenterCoordinate(newX, 0, this.node.getParent().getLayoutBounds().getWidth());
-                double y = this.boundCenterCoordinate(newY, 0, this.node.getParent().getLayoutBounds().getHeight());
-
-                this.node.setLayoutX(x);
-                this.node.setLayoutY(y);
-
-                mouseEvent.consume();
-            }
-
-        });
-
-        this.node.setOnMouseEntered((MouseEvent mouseEvent) -> {
-            if (!mouseEvent.isPrimaryButtonDown()) {
-                this.node.getScene().setCursor(Cursor.HAND);
-            }
-
-        });
-
-        this.node.setOnMouseExited((MouseEvent mouseEvent) -> {
-            if (!mouseEvent.isPrimaryButtonDown()) {
-                this.node.getScene().setCursor(Cursor.DEFAULT);
-            }
-
-        });
-    }
-
-    private double boundCenterCoordinate(double value, double min, double max) {
-        double radius = this.getRadius();
-
-        if (value < min + radius) {
-            return min + radius;
-        } else if (value > max - radius) {
-            return max - radius;
-        } else {
-            return value;
-        }
     }
 
     @Override
@@ -460,6 +301,78 @@ public class SmartForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> 
     }
 
     /**
+     * Make a node movable by dragging it around with the mouse primary button.
+     */
+    private void enableDrag() {
+        final PointVector dragDelta = new PointVector(0, 0);
+
+        this.node.setOnMousePressed((MouseEvent mouseEvent) -> {
+            if (mouseEvent.isPrimaryButtonDown()) {
+                // record a delta distance for the drag and drop operation.
+                dragDelta.x = mouseEvent.getX();
+                dragDelta.y = mouseEvent.getY();
+                this.isDragging = true;
+
+                mouseEvent.consume();
+            }
+
+        });
+
+        this.node.setOnMouseReleased((MouseEvent mouseEvent) -> {
+            this.node.getScene().setCursor(Cursor.HAND);
+            this.isDragging = false;
+
+            mouseEvent.consume();
+        });
+
+        this.node.setOnDragDetected((MouseEvent mouseEvent) -> {
+            this.node.getScene().setCursor(Cursor.MOVE);
+        });
+
+        this.node.setOnMouseDragged((MouseEvent mouseEvent) -> {
+            if (mouseEvent.isPrimaryButtonDown()) {
+                double newX = this.node.getLayoutX() + mouseEvent.getX() - dragDelta.x;
+                double newY = this.node.getLayoutY() + mouseEvent.getY() - dragDelta.y;
+
+                double x = this.boundCenterCoordinate(newX, 0, this.node.getParent().getLayoutBounds().getWidth());
+                double y = this.boundCenterCoordinate(newY, 0, this.node.getParent().getLayoutBounds().getHeight());
+
+                this.node.setLayoutX(x);
+                this.node.setLayoutY(y);
+
+                mouseEvent.consume();
+            }
+
+        });
+
+        this.node.setOnMouseEntered((MouseEvent mouseEvent) -> {
+            if (!mouseEvent.isPrimaryButtonDown()) {
+                this.node.getScene().setCursor(Cursor.HAND);
+            }
+
+        });
+
+        this.node.setOnMouseExited((MouseEvent mouseEvent) -> {
+            if (!mouseEvent.isPrimaryButtonDown()) {
+                this.node.getScene().setCursor(Cursor.DEFAULT);
+            }
+
+        });
+    }
+
+    private double boundCenterCoordinate(double value, double min, double max) {
+        double radius = this.getRadius();
+
+        if (value < min + radius) {
+            return min + radius;
+        } else if (value > max - radius) {
+            return max - radius;
+        } else {
+            return value;
+        }
+    }
+
+    /**
      * Internal representation of a 2D point or vector for quick access to its
      * attributes.
      */
@@ -471,10 +384,5 @@ public class SmartForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> 
             this.x = x;
             this.y = y;
         }
-    }
-
-    @Override
-    public Set<SmartGraphVertexNode<T>> getAdjacentVertices() {
-        return this.adjacentVertices;
     }
 }

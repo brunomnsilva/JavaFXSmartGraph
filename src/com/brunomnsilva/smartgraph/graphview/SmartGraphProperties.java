@@ -65,6 +65,9 @@ public class SmartGraphProperties {
 
     private static final double DEFAULT_REPULSION_FORCE = 1000;
     private static final String PROPERTY_REPULSION_FORCE = "layout.repulsive-force";
+
+    private static final double DEFAULT_REPULSION_SCALE = 1;
+    private static final String PROPERTY_REPULSION_SCALE = "layout.repulsive-scale";
     
     private static final double DEFAULT_ATTRACTION_FORCE = 20;
     private static final String PROPERTY_ATTRACTION_FORCE = "layout.attraction-force";
@@ -132,7 +135,17 @@ public class SmartGraphProperties {
     public double getRepulsionForce() {
         return getDoubleProperty(PROPERTY_REPULSION_FORCE, DEFAULT_REPULSION_FORCE);
     }
-    
+        
+    /**
+     * Returns a property that indicates the repulsion scale to use in the
+     * automatic force-based layout.
+     * 
+     * @return corresponding property value
+     */
+    public double getRepulsionScale() {
+        return getDoubleProperty(PROPERTY_REPULSION_SCALE, DEFAULT_REPULSION_SCALE);
+    }
+
     /**
      * Returns a property that indicates the attraction force to use in the
      * automatic force-based layout.

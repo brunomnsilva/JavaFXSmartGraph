@@ -1,7 +1,7 @@
 /* 
  * The MIT License
  *
- * Copyright 2018 brunomnsilva@gmail.com.
+ * Copyright 2021 pantape.k@gmail.com.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,18 +33,20 @@ import javafx.scene.shape.Circle;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.layout.StackPane;
 
 /**
- * Internal implementation of a graph vertex for the {@link SmartGraphPanel}
- * class.
+ * An adaptation implementation from {@link SmartGraphVertexNode} class.
  * <br>
- * Visually it depicts a vertex as a circle, extending from {@link Circle}.
+ * Rather than visualize a vertex just as a {@link Circle}, this will enable any
+ * {@link Node} be a vertex node.
  * <br>
- * The vertex internally deals with mouse drag events that visually move
- * it in the {@link SmartGraphPanel} when displayed, if parameterized to do so.
- * 
- * 
+ * The vertex internally deals with mouse drag events that visually move it in
+ * the {@link SmartGraphPanel} when displayed, if parameterized to do so.
+ *
+ *
  *
  * @param <T> the type of the underlying vertex
  *
@@ -52,19 +54,21 @@ import javafx.scene.Node;
  *
  * @author brunomnsilva
  */
-public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphVertexNode<T> {
+public class SmartGraphForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> {
 
     private final Vertex<T> underlyingVertex;
-    
+
     /* Critical for performance, so we don't rely on the efficiency of the Graph.areAdjacent method */
     private final Set<SmartGraphVertexNode<T>> adjacentVertices;
-    
-    /* Some missing required properties */
-    private final DoubleProperty widthProperty;
-    private final DoubleProperty heightProperty;
 
     private SmartLabel attachedLabel = null;
     private boolean isDragging = false;
+
+    private DoubleProperty radiusProperty;
+    private DoubleProperty widthProperty;
+    private DoubleProperty heightProperty;
+    private DoubleProperty centerXProperty;
+    private DoubleProperty centerYProperty;
 
     /*
     Automatic layout functionality members
@@ -74,39 +78,78 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
 
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
-    
+
+    private StackPane node;
+
     /**
-     * Constructor which sets the instance attributes.
+     * Constructor which sets the instance attributes and having {@link Circle}
+     * as a vertex node
      *
      * @param v the underlying vertex
-     * @param x initial x position on the parent pane
-     * @param y initial y position on the parent pane
-     * @param radius radius of this vertex representation, i.e., a circle
-     * @param allowMove should the vertex be draggable with the mouse
+     * @param allowMove should the vertex able to be dragged with the mouse
      */
-    public SmartGraphCircleVertexNode(Vertex<T> v, double x, double y, double radius, boolean allowMove) {
-        super(x, y, radius);
+    public SmartGraphForceDirectedVertexNode(Vertex<T> v, boolean allowMove) {
+        this(null, v, allowMove);
+    }
 
+    /**
+     * Constructor which sets the instance attributes and having the specified
+     * {@link Node} as a vertex node
+     *
+     * @param node {@link Node}
+     * @param v the underlying vertex
+     * @param allowMove should the vertex able to be dragged with the mouse
+     */
+    public SmartGraphForceDirectedVertexNode(Node node, Vertex<T> v, boolean allowMove) {
         this.underlyingVertex = v;
         this.attachedLabel = null;
         this.isDragging = false;
-        
         this.adjacentVertices = new HashSet<>();
-        
         this.widthProperty = new SimpleDoubleProperty();
         this.heightProperty = new SimpleDoubleProperty();
-        this.widthProperty.bind(this.radiusProperty().multiply(2));
-        this.heightProperty.bind(this.widthProperty);
+        this.centerXProperty = new SimpleDoubleProperty();
+        this.centerYProperty = new SimpleDoubleProperty();
+        this.radiusProperty = new SimpleDoubleProperty();
 
+        this.centerXProperty.bind(this.widthProperty.divide(2));
+        this.centerYProperty.bind(this.heightProperty.divide(2));
 
-        styleProxy = new SmartStyleProxy(this);
-        styleProxy.addStyleClass("vertex");
+        this.node = new StackPane();
+        Node element = null;
+        if (node == null) {
+            if (this.underlyingVertex.element() instanceof Node) {
+                element = (Node) this.underlyingVertex.element();
+            }           
+        } else {
+            element = node;
+        }
+        if(element != null){
+        this.node.getChildren().add(element);
+            this.styleProxy = new SmartStyleProxy(element);
+        }else{
+            this.styleProxy = new SmartStyleProxy(this.node);
+        }
+        this.styleProxy.addStyleClass("vertex");
+                
+        this.node.boundsInLocalProperty().addListener((obs, ov, nv) -> {
+            Bounds bounds = (Bounds) nv;
+            double width, height, radius;
+            width = bounds.getWidth();
+            height = bounds.getHeight();
+            radius = (Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)))/2;
+            this.widthProperty.set(width);
+            this.heightProperty.set(height);
+            this.radiusProperty.set(radius);
+        });
+        this.centerXProperty.bind(this.node.layoutXProperty().add(this.widthProperty.divide(2)));
+        this.centerYProperty.bind(this.node.layoutYProperty().add(this.heightProperty.divide(2)));
+
 
         if (allowMove) {
-            enableDrag();
+            this.enableDrag();
         }
     }
-    
+
     /**
      * Adds a vertex to the internal list of adjacent vertices.
      *
@@ -115,6 +158,16 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
     @Override
     public void addAdjacentVertex(SmartGraphVertexNode<T> v) {
         this.adjacentVertices.add(v);
+    }
+
+    /**
+     * Gets adjacent vertices.
+     *
+     * return set of adjacent vertices
+     */
+    @Override
+    public Set<SmartGraphVertexNode<T>> getAdjacentVertices() {
+        return this.adjacentVertices;
     }
 
     /**
@@ -135,7 +188,7 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
      * @param col collection of vertices
      * @return true if any vertex was effectively removed
      */
-    public boolean removeAdjacentVertices(Collection<SmartGraphCircleVertexNode<T>> col) {
+    public boolean removeAdjacentVertices(Collection<SmartGraphVertexNode<T>> col) {
         return this.adjacentVertices.removeAll(col);
     }
 
@@ -156,7 +209,7 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
      * @return the x,y coordinates in pixels
      */
     public Point2D getPosition() {
-        return new Point2D(getCenterX(), getCenterY());
+        return new Point2D(this.node.getLayoutX(), this.node.getLayoutY());
     }
 
     /**
@@ -171,20 +224,19 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
             return;
         }
 
-        setCenterX(x);
-        setCenterY(y);
+        this.node.setLayoutX(x);
+        this.node.setLayoutY(y);
     }
-    
-     @Override
+
+    @Override
     public double getPositionCenterX() {
-        return getCenterX();
+        return this.centerXProperty.get();
     }
 
     @Override
     public double getPositionCenterY() {
-        return getCenterY();
+        return this.centerYProperty.get();
     }
-
 
     /**
      * Sets the position of the instance in pixels.
@@ -192,7 +244,7 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
      * @param p coordinates
      */
     public void setPosition(Point2D p) {
-        setPosition(p.getX(), p.getY());
+        this.setPosition(p.getX(), p.getY());
     }
 
     /**
@@ -200,9 +252,9 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
      *
      */
     public void resetForces() {
-        forceVector.x = forceVector.y = 0;
-        updatedPosition.x = getCenterX();
-        updatedPosition.y = getCenterY();
+        this.forceVector.x = this.forceVector.y = 0;
+        this.updatedPosition.x = this.getPosition().getX();
+        this.updatedPosition.y = this.getPosition().getY();
     }
 
     /**
@@ -214,8 +266,8 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
      *
      */
     public void addForceVector(double x, double y) {
-        forceVector.x += x;
-        forceVector.y += y;
+        this.forceVector.x += x;
+        this.forceVector.y += y;
     }
 
     /**
@@ -224,7 +276,7 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
      * @return force vector
      */
     public Point2D getForceVector() {
-        return new Point2D(forceVector.x, forceVector.y);
+        return new Point2D(this.forceVector.x, this.forceVector.y);
     }
 
     /**
@@ -233,7 +285,7 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
      * @return future position
      */
     public Point2D getUpdatedPosition() {
-        return new Point2D(updatedPosition.x, updatedPosition.y);
+        return new Point2D(this.updatedPosition.x, this.updatedPosition.y);
     }
 
     /**
@@ -243,8 +295,8 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
      * @see SmartGraphPanel#updateForces()
      */
     public void updateDelta() {
-        updatedPosition.x = updatedPosition.x /* + speed*/ + forceVector.x;
-        updatedPosition.y = updatedPosition.y + forceVector.y;
+        this.updatedPosition.x += this.forceVector.x;
+        this.updatedPosition.y += this.forceVector.y;
     }
 
     /**
@@ -255,15 +307,14 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
      * @see SmartGraphPanel#applyForces()
      */
     public void moveFromForces() {
-
         //limit movement to parent bounds
-        double height = getParent().getLayoutBounds().getHeight();
-        double width = getParent().getLayoutBounds().getWidth();
+        double height = this.node.getParent().getLayoutBounds().getHeight();
+        double width = this.node.getParent().getLayoutBounds().getWidth();
 
-        updatedPosition.x = boundCenterCoordinate(updatedPosition.x, 0, width);
-        updatedPosition.y = boundCenterCoordinate(updatedPosition.y, 0, height);
+        this.updatedPosition.x = this.boundCenterCoordinate(this.updatedPosition.x, 0, width);
+        this.updatedPosition.y = boundCenterCoordinate(this.updatedPosition.y, 0, height);
 
-        setPosition(updatedPosition.x, updatedPosition.y);
+        this.setPosition(this.updatedPosition.x, this.updatedPosition.y);
     }
 
     /**
@@ -272,57 +323,62 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
     private void enableDrag() {
         final PointVector dragDelta = new PointVector(0, 0);
 
-        setOnMousePressed((MouseEvent mouseEvent) -> {
+        this.node.setOnMousePressed((MouseEvent mouseEvent) -> {
             if (mouseEvent.isPrimaryButtonDown()) {
                 // record a delta distance for the drag and drop operation.
-                dragDelta.x = getCenterX() - mouseEvent.getX();
-                dragDelta.y = getCenterY() - mouseEvent.getY();
-                getScene().setCursor(Cursor.MOVE);
-                isDragging = true;
+                dragDelta.x = mouseEvent.getX();
+                dragDelta.y = mouseEvent.getY();
+                this.isDragging = true;
 
                 mouseEvent.consume();
             }
 
         });
 
-        setOnMouseReleased((MouseEvent mouseEvent) -> {
-            getScene().setCursor(Cursor.HAND);
-            isDragging = false;
+        this.node.setOnMouseReleased((MouseEvent mouseEvent) -> {
+            this.node.getScene().setCursor(Cursor.HAND);
+            this.isDragging = false;
 
             mouseEvent.consume();
         });
 
-        setOnMouseDragged((MouseEvent mouseEvent) -> {
-            if (mouseEvent.isPrimaryButtonDown()) {
-                double newX = mouseEvent.getX() + dragDelta.x;
-                double x = boundCenterCoordinate(newX, 0, getParent().getLayoutBounds().getWidth());
-                setCenterX(x);
+        this.node.setOnDragDetected((MouseEvent mouseEvent) -> {
+            this.node.getScene().setCursor(Cursor.MOVE);
+        });
 
-                double newY = mouseEvent.getY() + dragDelta.y;
-                double y = boundCenterCoordinate(newY, 0, getParent().getLayoutBounds().getHeight());
-                setCenterY(y);
+        this.node.setOnMouseDragged((MouseEvent mouseEvent) -> {
+            if (mouseEvent.isPrimaryButtonDown()) {
+                double newX = this.node.getLayoutX() + mouseEvent.getX() - dragDelta.x;
+                double newY = this.node.getLayoutY() + mouseEvent.getY() - dragDelta.y;
+
+                double x = this.boundCenterCoordinate(newX, 0, this.node.getParent().getLayoutBounds().getWidth());
+                double y = this.boundCenterCoordinate(newY, 0, this.node.getParent().getLayoutBounds().getHeight());
+
+                this.node.setLayoutX(x);
+                this.node.setLayoutY(y);
+
                 mouseEvent.consume();
             }
 
         });
 
-        setOnMouseEntered((MouseEvent mouseEvent) -> {
+        this.node.setOnMouseEntered((MouseEvent mouseEvent) -> {
             if (!mouseEvent.isPrimaryButtonDown()) {
-                getScene().setCursor(Cursor.HAND);
+                this.node.getScene().setCursor(Cursor.HAND);
             }
 
         });
 
-        setOnMouseExited((MouseEvent mouseEvent) -> {
+        this.node.setOnMouseExited((MouseEvent mouseEvent) -> {
             if (!mouseEvent.isPrimaryButtonDown()) {
-                getScene().setCursor(Cursor.DEFAULT);
+                this.node.getScene().setCursor(Cursor.DEFAULT);
             }
 
         });
     }
 
     private double boundCenterCoordinate(double value, double min, double max) {
-        double radius = getRadius();
+        double radius = this.getRadius();
 
         if (value < min + radius) {
             return min + radius;
@@ -336,29 +392,28 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
-        label.xProperty().bind(centerXProperty().subtract(label.getLayoutBounds().getWidth() / 2.0));
-        label.yProperty().bind(centerYProperty().add(getRadius() + label.getLayoutBounds().getHeight()));
+        label.xProperty().bind(this.centerXProperty().subtract(label.getLayoutBounds().getWidth() / 2));
+        label.yProperty().bind(this.layoutYProperty().add(this.heightProperty()).add(label.getLayoutBounds().getHeight()));
     }
 
     @Override
     public SmartLabel getAttachedLabel() {
-        return attachedLabel;
+        return this.attachedLabel;
     }
 
     @Override
     public Vertex<T> getUnderlyingVertex() {
-        return underlyingVertex;
+        return this.underlyingVertex;
     }
 
-     
     @Override
     public void setStyleClass(String cssClass) {
-        styleProxy.setStyleClass(cssClass);
+        this.styleProxy.setStyleClass(cssClass);
     }
 
     @Override
     public void addStyleClass(String cssClass) {
-        styleProxy.addStyleClass(cssClass);
+        this.styleProxy.addStyleClass(cssClass);
     }
 
     @Override
@@ -367,8 +422,18 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
     }
 
     @Override
+    public double getRadius() {
+        return this.radiusProperty.get();
+    }
+
+    @Override
     public Node getNode() {
-        return this;
+        return this.node;
+    }
+
+    @Override
+    public void setStyle(String css) {
+        this.styleProxy.setStyle(css);
     }
 
     @Override
@@ -379,6 +444,31 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
     @Override
     public DoubleProperty heightProperty() {
         return this.heightProperty;
+    }
+
+    @Override
+    public DoubleProperty centerXProperty() {
+        return this.centerXProperty;
+    }
+
+    @Override
+    public DoubleProperty centerYProperty() {
+        return this.centerYProperty;
+    }
+
+    @Override
+    public DoubleProperty layoutXProperty() {
+        return this.node.layoutXProperty();
+    }
+
+    @Override
+    public DoubleProperty layoutYProperty() {
+        return this.node.layoutYProperty();
+    }
+
+    @Override
+    public DoubleProperty radiusProperty() {
+        return this.radiusProperty;
     }
 
     /**
@@ -394,9 +484,5 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
             this.y = y;
         }
     }
-    
-    @Override
-    public Set<SmartGraphVertexNode<T>> getAdjacentVertices(){
-        return this.adjacentVertices;
-    }
+
 }

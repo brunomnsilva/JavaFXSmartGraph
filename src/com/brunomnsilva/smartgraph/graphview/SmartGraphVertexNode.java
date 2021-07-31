@@ -81,4 +81,24 @@ public interface SmartGraphVertexNode<T> extends SmartGraphVertex<T>, SmartLabel
      * @return node adjacent vertices
      */
     public Set<SmartGraphVertexNode<T>> getAdjacentVertices();
+    /**
+     * Adds a vertex to the internal list of adjacent vertices.
+     *
+     * @param v vertex to add
+     */    
+    public void addAdjacentVertex(SmartGraphVertexNode<T> v);
+    /**
+     * Removes a vertex from the internal list of adjacent vertices.
+     *
+     * @param v vertex to remove
+     * @return true if <code>v</code> existed; false otherwise.
+     */    
+    public boolean removeAdjacentVertex(SmartGraphVertexNode<T> v);
+    /**
+     * Checks whether <code>v</code> is adjacent this instance.
+     *
+     * @param v vertex to check
+     * @return true if adjacent; false otherwise
+     */
+    public boolean isAdjacentTo(SmartGraphVertexNode<T> v);
 }

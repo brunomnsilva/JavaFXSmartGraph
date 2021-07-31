@@ -30,7 +30,7 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 
     -fx-min-width: 40; 
     -fx-min-height: 40;
-    -fx-padding: 3 3 3 3;
+    -fx-padding: 0;
     -fx-border-width: 3; 
     -fx-border-color: #61B5F1;
     -fx-border-radius: 20; 
