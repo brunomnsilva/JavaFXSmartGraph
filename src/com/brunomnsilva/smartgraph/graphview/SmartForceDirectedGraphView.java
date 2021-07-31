@@ -193,6 +193,11 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
         this.setupForces();
         this.timer.start();
     }
+    
+    @Override
+    protected void onUpdate(){
+        this.setupForces();
+    }
 
     @Override
     protected SmartGraphVertexNode getSmartGraphVertexNode(Vertex vertex) {

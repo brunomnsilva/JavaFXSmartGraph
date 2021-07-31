@@ -308,8 +308,17 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
         //this will be called from a non-javafx thread, so this must be guaranteed to run of the graphics thread
         Platform.runLater(() -> {
             this.updateNodes();
+            this.onUpdate();
         });
-
+        
+    }
+    
+    /**
+     * This method will be called in the update() method, providing a place where
+     * child class can do something in the update process.
+     */
+    protected void onUpdate(){
+        
     }
 
     /**
