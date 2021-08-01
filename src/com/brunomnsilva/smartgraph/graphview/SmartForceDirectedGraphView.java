@@ -228,9 +228,9 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
     * AUTOMATIC LAYOUT 
      */
     private void computeForces() {
-        for (Object item1 : vertexNodes.values()) {
+        for (Object item1 : this.vertexNodes.values()) {
             SmartGraphForceDirectedVertexNode v = (SmartGraphForceDirectedVertexNode)item1;
-            for (Object item2 : vertexNodes.values()) {
+            for (Object item2 : this.vertexNodes.values()) {
                 SmartGraphForceDirectedVertexNode other = (SmartGraphForceDirectedVertexNode)item2;
                 if (v == other) {
                     continue; //NOP
@@ -252,7 +252,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                     Point2D attractiveForce = attractiveForce(
                             v.getUpdatedPosition(),
                             other.getUpdatedPosition(),
-                            vertexNodes.size(),
+                            this.vertexNodes.size(),
                             this.attractionForce,
                             this.attractionScale);
 

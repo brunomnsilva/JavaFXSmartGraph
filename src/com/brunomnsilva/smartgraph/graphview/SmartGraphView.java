@@ -308,7 +308,6 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
         //this will be called from a non-javafx thread, so this must be guaranteed to run of the graphics thread
         Platform.runLater(() -> {
             this.updateNodes();
-            this.onUpdate();
         });
         
     }
@@ -360,13 +359,13 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
         } else {
             this.updateNodes();
         }
-
     }
 
     private synchronized void updateNodes() {
         this.removeNodes();
         this.insertNodes();
         this.updateLabels();
+        this.onUpdate();
     }
 
     /*
