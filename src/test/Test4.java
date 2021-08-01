@@ -32,7 +32,6 @@ import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
-import com.brunomnsilva.smartgraph.graphview.SmartForceDirectedGraphView;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPaneBig;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphView;
 import com.brunomnsilva.smartgraph.graphview.SmartRandomNearCenterPlacementStrategy;

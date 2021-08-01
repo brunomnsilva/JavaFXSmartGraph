@@ -1,7 +1,7 @@
 /* 
  * The MIT License
  *
- * Copyright 2021 pantape.k@gmail.com.
+ * Copyright 2021
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,10 +38,11 @@ import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 
 /**
- * An adaptation implementation from {@link SmartGraphVertexNode} class.
+ * Implementation of {@link SmartGraphVertexNode} class.
  * <br>
- * Rather than visualize a vertex just as a {@link Circle}, this will enable any
- * {@link Node} be a vertex node.
+ * Rather than visualize a vertex just as a {@link Circle}, this uses
+ * {@link StackPane} as a vertex node. If the type of the underlying vertex is
+ * an instance of {@link Node} it will be added to the vertex node.
  * <br>
  * The vertex internally deals with mouse drag events that visually move it in
  * the {@link SmartGraphPanel} when displayed, if parameterized to do so.
@@ -50,41 +51,35 @@ import javafx.scene.layout.StackPane;
  *
  * @param <T> the type of the underlying vertex
  *
- * @see SmartGraphPanel
- *
- * @author brunomnsilva
+ * @author pantape.k@gmail.com
  */
 public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
 
-    private final Vertex<T> underlyingVertex;
+    protected Vertex<T> underlyingVertex;
 
     /* Critical for performance, so we don't rely on the efficiency of the Graph.areAdjacent method */
-    private final Set<SmartGraphVertexNode<T>> adjacentVertices;
+    protected final Set<SmartGraphVertexNode<T>> adjacentVertices;
 
-    private SmartLabel attachedLabel = null;
-    private boolean isDragging = false;
+    protected SmartLabel attachedLabel = null;
+    protected boolean isDragging = false;
 
-    private DoubleProperty radiusProperty;
-    private DoubleProperty widthProperty;
-    private DoubleProperty heightProperty;
-    private DoubleProperty centerXProperty;
-    private DoubleProperty centerYProperty;
+    protected DoubleProperty radiusProperty;
+    protected DoubleProperty widthProperty;
+    protected DoubleProperty heightProperty;
+    protected DoubleProperty centerXProperty;
+    protected DoubleProperty centerYProperty;
 
     /* Styling proxy */
-    private final SmartStyleProxy styleProxy;
+    protected SmartStyleProxy styleProxy;
 
-    private StackPane node;
+    protected StackPane node;
 
-    /**
-     * Constructor which sets the instance attributes
-     *
-     * @param v the underlying vertex
-     * @param allowMove should the vertex able to be dragged with the mouse
-     */
-    public SmartGraphVertexNodeBasic(Vertex<T> v, boolean allowMove) {
-        this.underlyingVertex = v;
+    protected SmartGraphVertexNodeBasic() {
+        this.underlyingVertex = null;
         this.attachedLabel = null;
         this.isDragging = false;
+        this.styleProxy = null;
+        this.node = new StackPane();
         this.adjacentVertices = new HashSet<>();
         this.widthProperty = new SimpleDoubleProperty();
         this.heightProperty = new SimpleDoubleProperty();
@@ -94,8 +89,17 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
 
         this.centerXProperty.bind(this.widthProperty.divide(2));
         this.centerYProperty.bind(this.heightProperty.divide(2));
+    }
 
-        this.node = new StackPane();
+    /**
+     * Constructor which sets the instance attributes
+     *
+     * @param v the underlying vertex
+     * @param allowMove should the vertex able to be dragged with the mouse
+     */
+    public SmartGraphVertexNodeBasic(Vertex<T> v, boolean allowMove) {
+        this();
+        this.underlyingVertex = v;
         Node element = null;
         if (this.underlyingVertex.element() instanceof Node) {
             element = (Node) this.underlyingVertex.element();
@@ -113,7 +117,7 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
             double width, height, radius;
             width = bounds.getWidth();
             height = bounds.getHeight();
-            radius = (Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2))) / 2;
+            radius = (width > height ? width : height) / 2;//(Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2))) / 2;
             this.widthProperty.set(width);
             this.heightProperty.set(height);
             this.radiusProperty.set(radius);
@@ -303,7 +307,7 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
     /**
      * Make a node movable by dragging it around with the mouse primary button.
      */
-    private void enableDrag() {
+    protected void enableDrag() {
         final PointVector dragDelta = new PointVector(0, 0);
 
         this.node.setOnMousePressed((MouseEvent mouseEvent) -> {
@@ -360,7 +364,7 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
         });
     }
 
-    private double boundCenterCoordinate(double value, double min, double max) {
+    protected double boundCenterCoordinate(double value, double min, double max) {
         double radius = this.getRadius();
 
         if (value < min + radius) {
@@ -376,7 +380,7 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
      * Internal representation of a 2D point or vector for quick access to its
      * attributes.
      */
-    private class PointVector {
+    protected class PointVector {
 
         double x, y;
 

@@ -23,19 +23,10 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 import com.brunomnsilva.smartgraph.graph.Vertex;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.geometry.Bounds;
 import javafx.scene.Node;
-import javafx.scene.layout.StackPane;
 
 /**
  * An adaptation implementation from {@link SmartGraphVertexNode} class.
@@ -54,21 +45,7 @@ import javafx.scene.layout.StackPane;
  *
  * @author brunomnsilva
  */
-public class SmartGraphForceDirectedVertexNode<T> implements SmartGraphVertexNode<T> {
-
-    private final Vertex<T> underlyingVertex;
-
-    /* Critical for performance, so we don't rely on the efficiency of the Graph.areAdjacent method */
-    private final Set<SmartGraphVertexNode<T>> adjacentVertices;
-
-    private SmartLabel attachedLabel = null;
-    private boolean isDragging = false;
-
-    private DoubleProperty radiusProperty;
-    private DoubleProperty widthProperty;
-    private DoubleProperty heightProperty;
-    private DoubleProperty centerXProperty;
-    private DoubleProperty centerYProperty;
+public class SmartGraphForceDirectedVertexNode<T> extends SmartGraphVertexNodeBasic<T> {
 
     /*
     Automatic layout functionality members
@@ -76,175 +53,16 @@ public class SmartGraphForceDirectedVertexNode<T> implements SmartGraphVertexNod
     private final PointVector forceVector = new PointVector(0, 0);
     private final PointVector updatedPosition = new PointVector(0, 0);
 
-    /* Styling proxy */
-    private final SmartStyleProxy styleProxy;
-
-    private StackPane node;
-
-    /**
-     * Constructor which sets the instance attributes and having {@link Circle}
-     * as a vertex node
-     *
-     * @param v the underlying vertex
-     * @param allowMove should the vertex able to be dragged with the mouse
-     */
-    public SmartGraphForceDirectedVertexNode(Vertex<T> v, boolean allowMove) {
-        this(null, v, allowMove);
-    }
 
     /**
      * Constructor which sets the instance attributes and having the specified
      * {@link Node} as a vertex node
      *
-     * @param node {@link Node}
      * @param v the underlying vertex
      * @param allowMove should the vertex able to be dragged with the mouse
      */
-    public SmartGraphForceDirectedVertexNode(Node node, Vertex<T> v, boolean allowMove) {
-        this.underlyingVertex = v;
-        this.attachedLabel = null;
-        this.isDragging = false;
-        this.adjacentVertices = new HashSet<>();
-        this.widthProperty = new SimpleDoubleProperty();
-        this.heightProperty = new SimpleDoubleProperty();
-        this.centerXProperty = new SimpleDoubleProperty();
-        this.centerYProperty = new SimpleDoubleProperty();
-        this.radiusProperty = new SimpleDoubleProperty();
-
-        this.centerXProperty.bind(this.widthProperty.divide(2));
-        this.centerYProperty.bind(this.heightProperty.divide(2));
-
-        this.node = new StackPane();
-        Node element = null;
-        if (node == null) {
-            if (this.underlyingVertex.element() instanceof Node) {
-                element = (Node) this.underlyingVertex.element();
-            }           
-        } else {
-            element = node;
-        }
-        if(element != null){
-        this.node.getChildren().add(element);
-            this.styleProxy = new SmartStyleProxy(element);
-        }else{
-            this.styleProxy = new SmartStyleProxy(this.node);
-        }
-        this.styleProxy.addStyleClass("vertex");
-                
-        this.node.boundsInLocalProperty().addListener((obs, ov, nv) -> {
-            Bounds bounds = (Bounds) nv;
-            double width, height, radius;
-            width = bounds.getWidth();
-            height = bounds.getHeight();
-            radius = (Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)))/2;
-            this.widthProperty.set(width);
-            this.heightProperty.set(height);
-            this.radiusProperty.set(radius);
-        });
-        this.centerXProperty.bind(this.node.layoutXProperty().add(this.widthProperty.divide(2)));
-        this.centerYProperty.bind(this.node.layoutYProperty().add(this.heightProperty.divide(2)));
-
-
-        if (allowMove) {
-            this.enableDrag();
-        }
-    }
-
-    /**
-     * Adds a vertex to the internal list of adjacent vertices.
-     *
-     * @param v vertex to add
-     */
-    @Override
-    public void addAdjacentVertex(SmartGraphVertexNode<T> v) {
-        this.adjacentVertices.add(v);
-    }
-
-    /**
-     * Gets adjacent vertices.
-     *
-     * return set of adjacent vertices
-     */
-    @Override
-    public Set<SmartGraphVertexNode<T>> getAdjacentVertices() {
-        return this.adjacentVertices;
-    }
-
-    /**
-     * Removes a vertex from the internal list of adjacent vertices.
-     *
-     * @param v vertex to remove
-     * @return true if <code>v</code> existed; false otherwise.
-     */
-    @Override
-    public boolean removeAdjacentVertex(SmartGraphVertexNode<T> v) {
-        return this.adjacentVertices.remove(v);
-    }
-
-    /**
-     * Removes a collection of vertices from the internal list of adjacent
-     * vertices.
-     *
-     * @param col collection of vertices
-     * @return true if any vertex was effectively removed
-     */
-    public boolean removeAdjacentVertices(Collection<SmartGraphVertexNode<T>> col) {
-        return this.adjacentVertices.removeAll(col);
-    }
-
-    /**
-     * Checks whether <code>v</code> is adjacent this instance.
-     *
-     * @param v vertex to check
-     * @return true if adjacent; false otherwise
-     */
-    @Override
-    public boolean isAdjacentTo(SmartGraphVertexNode<T> v) {
-        return this.adjacentVertices.contains(v);
-    }
-
-    /**
-     * Returns the current position of the instance in pixels.
-     *
-     * @return the x,y coordinates in pixels
-     */
-    public Point2D getPosition() {
-        return new Point2D(this.node.getLayoutX(), this.node.getLayoutY());
-    }
-
-    /**
-     * Sets the position of the instance in pixels.
-     *
-     * @param x x coordinate
-     * @param y y coordinate
-     */
-    @Override
-    public void setPosition(double x, double y) {
-        if (isDragging) {
-            return;
-        }
-
-        this.node.setLayoutX(x);
-        this.node.setLayoutY(y);
-    }
-
-    @Override
-    public double getPositionCenterX() {
-        return this.centerXProperty.get();
-    }
-
-    @Override
-    public double getPositionCenterY() {
-        return this.centerYProperty.get();
-    }
-
-    /**
-     * Sets the position of the instance in pixels.
-     *
-     * @param p coordinates
-     */
-    public void setPosition(Point2D p) {
-        this.setPosition(p.getX(), p.getY());
+    public SmartGraphForceDirectedVertexNode(Vertex<T> v, boolean allowMove) {
+        super(v, allowMove);
     }
 
     /**
@@ -316,173 +134,4 @@ public class SmartGraphForceDirectedVertexNode<T> implements SmartGraphVertexNod
 
         this.setPosition(this.updatedPosition.x, this.updatedPosition.y);
     }
-
-    /**
-     * Make a node movable by dragging it around with the mouse primary button.
-     */
-    private void enableDrag() {
-        final PointVector dragDelta = new PointVector(0, 0);
-
-        this.node.setOnMousePressed((MouseEvent mouseEvent) -> {
-            if (mouseEvent.isPrimaryButtonDown()) {
-                // record a delta distance for the drag and drop operation.
-                dragDelta.x = mouseEvent.getX();
-                dragDelta.y = mouseEvent.getY();
-                this.isDragging = true;
-
-                mouseEvent.consume();
-            }
-
-        });
-
-        this.node.setOnMouseReleased((MouseEvent mouseEvent) -> {
-            this.node.getScene().setCursor(Cursor.HAND);
-            this.isDragging = false;
-
-            mouseEvent.consume();
-        });
-
-        this.node.setOnDragDetected((MouseEvent mouseEvent) -> {
-            this.node.getScene().setCursor(Cursor.MOVE);
-        });
-
-        this.node.setOnMouseDragged((MouseEvent mouseEvent) -> {
-            if (mouseEvent.isPrimaryButtonDown()) {
-                double newX = this.node.getLayoutX() + mouseEvent.getX() - dragDelta.x;
-                double newY = this.node.getLayoutY() + mouseEvent.getY() - dragDelta.y;
-
-                double x = this.boundCenterCoordinate(newX, 0, this.node.getParent().getLayoutBounds().getWidth());
-                double y = this.boundCenterCoordinate(newY, 0, this.node.getParent().getLayoutBounds().getHeight());
-
-                this.node.setLayoutX(x);
-                this.node.setLayoutY(y);
-
-                mouseEvent.consume();
-            }
-
-        });
-
-        this.node.setOnMouseEntered((MouseEvent mouseEvent) -> {
-            if (!mouseEvent.isPrimaryButtonDown()) {
-                this.node.getScene().setCursor(Cursor.HAND);
-            }
-
-        });
-
-        this.node.setOnMouseExited((MouseEvent mouseEvent) -> {
-            if (!mouseEvent.isPrimaryButtonDown()) {
-                this.node.getScene().setCursor(Cursor.DEFAULT);
-            }
-
-        });
-    }
-
-    private double boundCenterCoordinate(double value, double min, double max) {
-        double radius = this.getRadius();
-
-        if (value < min + radius) {
-            return min + radius;
-        } else if (value > max - radius) {
-            return max - radius;
-        } else {
-            return value;
-        }
-    }
-
-    @Override
-    public void attachLabel(SmartLabel label) {
-        this.attachedLabel = label;
-        label.xProperty().bind(this.centerXProperty().subtract(label.getLayoutBounds().getWidth() / 2));
-        label.yProperty().bind(this.layoutYProperty().add(this.heightProperty()).add(label.getLayoutBounds().getHeight()));
-    }
-
-    @Override
-    public SmartLabel getAttachedLabel() {
-        return this.attachedLabel;
-    }
-
-    @Override
-    public Vertex<T> getUnderlyingVertex() {
-        return this.underlyingVertex;
-    }
-
-    @Override
-    public void setStyleClass(String cssClass) {
-        this.styleProxy.setStyleClass(cssClass);
-    }
-
-    @Override
-    public void addStyleClass(String cssClass) {
-        this.styleProxy.addStyleClass(cssClass);
-    }
-
-    @Override
-    public boolean removeStyleClass(String cssClass) {
-        return styleProxy.removeStyleClass(cssClass);
-    }
-
-    @Override
-    public double getRadius() {
-        return this.radiusProperty.get();
-    }
-
-    @Override
-    public Node getNode() {
-        return this.node;
-    }
-
-    @Override
-    public void setStyle(String css) {
-        this.styleProxy.setStyle(css);
-    }
-
-    @Override
-    public DoubleProperty widthProperty() {
-        return this.widthProperty;
-    }
-
-    @Override
-    public DoubleProperty heightProperty() {
-        return this.heightProperty;
-    }
-
-    @Override
-    public DoubleProperty centerXProperty() {
-        return this.centerXProperty;
-    }
-
-    @Override
-    public DoubleProperty centerYProperty() {
-        return this.centerYProperty;
-    }
-
-    @Override
-    public DoubleProperty layoutXProperty() {
-        return this.node.layoutXProperty();
-    }
-
-    @Override
-    public DoubleProperty layoutYProperty() {
-        return this.node.layoutYProperty();
-    }
-
-    @Override
-    public DoubleProperty radiusProperty() {
-        return this.radiusProperty;
-    }
-
-    /**
-     * Internal representation of a 2D point or vector for quick access to its
-     * attributes.
-     */
-    private class PointVector {
-
-        double x, y;
-
-        public PointVector(double x, double y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
 }
