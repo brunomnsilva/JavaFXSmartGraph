@@ -396,11 +396,13 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
     private void initNodes() {
 
         /* create vertex graphical representations */
-        for (Vertex<V> vertex : listOfVertices()) {
+        for (Vertex<V> vertex : this.listOfVertices()) {
             SmartGraphVertexNode<V> vertexAnchor = this.getSmartGraphVertexNode(vertex);
             this.vertexNodes.put(vertex, vertexAnchor);
             vertexAnchor.getNode().setOnMouseClicked(mouseEvent -> {
-                this.hideAdjacentVertices(vertexAnchor);
+                if (mouseEvent.getButton().equals(MouseButton.SECONDARY)) {
+                    this.toggleAdjacentVertexVisible(vertexAnchor);
+                }
             });
         }
 
@@ -936,7 +938,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
      * @param v target {@link  SmartGraphVertexNode}
      */
     public void hideAdjacentVertices(SmartGraphVertexNode<V> v) {
-        this.setAdjacentVerticesVisible(v, false);
+        this.setAdjacentVertexVisible(v, false);
     }
 
     /**
@@ -945,31 +947,76 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
      * @param v target {@link  SmartGraphVertexNode}
      */
     public void showAdjacentVertices(SmartGraphVertexNode<V> v) {
-        this.setAdjacentVerticesVisible(v, true);
+        this.setAdjacentVertexVisible(v, true);
     }
 
-    private void setAdjacentVerticesVisible(SmartGraphVertexNode<V> v, boolean visible) {
-        // hide vertex
-        v.getAdjacentVertices().forEach(adj -> {
-            System.out.println("Found adjacent: " + adj);
-            if (v != adj && adj.getAdjacentVertices().size() == 1) {
-                System.out.println("\tHide: " + adj.getUnderlyingVertex().element());
-                adj.visibleProperty().set(visible);
-            }else{
-                System.out.println("\tNot hide");
-                System.out.println("\t\tv == adj : " + (v == adj));
-                System.out.println("\t\tedge > 1 : " + adj.getAdjacentVertices().size());
-            }
-        });
+    /**
+     * Hides adjacent vertices that has no other adjacent.
+     *
+     * @param v target {@link  SmartGraphVertexNode}
+     */
+    public void toggleAdjacentVertexVisible(SmartGraphVertexNode<V> v) {
+        this.setAdjacentVertexVisible(v, null);
+    }
 
-        // hide edges
+    private void setAdjacentVertexVisible(SmartGraphVertexNode<V> v, Boolean visible) {
+        System.out.println("\nHiding children of vertex: " + v.getUnderlyingVertex().element());
+        // get vertex from edges
         this.edgeNodes.values().forEach((edge) -> {
             Vertex[] vertices = edge.getUnderlyingEdge().vertices();
-            if (vertices[0] == v || vertices[1] == v) {
-                System.out.println("Found edge: " + edge.getUnderlyingEdge().element());
-                ((Shape) edge).setVisible(visible);
+            if (vertices[0] != vertices[1]
+                    && (vertices[0] == v.getUnderlyingVertex() || vertices[1] == v.getUnderlyingVertex())) {
+                Vertex adjV = vertices[0];
+                if (adjV == v.getUnderlyingVertex()) {
+                    adjV = vertices[1];
+                }
+                SmartGraphVertexNode adjNode = this.vertexNodes.get(adjV);
+                System.out.println("\tEdge: " + edge.getUnderlyingEdge().element());
+                System.out.println("\tVertex: " + adjNode.getUnderlyingVertex().element());
+                boolean value;
+                if (visible != null) {
+                    value = visible;
+                } else {
+                    value = !adjNode.visibleProperty().get();
+                }
+                if (adjNode.getAdjacentVertices().size() == 1) {
+                    // can be hidden
+                    this.doSetAdjacentVertexVisible(adjNode, edge, value);
+                } else {
+                    // check if all adjacents are itself
+                    System.out.println("\tMulitple edges: ");
+                    boolean toSelf = true;
+                    for (Object obj : adjNode.getAdjacentVertices()) {
+                        SmartGraphVertexNode adjOfAdjNode = (SmartGraphVertexNode) obj;
+                        System.out.println("\t\tVertex: " + adjOfAdjNode.getUnderlyingVertex().element());
+                        if (adjOfAdjNode != v && adjOfAdjNode.visibleProperty().get() & adjOfAdjNode != adjNode) {
+                            toSelf = false;
+                            break;
+                        }
+                        System.out.println("\t\tIs to self or to parent: " + toSelf);
+                    }
+                    System.out.println("\tIs hide: " + toSelf);
+                    if (toSelf) {
+                        this.doSetAdjacentVertexVisible(adjNode, edge, value);
+                        this.edgeNodes.values().forEach(selfEdge -> {
+                            Vertex[] selfVertices = selfEdge.getUnderlyingEdge().vertices();
+                            if (selfVertices[0] == adjNode.getUnderlyingVertex() && selfVertices[1] == adjNode.getUnderlyingVertex()) {
+                                System.out.println("\tHide edge: " + selfEdge.getUnderlyingEdge().element());
+                                this.doSetAdjacentVertexVisible(adjNode, selfEdge, value);
+                            }
+                        });
+                    }
+                }
             }
         });
+    }
+
+    private void doSetAdjacentVertexVisible(SmartGraphVertexNode v, SmartGraphEdgeBase e, boolean value) {
+        v.visibleProperty().set(value);
+        v.getAttachedLabel().setVisible(value);
+        ((Shape) e).setVisible(value);
+        e.getAttachedArrow().setVisible(value);
+        e.getAttachedLabel().setVisible(value);
     }
 
     /**
@@ -1000,26 +1047,8 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
      */
     private void enableMouseEventListener() {
         this.setOnMouseClicked((MouseEvent mouseEvent) -> {
-            System.out.println("");
             Node node = pick(SmartGraphView.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
-            if (node == null) {
-                System.out.println("Mouse got clicked, node is null.");
-                return;
-            }else{
-                System.out.println("Mouse got clicked, node: " + node.toString());
-            }
             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                // detect single click
-//                if (mouseEvent.getClickCount() == 1) {
-//                    System.out.println("Mouse got clicked, node is not null.");
-//                    this.theGraph.vertices().forEach(v -> {
-//                        if(v.element() == node){
-//                            System.out.println("Hide adjacent vertices..");
-//                            SmartGraphVertexNodeBasic target = (SmartGraphVertexNodeBasic)this.vertexNodes.get(v);
-//                            this.hideAdjacentVertices(target);
-//                        }
-//                    });
-//                }
                 // detect double click
                 if (mouseEvent.getClickCount() == 2) {
                     //no need to continue otherwise
