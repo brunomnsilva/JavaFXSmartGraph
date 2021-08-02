@@ -94,7 +94,7 @@ public class Test3 extends Application {
         g.insertVertex(d);
         g.insertVertex(e);
         g.insertVertex("Food");
-
+//
         g.insertEdge(a, e, "go to");
         g.insertEdge(b, d, "sing");
         g.insertEdge(a, d, "bite");
@@ -102,8 +102,8 @@ public class Test3 extends Application {
         g.insertEdge(c, b, "watch2");
         g.insertEdge(c, d, "fight");
         g.insertEdge(d, "Food", "eat");
-
-        //yep, its a loop!
+//
+//        //yep, its a loop!
         g.insertEdge(c, c, "scratch");
         g.insertEdge(d, d, "jump");
         g.insertEdge(d, d, "wag tail");

@@ -33,6 +33,7 @@ import com.brunomnsilva.smartgraph.graph.Vertex;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesPoint2D.attractiveForce;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesPoint2D.repellingForce;
 import java.net.URI;
+import javafx.scene.Cursor;
 
 /**
  * JavaFX {@link Pane} that is capable of plotting a {@link Graph} or
@@ -63,6 +64,10 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
     private final double repulsionScale;
     private double attractionForce;
     private final double attractionScale;
+
+    private int currentMaxDeltaForceX = 0;
+    private int currentMaxDeltaForceY = 0;
+    private int forceComputeCount = 0;
 
     /**
      * Constructs a visualization of the graph referenced by
@@ -131,6 +136,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
 
         super(theGraph, properties, placementStrategy, cssFile);
 
+        this.automaticLayoutProperty.set(true);
         this.repulsionForce = this.graphProperties.getRepulsionForce();
         this.repulsionScale = this.graphProperties.getRepulsionScale();
         this.attractionForce = this.graphProperties.getAttractionForce();
@@ -152,19 +158,35 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                 this.timer.stop();
             }
         });
+
+        // restart force computation if vertex got dragged
+        this.setOnVertexDragged();
+    }
+
+    private void setOnVertexDragged() {
+        for (Object v1 : this.vertexNodes.values()) {
+            SmartGraphVertexNode v = (SmartGraphVertexNode) v1;
+            v.getNode().setOnDragDetected(mouseEvent -> {
+                this.getScene().setCursor(Cursor.MOVE);
+                if (this.automaticLayoutProperty.get()) {
+                    System.out.println("Auto layout start");
+                    this.timer.start();
+                }
+            });
+        }
     }
 
     private void setupForces() {
         // make repulsion force and attraction force proportional to average vertex radius
         double radius = 0;
         for (Object v : this.vertexNodes.values()) {
-            double nodeRadius = ((SmartGraphVertexNode)v).getRadius();
+            double nodeRadius = ((SmartGraphVertexNode) v).getRadius();
             radius = radius < nodeRadius ? nodeRadius : radius;
         }
         //radius /= this.vertexNodes.size();
         double rForce = 75 * Math.pow((int) radius, 2) * this.repulsionScale;
         this.repulsionForce = rForce > this.repulsionForce ? rForce : this.repulsionForce;
-        double aForce = radius * 2 / 3;
+        double aForce = radius * 3 / 4;
         this.attractionForce = aForce > this.attractionForce ? aForce : this.attractionForce;
 
         System.out.println("Biggest radius: " + radius);
@@ -173,7 +195,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
     }
 
     private synchronized void runLayoutIteration() {
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < 20; i++) {
             this.resetForces();
             this.computeForces();
             this.updateForces();
@@ -190,12 +212,14 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                 this.vertexNodes.values());
 
         //start automatic layout
-        this.setupForces();
-        this.timer.start();
+        if (this.automaticLayoutProperty.get()) {
+            this.setupForces();
+            this.timer.start();
+        }
     }
-    
+
     @Override
-    protected void onUpdate(){
+    protected void onUpdate() {
         this.setupForces();
     }
 
@@ -228,10 +252,13 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
     * AUTOMATIC LAYOUT 
      */
     private void computeForces() {
-        for (Object item1 : this.vertexNodes.values()) {
-            SmartGraphForceDirectedVertexNode v = (SmartGraphForceDirectedVertexNode)item1;
-            for (Object item2 : this.vertexNodes.values()) {
-                SmartGraphForceDirectedVertexNode other = (SmartGraphForceDirectedVertexNode)item2;
+        int maxDeltaForceX = 0;
+        int maxDeltaForceY = 0;
+
+        for (Object v1 : this.vertexNodes.values()) {
+            SmartGraphForceDirectedVertexNode v = (SmartGraphForceDirectedVertexNode) v1;
+            for (Object v2 : this.vertexNodes.values()) {
+                SmartGraphForceDirectedVertexNode other = (SmartGraphForceDirectedVertexNode) v2;
                 if (v == other) {
                     continue; //NOP
                 }
@@ -263,8 +290,27 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
                     deltaForceY = repellingForce.getY();
                 }
                 v.addForceVector(deltaForceX, deltaForceY);
+
+                maxDeltaForceX = Math.abs(deltaForceX) > maxDeltaForceX ? (int) Math.abs(deltaForceX) : maxDeltaForceX;
+                maxDeltaForceY = Math.abs(deltaForceY) > maxDeltaForceY ? (int) Math.abs(deltaForceY) : maxDeltaForceY;
+
             }
+
         }
+
+        // stop force computation if max delta force x, y not change for 10k times
+        if (this.currentMaxDeltaForceX == maxDeltaForceX && this.currentMaxDeltaForceY == maxDeltaForceY) {
+            this.forceComputeCount++;
+            if (this.forceComputeCount > 10000) {
+                this.timer.stop();
+                this.forceComputeCount = 0;
+                System.out.println("Auto layout stop");
+            }
+        } else {
+            this.forceComputeCount = 0;
+        }
+        this.currentMaxDeltaForceX = maxDeltaForceX;
+        this.currentMaxDeltaForceY = maxDeltaForceY;
     }
 
     private boolean areAdjacent(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> u) {
@@ -273,19 +319,19 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
 
     private void updateForces() {
         vertexNodes.values().forEach((v) -> {
-            ((SmartGraphForceDirectedVertexNode)v).updateDelta();
+            ((SmartGraphForceDirectedVertexNode) v).updateDelta();
         });
     }
 
     private void applyForces() {
         vertexNodes.values().forEach((v) -> {
-            ((SmartGraphForceDirectedVertexNode)v).moveFromForces();
+            ((SmartGraphForceDirectedVertexNode) v).moveFromForces();
         });
     }
 
     private void resetForces() {
         vertexNodes.values().forEach((v) -> {
-            ((SmartGraphForceDirectedVertexNode)v).resetForces();
+            ((SmartGraphForceDirectedVertexNode) v).resetForces();
         });
     }
 }

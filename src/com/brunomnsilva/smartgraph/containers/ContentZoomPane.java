@@ -23,14 +23,19 @@
  */
 package com.brunomnsilva.smartgraph.containers;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
@@ -61,21 +66,29 @@ public class ContentZoomPane extends BorderPane {
     private static final double MAX_SCALE = 5.0;
     private static final double SCROLL_DELTA = 0.25;
 
+    private double viewX = 0;
+    private double viewY = 0;
+
     public ContentZoomPane(Node content) {
         if (content == null) {
             throw new IllegalArgumentException("Content cannot be null.");
         }
 
         this.content = content;
+        this.content.toFront();
 
-        Node center = content;
-        content.toFront();
+        this.setCenter(this.content);
+        this.setRight(createSlider());
 
-        setCenter(center);
-        setRight(createSlider());
+        this.enablePanAndZoom();
 
-        enablePanAndZoom();
-    
+        this.widthProperty().addListener((obs, ov, nv) -> {
+            this.viewX = (double) nv / 2;
+        });
+
+        this.heightProperty().addListener((obs, ov, nv) -> {
+            this.viewY = (double) nv / 2;
+        });
     }
 
     private Node createSlider() {
@@ -88,15 +101,17 @@ public class ContentZoomPane extends BorderPane {
         slider.setMajorTickUnit(SCROLL_DELTA);
         slider.setMinorTickCount(1);
         slider.setBlockIncrement(0.125f);
+        slider.valueProperty().bindBidirectional(this.scaleFactorProperty());
 
-        Text label = new Text("Zoom");
+        Text zoom = new Text("Zoom");
+        Text zoomValue = new Text();
+        zoomValue.textProperty().bind(
+                Bindings.format("x %.2f", slider.valueProperty())
+        );
 
-        VBox paneSlider = new VBox(slider, label);
-
+        VBox paneSlider = new VBox(slider, zoom, zoomValue);
         paneSlider.setPadding(new Insets(10, 10, 10, 10));
-        paneSlider.setSpacing(10);
-
-        slider.valueProperty().bind(this.scaleFactorProperty());
+        paneSlider.setSpacing(2);
 
         return paneSlider;
     }
@@ -121,35 +136,35 @@ public class ContentZoomPane extends BorderPane {
 
     private void enablePanAndZoom() {
 
-        setOnScroll((ScrollEvent event) -> {
+        this.scaleFactorProperty.addListener((obs, ov, nv) -> {
+            double newScale = (double) nv;
+            double currentScale = (double) ov;
+
+            this.content.setScaleX(newScale);
+            this.content.setScaleY(newScale);
+
+            Bounds bounds = this.content.localToScene(this.content.getBoundsInLocal());
+            double f = (newScale / currentScale) - 1;
+            double dx = (this.viewX - (bounds.getWidth() / 2 + bounds.getMinX()));
+            double dy = (this.viewY - (bounds.getHeight() / 2 + bounds.getMinY()));
+
+            this.setContentPivot(f * dx, f * dy);
+
+        });
+
+        this.setOnScroll((ScrollEvent event) -> {
 
             double direction = event.getDeltaY() >= 0 ? 1 : -1;
 
             double currentScale = scaleFactorProperty.getValue();
             double computedScale = currentScale + direction * SCROLL_DELTA;
+            if (computedScale >= MIN_SCALE) {
+                this.viewX = event.getX();
+                this.viewY = event.getY();
 
-            computedScale = boundValue(computedScale, MIN_SCALE, MAX_SCALE);
-
-            if (currentScale != computedScale) {
-
-                content.setScaleX(computedScale);
-                content.setScaleY(computedScale);
-
-//                if (computedScale == 1) {
-//                    content.setTranslateX(-getTranslateX());
-//                    content.setTranslateY(-getTranslateY());
-//                } else {
-                    scaleFactorProperty.setValue(computedScale);
-
-                    Bounds bounds = content.localToScene(content.getBoundsInLocal());
-                    double f = (computedScale / currentScale) - 1;
-                    double dx = (event.getX() - (bounds.getWidth() / 2 + bounds.getMinX()));
-                    double dy = (event.getY() - (bounds.getHeight() / 2 + bounds.getMinY()));
-
-                    setContentPivot(f * dx, f * dy);
-//                }
-
+                this.scaleFactorProperty.set(computedScale);
             }
+
             //do not propagate
             event.consume();
 
@@ -157,10 +172,10 @@ public class ContentZoomPane extends BorderPane {
 
         final DragContext sceneDragContext = new DragContext();
 
-        setOnMousePressed((MouseEvent event) -> {
+        this.setOnMousePressed((MouseEvent event) -> {
 
             if (event.isPrimaryButtonDown()) {
-                getScene().setCursor(Cursor.MOVE);
+                this.getScene().setCursor(Cursor.MOVE);
 
                 sceneDragContext.mouseAnchorX = event.getX();
                 sceneDragContext.mouseAnchorY = event.getY();
@@ -171,15 +186,14 @@ public class ContentZoomPane extends BorderPane {
 
         });
 
-        setOnMouseReleased((MouseEvent event) -> {
-            getScene().setCursor(Cursor.DEFAULT);
+        this.setOnMouseReleased((MouseEvent event) -> {
+            this.getScene().setCursor(Cursor.DEFAULT);
         });
 
         setOnMouseDragged((MouseEvent event) -> {
             if (event.isPrimaryButtonDown()) {
-                
-                content.setTranslateX(sceneDragContext.translateAnchorX + event.getX() - sceneDragContext.mouseAnchorX);
-                content.setTranslateY(sceneDragContext.translateAnchorY + event.getY() - sceneDragContext.mouseAnchorY);
+                this.content.setTranslateX(sceneDragContext.translateAnchorX + event.getX() - sceneDragContext.mouseAnchorX);
+                this.content.setTranslateY(sceneDragContext.translateAnchorY + event.getY() - sceneDragContext.mouseAnchorY);
             }
         });
 

@@ -79,7 +79,7 @@ public class Main extends Application {
         Use SmartGraphDemoContainer if you want zoom capabilities and automatic layout toggling
         */
         //Scene scene = new Scene(graphView, 1024, 768);
-        Scene scene = new Scene(new SmartGraphDemoContainer(new SmartGraphPaneBig(graphView)), 1024, 768);
+        Scene scene = new Scene(new SmartGraphDemoContainer(graphView), 1024, 768);
 
         Stage stage = new Stage(StageStyle.DECORATED);
         stage.setTitle("JavaFX SmartGraph Visualization");
@@ -92,7 +92,7 @@ public class Main extends Application {
         IMPORTANT: Must call init() after scene is displayed so we can have width and height values
         to initially place the vertices according to the placement strategy
         */
-        //graphView.init();
+        graphView.init();
 
         /*
         Bellow you can see how to attach actions for when vertices and edges are double clicked

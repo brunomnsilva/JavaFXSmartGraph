@@ -24,6 +24,7 @@
 package com.brunomnsilva.smartgraph.graphview;
 
 import java.util.Set;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.scene.Node;
 
@@ -101,4 +102,10 @@ public interface SmartGraphVertexNode<T> extends SmartGraphVertex<T>, SmartLabel
      * @return true if adjacent; false otherwise
      */
     public boolean isAdjacentTo(SmartGraphVertexNode<T> v);
+    /**
+     * Gets node visible property.
+     *
+     * @return node visible property.
+     */
+    public BooleanProperty visibleProperty();
 }

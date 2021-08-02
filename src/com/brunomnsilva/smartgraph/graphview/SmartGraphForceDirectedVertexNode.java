@@ -130,7 +130,7 @@ public class SmartGraphForceDirectedVertexNode<T> extends SmartGraphVertexNodeBa
         double width = this.node.getParent().getLayoutBounds().getWidth();
 
         this.updatedPosition.x = this.boundCenterCoordinate(this.updatedPosition.x, 0, width);
-        this.updatedPosition.y = boundCenterCoordinate(this.updatedPosition.y, 0, height);
+        this.updatedPosition.y = this.boundCenterCoordinate(this.updatedPosition.y, 0, height);
 
         this.setPosition(this.updatedPosition.x, this.updatedPosition.y);
     }

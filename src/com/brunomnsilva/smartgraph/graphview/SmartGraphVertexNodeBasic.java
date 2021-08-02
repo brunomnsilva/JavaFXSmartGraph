@@ -31,7 +31,10 @@ import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 import com.brunomnsilva.smartgraph.graph.Vertex;
+import java.util.function.Consumer;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
@@ -68,10 +71,12 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
     protected DoubleProperty heightProperty;
     protected DoubleProperty centerXProperty;
     protected DoubleProperty centerYProperty;
+    protected BooleanProperty visibleProperty;
 
     /* Styling proxy */
     protected SmartStyleProxy styleProxy;
 
+    // Node container
     protected StackPane node;
 
     protected SmartGraphVertexNodeBasic() {
@@ -79,16 +84,16 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
         this.attachedLabel = null;
         this.isDragging = false;
         this.styleProxy = null;
-        this.node = new StackPane();
         this.adjacentVertices = new HashSet<>();
         this.widthProperty = new SimpleDoubleProperty();
         this.heightProperty = new SimpleDoubleProperty();
         this.centerXProperty = new SimpleDoubleProperty();
         this.centerYProperty = new SimpleDoubleProperty();
         this.radiusProperty = new SimpleDoubleProperty();
-
-        this.centerXProperty.bind(this.widthProperty.divide(2));
-        this.centerYProperty.bind(this.heightProperty.divide(2));
+        this.visibleProperty = new SimpleBooleanProperty();
+        this.visibleProperty.set(true);
+        this.node = new StackPane();
+        this.node.visibleProperty().bind(this.visibleProperty);
     }
 
     /**
@@ -126,7 +131,7 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
         this.centerYProperty.bind(this.node.layoutYProperty().add(this.heightProperty.divide(2)));
 
         if (allowMove) {
-            this.enableDrag();
+            this.enableMouseEvent();
         }
     }
 
@@ -303,11 +308,16 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
     public DoubleProperty radiusProperty() {
         return this.radiusProperty;
     }
+    
+    @Override
+    public BooleanProperty visibleProperty() {
+        return this.visibleProperty;
+    }    
 
     /**
      * Make a node movable by dragging it around with the mouse primary button.
      */
-    protected void enableDrag() {
+    protected void enableMouseEvent() {
         final PointVector dragDelta = new PointVector(0, 0);
 
         this.node.setOnMousePressed((MouseEvent mouseEvent) -> {

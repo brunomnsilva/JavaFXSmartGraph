@@ -59,6 +59,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javafx.scene.shape.Shape;
 
 /**
  * JavaFX {@link Pane} that is capable of plotting a {@link Graph} or
@@ -106,7 +107,6 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
     AUTOMATIC LAYOUT RELATED ATTRIBUTES
      */
     protected final BooleanProperty automaticLayoutProperty;
-
 
     /**
      * Constructs a visualization of the graph referenced by
@@ -176,7 +176,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
         if (theGraph == null) {
             throw new IllegalArgumentException("The graph cannot be null.");
         }
-            
+
         this.theGraph = theGraph;
         this.graphProperties = properties != null ? properties : new SmartGraphProperties();
         this.placementStrategy = placementStrategy != null ? placementStrategy : new SmartRandomPlacementStrategy();
@@ -191,7 +191,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
 
         this.initNodes();
 
-        this.enableDoubleClickListener();
+        this.enableMouseEventListener();
 
         this.automaticLayoutProperty = new SimpleBooleanProperty(false);
     }
@@ -223,12 +223,12 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
 
         this.initialized = true;
     }
-    
+
     /**
-     * This method will be called inside the init() method.
-     * It is a place to initialize the view. All child class must implement this method.
+     * This method will be called inside the init() method. It is a place to
+     * initialize the view. All child class must implement this method.
      */
-    protected void onInitialize(){
+    protected void onInitialize() {
         if (this.placementStrategy != null) {
             // call strategy to place the vertices in their initial locations 
             this.placementStrategy.place(this.widthProperty().doubleValue(),
@@ -241,17 +241,18 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
                     this.heightProperty().doubleValue(),
                     this.theGraph,
                     this.vertexNodes.values());
-        }        
+        }
     }
-    
+
     /**
      * Creates SmartGraphVertexNode, child class must implement this method to
      * create the desired SmartGraphVertexNode.
+     *
      * @param vertex SmartGraphVertex
      * @return SmartGraphVertexNode
      */
-    protected SmartGraphVertexNode getSmartGraphVertexNode(Vertex vertex){
-        return new SmartGraphVertexNodeBasic(vertex, this.graphProperties.getVertexAllowUserMove());        
+    protected SmartGraphVertexNode getSmartGraphVertexNode(Vertex vertex) {
+        return new SmartGraphVertexNodeBasic(vertex, this.graphProperties.getVertexAllowUserMove());
     }
 
     /**
@@ -309,15 +310,15 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
         Platform.runLater(() -> {
             this.updateNodes();
         });
-        
+
     }
-    
+
     /**
-     * This method will be called in the update() method, providing a place where
-     * child class can do something in the update process.
+     * This method will be called in the update() method, providing a place
+     * where child class can do something in the update process.
      */
-    protected void onUpdate(){
-        
+    protected void onUpdate() {
+
     }
 
     /**
@@ -398,6 +399,9 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
         for (Vertex<V> vertex : listOfVertices()) {
             SmartGraphVertexNode<V> vertexAnchor = this.getSmartGraphVertexNode(vertex);
             this.vertexNodes.put(vertex, vertexAnchor);
+            vertexAnchor.getNode().setOnMouseClicked(mouseEvent -> {
+                this.hideAdjacentVertices(vertexAnchor);
+            });
         }
 
         /* create edges graphical representations between existing vertices */
@@ -739,7 +743,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
 
     private List<Edge<E, V>> listOfEdges() {
         List<Edge<E, V>> list = new LinkedList<>();
-        for (Edge<E, V> edge : theGraph.edges()) {
+        for (Edge<E, V> edge : this.theGraph.edges()) {
             list.add(edge);
         }
         return list;
@@ -747,7 +751,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
 
     private List<Vertex<V>> listOfVertices() {
         List<Vertex<V>> list = new LinkedList<>();
-        for (Vertex<V> vertex : theGraph.vertices()) {
+        for (Vertex<V> vertex : this.theGraph.vertices()) {
             list.add(vertex);
         }
         return list;
@@ -762,7 +766,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
     private Collection<Vertex<V>> unplottedVertices() {
         List<Vertex<V>> unplotted = new LinkedList<>();
 
-        for (Vertex<V> v : theGraph.vertices()) {
+        for (Vertex<V> v : this.theGraph.vertices()) {
             if (!vertexNodes.containsKey(v)) {
                 unplotted.add(v);
             }
@@ -927,6 +931,48 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
     }
 
     /**
+     * Hides adjacent vertices that has no other adjacent.
+     *
+     * @param v target {@link  SmartGraphVertexNode}
+     */
+    public void hideAdjacentVertices(SmartGraphVertexNode<V> v) {
+        this.setAdjacentVerticesVisible(v, false);
+    }
+
+    /**
+     * Shows adjacent vertices .
+     *
+     * @param v target {@link  SmartGraphVertexNode}
+     */
+    public void showAdjacentVertices(SmartGraphVertexNode<V> v) {
+        this.setAdjacentVerticesVisible(v, true);
+    }
+
+    private void setAdjacentVerticesVisible(SmartGraphVertexNode<V> v, boolean visible) {
+        // hide vertex
+        v.getAdjacentVertices().forEach(adj -> {
+            System.out.println("Found adjacent: " + adj);
+            if (v != adj && adj.getAdjacentVertices().size() == 1) {
+                System.out.println("\tHide: " + adj.getUnderlyingVertex().element());
+                adj.visibleProperty().set(visible);
+            }else{
+                System.out.println("\tNot hide");
+                System.out.println("\t\tv == adj : " + (v == adj));
+                System.out.println("\t\tedge > 1 : " + adj.getAdjacentVertices().size());
+            }
+        });
+
+        // hide edges
+        this.edgeNodes.values().forEach((edge) -> {
+            Vertex[] vertices = edge.getUnderlyingEdge().vertices();
+            if (vertices[0] == v || vertices[1] == v) {
+                System.out.println("Found edge: " + edge.getUnderlyingEdge().element());
+                ((Shape) edge).setVisible(visible);
+            }
+        });
+    }
+
+    /**
      * Loads the stylesheet and applies the .graph class to this panel.
      */
     private void loadStylesheet(URI cssFile) {
@@ -947,22 +993,38 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
     }
 
     /**
-     * Enables the double click action on this pane.
+     * Enables the mouse action on this pane.
      *
      * This method identifies the node that was clicked and, if any, calls the
      * appropriate consumer, i.e., vertex or edge consumers.
      */
-    private void enableDoubleClickListener() {
-        setOnMouseClicked((MouseEvent mouseEvent) -> {
+    private void enableMouseEventListener() {
+        this.setOnMouseClicked((MouseEvent mouseEvent) -> {
+            System.out.println("");
+            Node node = pick(SmartGraphView.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
+            if (node == null) {
+                System.out.println("Mouse got clicked, node is null.");
+                return;
+            }else{
+                System.out.println("Mouse got clicked, node: " + node.toString());
+            }
             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                // detect single click
+//                if (mouseEvent.getClickCount() == 1) {
+//                    System.out.println("Mouse got clicked, node is not null.");
+//                    this.theGraph.vertices().forEach(v -> {
+//                        if(v.element() == node){
+//                            System.out.println("Hide adjacent vertices..");
+//                            SmartGraphVertexNodeBasic target = (SmartGraphVertexNodeBasic)this.vertexNodes.get(v);
+//                            this.hideAdjacentVertices(target);
+//                        }
+//                    });
+//                }
+                // detect double click
                 if (mouseEvent.getClickCount() == 2) {
                     //no need to continue otherwise
+                    System.out.println("Mouse got double clicked, node is not null.");
                     if (vertexClickConsumer == null && edgeClickConsumer == null) {
-                        return;
-                    }
-
-                    Node node = pick(SmartGraphView.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
-                    if (node == null) {
                         return;
                     }
 
