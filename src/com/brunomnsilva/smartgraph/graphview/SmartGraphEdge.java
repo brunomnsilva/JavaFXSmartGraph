@@ -59,4 +59,11 @@ public interface SmartGraphEdge<E, V> extends SmartStylableNode {
      * @return arrow reference; null if does not exist.
      */
     public SmartStylableNode getStylableArrow();
+    
+    /**
+     * Returns the label node for further styling.
+     * 
+     * @return the label node.
+     */
+    public SmartStylableNode getStylableLabel();
 }

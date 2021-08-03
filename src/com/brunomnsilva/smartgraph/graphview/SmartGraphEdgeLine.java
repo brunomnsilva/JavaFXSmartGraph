@@ -140,4 +140,9 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
         return this.attachedArrow;
     }
     
+    @Override
+    public SmartStylableNode getStylableLabel() {
+        return this.attachedLabel;
+    }
+    
 }

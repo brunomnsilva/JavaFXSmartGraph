@@ -77,4 +77,11 @@ public interface SmartGraphVertex<V> extends SmartStylableNode {
      * @return      circle radius
      */
     public double getRadius();
+    
+    /**
+     * Returns the label node for further styling.
+     * 
+     * @return the label node.
+     */
+    public SmartStylableNode getStylableLabel();
 }
