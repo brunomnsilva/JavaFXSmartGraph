@@ -116,6 +116,9 @@ public class SmartGraphPanel<V, E> extends Pane {
     private final double repulsionForce;
     private final double attractionForce;
     private final double attractionScale;
+    
+    //This value was obtained experimentally
+    private static final int AUTOMATIC_LAYOUT_ITERATIONS = 20;
 
     /**
      * Constructs a visualization of the graph referenced by
@@ -226,13 +229,13 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     private synchronized void runLayoutIteration() {
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < AUTOMATIC_LAYOUT_ITERATIONS; i++) {
             resetForces();
             computeForces();
             updateForces();
         }
         applyForces();
-    }
+    }    
 
     /**
      * Runs the initial current vertex placement strategy.
@@ -661,13 +664,26 @@ public class SmartGraphPanel<V, E> extends Pane {
         for (Edge<E, V> e : removedEdges) {
             SmartGraphEdgeBase edgeToRemove = edgeNodes.get(e);
             edgeNodes.remove(e);
-            removeEdge(edgeToRemove);
+            removeEdge(edgeToRemove);            
+            
+            //when edges are removed, the adjacency between vertices changes
+            //the adjacency is kept in parallel in an internal data structure
+            Vertex<V>[] vertices = e.vertices();
+            
+            if( getTotalEdgesBetween(vertices[0], vertices[1]) == 0 ) {
+                SmartGraphVertexNode<V> v0 = vertexNodes.get(vertices[0]);
+                SmartGraphVertexNode<V> v1 = vertexNodes.get(vertices[1]);
+
+                v0.removeAdjacentVertex(v1);
+                v1.removeAdjacentVertex(v0);
+            }            
         }
 
         //remove adjacencies from remaining vertices
         for (SmartGraphVertexNode<V> v : vertexNodes.values()) {
             v.removeAdjacentVertices(verticesToRemove);
         }
+                
     }
 
     private void removeEdge(SmartGraphEdgeBase e) {
