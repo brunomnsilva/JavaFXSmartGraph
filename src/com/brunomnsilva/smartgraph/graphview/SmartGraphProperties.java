@@ -67,7 +67,6 @@ public class SmartGraphProperties {
     private static final int DEFAULT_ARROW_SIZE = 5;
     private static final String PROPERTY_ARROW_SIZE = "edge.arrowsize";
 
-
     private static final double DEFAULT_REPULSION_FORCE = 25000;
     private static final String PROPERTY_REPULSION_FORCE = "layout.repulsive-force";
     
