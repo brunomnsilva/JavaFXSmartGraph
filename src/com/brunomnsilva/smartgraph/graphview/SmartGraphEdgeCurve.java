@@ -110,20 +110,22 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     private void update() {
         if (inbound == outbound) {
             Point2D startpoint = new Point2D(inbound.getPositionCenterX(), inbound.getPositionCenterY());
-            
+
             /* Make a loop to be on the ohter side of those adjecent vertices */
             int x = 0, y = 0;
             Iterator<SmartGraphVertexNode<V>> it = inbound.getAdjacentVertices().iterator();
             while (it.hasNext()) {
-                SmartGraphVertex<V> vertex = it.next();
-                x += (int) (startpoint.getX() - vertex.getPositionCenterX());
-                y += (int) (startpoint.getY() - vertex.getPositionCenterY());
+                SmartGraphVertexNode<V> vertex = it.next();
+                if (vertex.visibleProperty().get()) {
+                    x += (int) (startpoint.getX() - vertex.getPositionCenterX());
+                    y += (int) (startpoint.getY() - vertex.getPositionCenterY());
+                }
             }
-            
+
             // Make the loop length
             double distance = inbound.getRadius() * 2;
             distance = distance < 100 ? 100 : distance;
-            
+
             // Calculate the loop angle
             double angle = Math.atan2(y, x) * 180 / Math.PI;
 

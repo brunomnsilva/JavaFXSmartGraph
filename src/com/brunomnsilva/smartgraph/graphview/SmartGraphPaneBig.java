@@ -69,8 +69,8 @@ public class SmartGraphPaneBig extends SmartGraphPane {
             if (!this.isInitialized) {
                 // set size of the graph panel, 2 time of its parent
                 Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-                this.iniWidth = dimension.getWidth() * 2;
-                this.iniHeight = dimension.getHeight() * 2;
+                this.iniWidth = dimension.getWidth() * 1.5;
+                this.iniHeight = dimension.getHeight() * 1.5;
 
                 // get graph panel size
                 this.graphView.setMinSize(this.iniWidth, this.iniHeight);

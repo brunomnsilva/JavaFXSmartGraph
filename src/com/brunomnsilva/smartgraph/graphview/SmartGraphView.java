@@ -60,6 +60,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.shape.Shape;
 
 /**
@@ -108,6 +110,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
     AUTOMATIC LAYOUT RELATED ATTRIBUTES
      */
     protected final BooleanProperty automaticLayoutProperty;
+    protected IntegerProperty updateProperty;
 
     /**
      * Constructs a visualization of the graph referenced by
@@ -195,6 +198,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
         this.enableMouseEventListener();
 
         this.automaticLayoutProperty = new SimpleBooleanProperty(false);
+        this.updateProperty = new SimpleIntegerProperty(0);
     }
 
     /**
@@ -315,14 +319,6 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
     }
 
     /**
-     * This method will be called in the update() method, providing a place
-     * where child class can do something in the update process.
-     */
-    protected void onUpdate() {
-
-    }
-
-    /**
      * Forces a refresh of the visualization based on current state of the
      * underlying graph and waits for completion of the update.
      *
@@ -367,7 +363,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
         this.removeNodes();
         this.insertNodes();
         this.updateLabels();
-        this.onUpdate();
+        this.updateProperty.set(this.updateProperty.get() + 1);
     }
 
     /*
@@ -965,7 +961,58 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
         this.setAdjacentVertexVisible(v, null);
     }
 
-    private void setAdjacentVertexVisible(SmartGraphVertexNode<V> targetNode, Boolean visible) {
+    // hiding adjacent vertex nodes using vertexNode.getAdjancentVertices() and vertexNode.getEdges()
+    private void setAdjacentVertexVisible(SmartGraphVertexNode<V> baseNode, Boolean visible) {
+        baseNode.getAdjacentVertices().forEach(adjNode -> {
+            Boolean visibleValue = visible;
+            if (visibleValue == null) {
+                visibleValue = !adjNode.visibleProperty().get();
+            }
+            boolean canHide = true;
+            if (adjNode.getAdjacentVertices().size() > 1) {
+                // check if all edges end at itself or the baseNode
+                for (SmartGraphEdgeBase edge : adjNode.getEdges()) {
+                    SmartGraphVertexNode node1 = this.vertexNodes.get(edge.getUnderlyingEdge().vertices()[0]);
+                    SmartGraphVertexNode node2 = this.vertexNodes.get(edge.getUnderlyingEdge().vertices()[1]);
+                    if ((node1 != node2)
+                            && ((node1 == adjNode && node2 != baseNode && node2.visibleProperty().get())
+                            || (node2 == adjNode && node1 != baseNode && node1.visibleProperty().get()))) {
+                        canHide = false;
+                        break;
+                    }
+                }
+            }
+            // can hide
+            if (canHide) {
+                this.doSetAdjacentVertexVisible(baseNode, adjNode, visibleValue);
+            }
+        });
+    }
+
+    private void doSetAdjacentVertexVisible(SmartGraphVertexNode baseNode, SmartGraphVertexNode adjNode, boolean value) {
+        adjNode.visibleProperty().set(value);
+        if (adjNode.getAttachedLabel() != null) {
+            adjNode.getAttachedLabel().setVisible(value);
+        }
+        adjNode.getEdges().forEach(item -> {
+            SmartGraphEdgeBase edge = (SmartGraphEdgeBase) item;
+            SmartGraphVertexNode node1 = this.vertexNodes.get(edge.getUnderlyingEdge().vertices()[0]);
+            SmartGraphVertexNode node2 = this.vertexNodes.get(edge.getUnderlyingEdge().vertices()[1]);
+            if (node1 == baseNode || node2 == baseNode || (node1 == adjNode && node2 == adjNode)) {
+                ((Shape) edge).setVisible(value);
+                if (edge.getAttachedArrow() != null) {
+                    edge.getAttachedArrow().setVisible(value);
+                }
+                if (edge.getAttachedLabel() != null) {
+                    edge.getAttachedLabel().setVisible(value);
+                }
+            }
+        });
+        this.updateProperty.set(this.updateProperty.get() + 1);
+    }
+    
+    // hiding adjacent vertex nodes using edgeNodes
+    private void setAdjacentVertexVisibleX(SmartGraphVertexNode<V> targetNode, Boolean visible) {
         // get vertices from edge collection
         List<SmartGraphVertexNode> processedNode = new ArrayList<>();
         this.edgeNodes.values().forEach((edge) -> {
@@ -994,7 +1041,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
                     // process hiding
                     if (adjNode.getAdjacentVertices().size() == 1) {
                         // has only one adjacent i.e. the targetNode so it can be hidden.
-                        this.doSetAdjacentVertexVisible(adjNode, edge, value);
+                        this.doSetAdjacentVertexVisibleX(adjNode, edge, value);
                     } else {
                         // has many adjacents
                         // check if all adjacents are itself or targetNode 
@@ -1014,7 +1061,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
                                 if ((selfVertices[0] == adjNode.getUnderlyingVertex() && selfVertices[1] == targetNode.getUnderlyingVertex())
                                         || (selfVertices[0] == targetNode.getUnderlyingVertex() && selfVertices[1] == adjNode.getUnderlyingVertex())
                                         || (selfVertices[0] == adjNode.getUnderlyingVertex() && selfVertices[1] == adjNode.getUnderlyingVertex())) {
-                                    this.doSetAdjacentVertexVisible(adjNode, selfEdge, value);
+                                    this.doSetAdjacentVertexVisibleX(adjNode, selfEdge, value);
                                 }
                             });
                         }
@@ -1024,7 +1071,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
         });
     }
 
-    private void doSetAdjacentVertexVisible(SmartGraphVertexNode v, SmartGraphEdgeBase e, boolean value) {
+    private void doSetAdjacentVertexVisibleX(SmartGraphVertexNode v, SmartGraphEdgeBase e, boolean value) {
         v.visibleProperty().set(value);
         if (v.getAttachedLabel() != null) {
             v.getAttachedLabel().setVisible(value);
@@ -1036,6 +1083,7 @@ public class SmartGraphView<V, E> extends SmartGraphPane {
         if (e.getAttachedLabel() != null) {
             e.getAttachedLabel().setVisible(value);
         }
+        this.updateProperty.set(this.updateProperty.get() + 1);
     }
 
     /**

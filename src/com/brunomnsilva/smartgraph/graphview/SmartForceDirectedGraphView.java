@@ -59,7 +59,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
     /*
     AUTOMATIC LAYOUT RELATED ATTRIBUTES
      */
-    private AnimationTimer timer;
+    private AnimationTimer autoLayout;
     private double repulsionForce;
     private final double repulsionScale;
     private double attractionForce;
@@ -143,7 +143,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
         this.attractionScale = this.graphProperties.getAttractionScale();
 
         //automatic layout initializations        
-        this.timer = new AnimationTimer() {
+        this.autoLayout = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 runLayoutIteration();
@@ -152,15 +152,30 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
 
         this.automaticLayoutProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                this.setupForces();
-                this.timer.start();
+                this.startAutoLayout();
             } else {
-                this.timer.stop();
+                this.stopAutoLayout();
             }
+        });
+
+        // restart auto layout if graph got updated
+        this.updateProperty.addListener((obs, ov, nv) -> {
+            this.startAutoLayout();
         });
 
         // restart force computation if vertex got dragged
         this.setOnVertexDragged();
+    }
+
+    private void startAutoLayout() {
+        if (this.automaticLayoutProperty.get()) {
+            this.setupForces();
+            this.autoLayout.start();
+        }
+    }
+
+    private void stopAutoLayout() {
+        this.autoLayout.stop();
     }
 
     private void setOnVertexDragged() {
@@ -168,9 +183,7 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
             SmartGraphVertexNode v = (SmartGraphVertexNode) v1;
             v.getNode().setOnDragDetected(mouseEvent -> {
                 this.getScene().setCursor(Cursor.MOVE);
-                if (this.automaticLayoutProperty.get()) {
-                    this.timer.start();
-                }
+                this.startAutoLayout();
             });
         }
     }
@@ -188,9 +201,9 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
         double aForce = radius * 3 / 4;
         this.attractionForce = aForce > this.attractionForce ? aForce : this.attractionForce;
 
-        System.out.println("Biggest radius: " + radius);
-        System.out.println("Repulsion force: " + this.repulsionForce);
-        System.out.println("Attraction force: " + this.attractionForce);
+//        System.out.println("Biggest radius: " + radius);
+//        System.out.println("Repulsion force: " + this.repulsionForce);
+//        System.out.println("Attraction force: " + this.attractionForce);
     }
 
     private synchronized void runLayoutIteration() {
@@ -212,14 +225,8 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
 
         //start automatic layout
         if (this.automaticLayoutProperty.get()) {
-            this.setupForces();
-            this.timer.start();
+            this.startAutoLayout();
         }
-    }
-
-    @Override
-    protected void onUpdate() {
-        this.setupForces();
     }
 
     @Override
@@ -256,7 +263,9 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
 
         for (Object v1 : this.vertexNodes.values()) {
             SmartGraphForceDirectedVertexNode v = (SmartGraphForceDirectedVertexNode) v1;
-            if(!v.visibleProperty.get()) continue;
+            if (!v.visibleProperty.get()) {
+                continue;
+            }
             for (Object v2 : this.vertexNodes.values()) {
                 SmartGraphForceDirectedVertexNode other = (SmartGraphForceDirectedVertexNode) v2;
                 //if(!other.visibleProperty.get()) break;
@@ -299,11 +308,11 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
 
         }
 
-        // stop force computation if max delta force x, y not change for 10k times
+        // stop force computation if max delta force x, y not change for 100k times
         if (this.currentMaxDeltaForceX == maxDeltaForceX && this.currentMaxDeltaForceY == maxDeltaForceY) {
             this.forceComputeCount++;
-            if (this.forceComputeCount > 10000) {
-                this.timer.stop();
+            if (this.forceComputeCount > 50000) {
+                this.stopAutoLayout();
                 this.forceComputeCount = 0;
             }
         } else {
