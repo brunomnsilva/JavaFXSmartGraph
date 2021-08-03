@@ -61,6 +61,7 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
 
     /* Critical for performance, so we don't rely on the efficiency of the Graph.areAdjacent method */
     protected final Set<SmartGraphVertexNode<T>> adjacentVertices;
+    protected final Set<SmartGraphEdgeBase> edges;
 
     protected SmartLabel attachedLabel = null;
     protected boolean isDragging = false;
@@ -84,6 +85,7 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
         this.isDragging = false;
         this.styleProxy = null;
         this.adjacentVertices = new HashSet<>();
+        this.edges = new HashSet<>();
         this.widthProperty = new SimpleDoubleProperty();
         this.heightProperty = new SimpleDoubleProperty();
         this.centerXProperty = new SimpleDoubleProperty();
@@ -143,7 +145,11 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
     public void addAdjacentVertex(SmartGraphVertexNode<T> v) {
         this.adjacentVertices.add(v);
     }
-
+    
+    /**
+     * Gets adjacent vertices
+     * @return adjacent vertices
+     */
     @Override
     public Set<SmartGraphVertexNode<T>> getAdjacentVertices() {
         return this.adjacentVertices;
@@ -180,6 +186,30 @@ public class SmartGraphVertexNodeBasic<T> implements SmartGraphVertexNode<T> {
     @Override
     public boolean isAdjacentTo(SmartGraphVertexNode<T> v) {
         return this.adjacentVertices.contains(v);
+    }
+
+    @Override
+    public void addEdge(SmartGraphEdgeBase edge) {
+        this.edges.add(edge);
+    }
+
+    @Override
+    public void removeEdge(SmartGraphEdgeBase edge) {
+        this.edges.remove(edge);
+    }
+
+    @Override
+    public void removeEdges(Collection<SmartGraphEdgeBase> edges) {
+        this.edges.removeAll(edges);
+    }   
+
+    /**
+     * Gets all edges that connected to this node
+     * @return a set of edges ({@link  SmartGraphEdgeBase)}
+     */
+    @Override
+    public Set<SmartGraphEdgeBase> getEdges() {
+        return this.edges;
     }
 
     /**

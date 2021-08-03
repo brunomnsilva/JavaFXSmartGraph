@@ -169,7 +169,6 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
             v.getNode().setOnDragDetected(mouseEvent -> {
                 this.getScene().setCursor(Cursor.MOVE);
                 if (this.automaticLayoutProperty.get()) {
-                    System.out.println("Auto layout start");
                     this.timer.start();
                 }
             });
@@ -257,9 +256,11 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
 
         for (Object v1 : this.vertexNodes.values()) {
             SmartGraphForceDirectedVertexNode v = (SmartGraphForceDirectedVertexNode) v1;
+            if(!v.visibleProperty.get()) continue;
             for (Object v2 : this.vertexNodes.values()) {
                 SmartGraphForceDirectedVertexNode other = (SmartGraphForceDirectedVertexNode) v2;
-                if (v == other) {
+                //if(!other.visibleProperty.get()) break;
+                if (v == other || !other.visibleProperty.get()) {
                     continue; //NOP
                 }
 
@@ -304,7 +305,6 @@ public class SmartForceDirectedGraphView<V, E> extends SmartGraphView {
             if (this.forceComputeCount > 10000) {
                 this.timer.stop();
                 this.forceComputeCount = 0;
-                System.out.println("Auto layout stop");
             }
         } else {
             this.forceComputeCount = 0;

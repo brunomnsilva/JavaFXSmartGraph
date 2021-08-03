@@ -381,6 +381,26 @@ public class SmartGraphCircleVertexNode<T> extends Circle implements SmartGraphV
         return this.heightProperty;
     }
 
+    @Override
+    public Set<SmartGraphEdgeBase> getEdges() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void addEdge(SmartGraphEdgeBase edge) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeEdge(SmartGraphEdgeBase edge) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeEdges(Collection<SmartGraphEdgeBase> edges) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     /**
      * Internal representation of a 2D point or vector for quick access to its
      * attributes.

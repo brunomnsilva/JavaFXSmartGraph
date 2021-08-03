@@ -23,6 +23,7 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
+import java.util.Collection;
 import java.util.Set;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -103,9 +104,30 @@ public interface SmartGraphVertexNode<T> extends SmartGraphVertex<T>, SmartLabel
      */
     public boolean isAdjacentTo(SmartGraphVertexNode<T> v);
     /**
+     * Gets all edges that connected to this node
+     * @return a set of edges ({@link  SmartGraphEdgeBase)}
+     */
+    public Set<SmartGraphEdgeBase> getEdges();
+    /**
+     * Adds edge to node
+     * @param edge edge to be added
+     */
+    public void addEdge(SmartGraphEdgeBase edge);
+    /**
+     * Removes edge from this node
+     * @param edge edge to be removed
+     */
+    public void removeEdge(SmartGraphEdgeBase edge);
+    /**
+     * Removes edge from this node
+     * @param edges edges to be removed
+     */
+    public void removeEdges(Collection<SmartGraphEdgeBase> edges);
+    /**
      * Gets node visible property.
      *
      * @return node visible property.
      */
     public BooleanProperty visibleProperty();
+
 }
