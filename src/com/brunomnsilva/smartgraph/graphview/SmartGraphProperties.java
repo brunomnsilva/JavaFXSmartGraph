@@ -55,7 +55,7 @@ public class SmartGraphProperties {
     private static final boolean DEFAULT_VERTEX_USE_LABEL = true;
     private static final String PROPERTY_VERTEX_USE_LABEL = "vertex.label";
 
-    private static final boolean DEFAULT_EDGE_USE_TOOLTIP = false;
+    private static final boolean DEFAULT_EDGE_USE_TOOLTIP = true;
     private static final String PROPERTY_EDGE_USE_TOOLTIP = "edge.tooltip";
     
     private static final boolean DEFAULT_EDGE_USE_LABEL = false;
