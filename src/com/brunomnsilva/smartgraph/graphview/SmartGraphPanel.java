@@ -631,7 +631,17 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         Set<SmartGraphVertexNode<V>> verticesToRemove = new HashSet<>();
         Set<SmartGraphEdgeBase> edgesToRemove = new HashSet<>();
-
+        
+        //in some graph implementations, the information of vertices() at each edge may be lost during removal (e.g., adjacency list)
+        //firstly detect unconnected edges
+        for( SmartGraphEdgeBase edge : edgeNodes.values()) {
+            Vertex[] vertices = edge.getUnderlyingEdge().vertices();
+            if( vertices[0] == null && vertices[1] == null) {
+                values.remove(edge);
+                edgesToRemove.add(edge);
+            }
+        }
+        
         //filter vertices to remove and their adjacent edges
         for (Vertex<V> v : removedVertices) {
 
