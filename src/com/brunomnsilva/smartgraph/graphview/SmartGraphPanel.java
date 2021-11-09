@@ -98,6 +98,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private final SmartPlacementStrategy placementStrategy;
     private final Map<Vertex<V>, SmartGraphVertexNode<V>> vertexNodes;
     private final Map<Edge<E, V>, SmartGraphEdgeBase> edgeNodes;
+    private Map<Edge<E,V>, Tuple<Vertex<V>>> connections;
     private final Map<Tuple<SmartGraphVertexNode>, Integer> placedEdges = new HashMap<>();
     private boolean initialized = false;
     private final boolean edgesWithArrows;
@@ -200,6 +201,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         vertexNodes = new HashMap<>();
         edgeNodes = new HashMap<>(); 
+        connections = new HashMap<>();
 
         //set stylesheet and class
         loadStylesheet(cssFile);
@@ -437,6 +439,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 SmartGraphEdgeBase graphEdge = createEdge(edge, graphVertexIn, graphVertexOppositeOut);
 
                 /* Track Edges already placed */
+                connections.put(edge, new Tuple<>(vertex, oppositeVertex));
                 addEdge(graphEdge, edge);
 
                 if (this.edgesWithArrows) {
@@ -612,6 +615,8 @@ public class SmartGraphPanel<V, E> extends Pane {
                     this.getChildren().add(arrow);
                 }
 
+                 /* Track edges */
+                connections.put(edge, new Tuple<>(u, v));
                 addEdge(graphEdge, edge);
 
             }
@@ -626,72 +631,35 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     private void removeNodes() {
-        Collection<Vertex<V>> removedVertices = removedVertices();
-        Collection<SmartGraphEdgeBase> values = new LinkedList<>(edgeNodes.values());
-
-        Set<SmartGraphVertexNode<V>> verticesToRemove = new HashSet<>();
-        Set<SmartGraphEdgeBase> edgesToRemove = new HashSet<>();
-        
-        //in some graph implementations, the information of vertices() at each edge may be lost during removal (e.g., adjacency list)
-        //firstly detect unconnected edges
-        for( SmartGraphEdgeBase edge : edgeNodes.values()) {
-            Vertex[] vertices = edge.getUnderlyingEdge().vertices();
-            if( vertices[0] == null && vertices[1] == null) {
-                values.remove(edge);
-                edgesToRemove.add(edge);
-            }
-        }
-        
-        //filter vertices to remove and their adjacent edges
-        for (Vertex<V> v : removedVertices) {
-
-            for (SmartGraphEdgeBase edge : values) {
-                Vertex[] vertices = edge.getUnderlyingEdge().vertices();
-
-                if (vertices[0] == v || vertices[1] == v) {
-                    edgesToRemove.add(edge);
-                }
-            }
-
-            SmartGraphVertexNode<V> get = vertexNodes.get(v);
-            verticesToRemove.add(get);
-        }
-
-        //permanently remove edges
-        for (SmartGraphEdgeBase e : edgesToRemove) {
-            edgeNodes.remove(e.getUnderlyingEdge());
-            removeEdge(e);
-        }
-
-        //permanently remove vertices
-        for (SmartGraphVertexNode<V> v : verticesToRemove) {
-            vertexNodes.remove(v.getUnderlyingVertex());
-            removeVertice(v);
-        }
-        
-        //permanently remove remaining edges that were removed from the underlying graph
+         //remove edges (graphical elements) that were removed from the underlying graph
         Collection<Edge<E, V>> removedEdges = removedEdges();
         for (Edge<E, V> e : removedEdges) {
             SmartGraphEdgeBase edgeToRemove = edgeNodes.get(e);
             edgeNodes.remove(e);
-            removeEdge(edgeToRemove);            
-            
+            removeEdge(edgeToRemove);   //remove from panel
+
             //when edges are removed, the adjacency between vertices changes
             //the adjacency is kept in parallel in an internal data structure
-            Vertex<V>[] vertices = e.vertices();
-            
-            if( getTotalEdgesBetween(vertices[0], vertices[1]) == 0 ) {
-                SmartGraphVertexNode<V> v0 = vertexNodes.get(vertices[0]);
-                SmartGraphVertexNode<V> v1 = vertexNodes.get(vertices[1]);
+            Tuple<Vertex<V>> vertexTuple = connections.get(e);
+
+            if( getTotalEdgesBetween(vertexTuple.first, vertexTuple.second) == 0 ) {
+                SmartGraphVertexNode<V> v0 = vertexNodes.get(vertexTuple.first);
+                SmartGraphVertexNode<V> v1 = vertexNodes.get(vertexTuple.second);
 
                 v0.removeAdjacentVertex(v1);
                 v1.removeAdjacentVertex(v0);
-            }            
+
+                System.out.println("Removed " + e.element());
+            }
+
+            connections.remove(e);
         }
 
-        //remove adjacencies from remaining vertices
-        for (SmartGraphVertexNode<V> v : vertexNodes.values()) {
-            v.removeAdjacentVertices(verticesToRemove);
+        //remove vertices (graphical elements) that were removed from the underlying graph
+        Collection<Vertex<V>> removedVertices = removedVertices();
+        for (Vertex<V> removedVertex : removedVertices) {
+            SmartGraphVertexNode<V> removed = vertexNodes.remove(removedVertex);
+            removeVertex(removed);
         }
                 
     }
@@ -710,7 +678,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
-    private void removeVertice(SmartGraphVertexNode v) {
+    private void removeVertex(SmartGraphVertexNode v) {
         getChildren().remove(v);
 
         Text attachedLabel = v.getAttachedLabel();
