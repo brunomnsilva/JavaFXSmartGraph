@@ -648,8 +648,6 @@ public class SmartGraphPanel<V, E> extends Pane {
 
                 v0.removeAdjacentVertex(v1);
                 v1.removeAdjacentVertex(v0);
-
-                System.out.println("Removed " + e.element());
             }
 
             connections.remove(e);
