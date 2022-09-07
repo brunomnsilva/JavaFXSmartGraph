@@ -86,7 +86,7 @@ public class SmartGraphProperties {
         properties = new Properties();
         
         try {
-            properties.load(new FileInputStream(DEFAULT_FILE));
+            properties.load(SmartGraphProperties.class.getResourceAsStream(DEFAULT_FILE));
         } catch (IOException ex) {
             String msg = String.format("The default %s was not found. Using default values.", DEFAULT_FILE);
             Logger.getLogger(SmartGraphProperties.class.getName()).log(Level.WARNING, msg);
