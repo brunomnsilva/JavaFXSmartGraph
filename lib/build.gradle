@@ -4,6 +4,8 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.10'
 }
 
+apply from: 'deploy.gradle'
+
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
@@ -22,4 +24,10 @@ dependencies {
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
 }

@@ -1,0 +1,69 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+group = 'org.intrigus.smartgraph'
+version = '0.9.4-SNAPSHOT'
+
+def repositoryUsername = project.hasProperty('MAVEN_USERNAME') ? MAVEN_USERNAME : ""
+
+def repositoryPassword = project.hasProperty('MAVEN_PASSWORD') ? MAVEN_PASSWORD : ""
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'smartgraph'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'smartgraph'
+                description = 'Generic (Java FX) Graph Visualization Library'
+                licenses {
+                    license {
+                        name = 'The MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'intrigus'
+                        email = 'smartgraph-mail@intrigus.org'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/intrigus/smartgraph.git'
+                    developerConnection = 'scm:git:ssh://github.com/intrigus/smartgraph.git'
+                    url = 'httsp://github.com/intrigus/smartgraph'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def releasesRepoUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            
+            credentials {
+                username = repositoryUsername
+                password = repositoryPassword
+            }
+        }
+        
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
