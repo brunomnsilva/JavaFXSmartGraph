@@ -1,9 +1,9 @@
-module com.brunomnsilva.smartgraph {
-	exports com.brunomnsilva.smartgraph.containers;
-	exports com.brunomnsilva.smartgraph.example;
-	exports com.brunomnsilva.smartgraph;
-	exports com.brunomnsilva.smartgraph.graph;
-	exports com.brunomnsilva.smartgraph.graphview;
+module org.intrigus.smartgraph {
+	exports org.intrigus.smartgraph.containers;
+	exports org.intrigus.smartgraph.example;
+	exports org.intrigus.smartgraph;
+	exports org.intrigus.smartgraph.graph;
+	exports org.intrigus.smartgraph.graphview;
 
 	requires java.logging;
 	requires javafx.base;
