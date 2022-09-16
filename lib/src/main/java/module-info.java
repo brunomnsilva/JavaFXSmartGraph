@@ -8,5 +8,5 @@ module com.brunomnsilva.smartgraph {
 	requires java.logging;
 	requires javafx.base;
 	requires javafx.controls;
-	requires javafx.graphics;
+	requires transitive javafx.graphics;
 }
