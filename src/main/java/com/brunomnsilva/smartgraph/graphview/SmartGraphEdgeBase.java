@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019 brunomnsilva.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,13 +46,13 @@ public interface SmartGraphEdgeBase<E, V> extends SmartGraphEdge<E, V>, SmartLab
      * 
      * @param arrow     arrow to attach
      */
-    public void attachArrow(SmartArrow arrow);
+    void attachArrow(SmartArrow arrow);
     
     /**
      * Returns the attached {@link SmartArrow}, if any.
      * 
      * @return      reference of the attached arrow; null if none.
      */
-    public SmartArrow getAttachedArrow();
+    SmartArrow getAttachedArrow();
     
 }

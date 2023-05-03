@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019 brunomnsilva.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,10 +39,10 @@ import javafx.scene.text.Text;
 
 /**
  * This class provides zooming and panning for a JavaFX node.
- *
+ * <br/>
  * It shows the zoom level with a slider control and reacts to mouse scrolls and
  * mouse dragging.
- *
+ * <br/>
  * The content node is out forward in the z-index so it can react to mouse
  * events first. The node should consume any event not meant to propagate to
  * this pane.

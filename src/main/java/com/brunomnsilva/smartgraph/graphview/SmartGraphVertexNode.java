@@ -1,7 +1,7 @@
-/* 
+/*
  * The MIT License
  *
- * Copyright 2018 brunomnsilva@gmail.com.
+ * JavaFXSmartGraph | Copyright 2018-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,14 +23,15 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import com.brunomnsilva.smartgraph.graph.Vertex;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
-import com.brunomnsilva.smartgraph.graph.Vertex;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Internal implementation of a graph vertex for the {@link SmartGraphPanel}
@@ -40,8 +41,6 @@ import com.brunomnsilva.smartgraph.graph.Vertex;
  * <br>
  * The vertex internally deals with mouse drag events that visually move
  * it in the {@link SmartGraphPanel} when displayed, if parameterized to do so.
- * 
- * 
  *
  * @param <T> the type of the underlying vertex
  *
@@ -223,7 +222,6 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
      * Updates the future position according to the current internal force
      * vector.
      *
-     * @see SmartGraphPanel#updateForces()
      */
     public void updateDelta() {
         updatedPosition.x = updatedPosition.x /* + speed*/ + forceVector.x;
@@ -235,7 +233,6 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
      * <p>
      * Moves are constrained within the parent pane dimensions.
      *
-     * @see SmartGraphPanel#applyForces()
      */
     public void moveFromForces() {
 

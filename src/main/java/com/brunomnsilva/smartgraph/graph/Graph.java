@@ -1,7 +1,7 @@
-/* 
+/*
  * The MIT License
  *
- * Copyright 2019 brunomnsilva@gmail.com.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,36 +42,36 @@ public interface Graph<V, E> {
      * 
      * @return      total number of vertices
      */
-    public int numVertices();
+    int numVertices();
 
     /**
      * Returns the total number of edges of the graph.
      * 
      * @return      total number of vertices
      */
-    public int numEdges();
+    int numEdges();
 
     /**
      * Returns the vertices of the graph as a collection.
-     * 
+     * <br/>
      * If there are no vertices, returns an empty collection.
      * 
      * @return      collection of vertices
      */
-    public Collection<Vertex<V>> vertices();
+    Collection<Vertex<V>> vertices();
 
     /**
      * Returns the edges of the graph as a collection.
-     * 
+     * <br/>
      * If there are no edges, returns an empty collection.
      * 
      * @return      collection of edges
      */
-    public Collection<Edge<E, V>> edges();
+    Collection<Edge<E, V>> edges();
 
     /**
      * Returns a vertex's <i>incident</i> edges as a collection.
-     * 
+     * <br/>
      * Incident edges are all edges that are connected to vertex <code>v</code>.
      * If there are no incident edges, e.g., an isolated vertex, 
      * returns an empty collection.
@@ -80,13 +80,13 @@ public interface Graph<V, E> {
      * 
      * @return      collection of edges
      */
-    public Collection<Edge<E, V>> incidentEdges(Vertex<V> v)
+    Collection<Edge<E, V>> incidentEdges(Vertex<V> v)
             throws InvalidVertexException;
 
     /**
      * Given vertex <code>v</code>, return the opposite vertex at the other end
      * of edge <code>e</code>.
-     * 
+     * <br/>
      * If both <code>v</code> and <code>e</code> are valid, but <code>e</code>
      * is not connected to <code>v</code>, returns <i>null</i>.
      * 
@@ -97,7 +97,7 @@ public interface Graph<V, E> {
      * @exception InvalidVertexException    if the vertex is invalid for the graph
      * @exception InvalidEdgeException      if the edge is invalid for the graph
      */
-    public Vertex<V> opposite(Vertex<V> v, Edge<E, V> e)
+    Vertex<V> opposite(Vertex<V> v, Edge<E, V> e)
             throws InvalidVertexException, InvalidEdgeException;
 
     /**
@@ -112,7 +112,7 @@ public interface Graph<V, E> {
      * @exception InvalidVertexException    if <code>u</code> or <code>v</code>
      *                                      are invalid vertices for the graph
      */
-    public boolean areAdjacent(Vertex<V> u, Vertex<V> v)
+    boolean areAdjacent(Vertex<V> u, Vertex<V> v)
             throws InvalidVertexException;
 
     /**
@@ -129,7 +129,7 @@ public interface Graph<V, E> {
      *                                      method.
      *                                  
      */
-    public Vertex<V> insertVertex(V vElement)
+    Vertex<V> insertVertex(V vElement)
             throws InvalidVertexException;
 
     /**
@@ -151,7 +151,7 @@ public interface Graph<V, E> {
      *                                      {@link Object#equals(java.lang.Object) }
      *                                      method.
      */
-    public Edge<E, V> insertEdge(Vertex<V> u, Vertex<V> v, E edgeElement)
+    Edge<E, V> insertEdge(Vertex<V> u, Vertex<V> v, E edgeElement)
             throws InvalidVertexException, InvalidEdgeException;
 
     
@@ -178,7 +178,7 @@ public interface Graph<V, E> {
      *                                      {@link Object#equals(java.lang.Object) }
      *                                      method.
      */
-    public Edge<E, V> insertEdge(V vElement1, V vElement2, E edgeElement)
+    Edge<E, V> insertEdge(V vElement1, V vElement2, E edgeElement)
             throws InvalidVertexException, InvalidEdgeException;
 
     /**
@@ -191,7 +191,7 @@ public interface Graph<V, E> {
      * 
      * @exception InvalidVertexException if <code>v</code> is an invalid vertex for the graph
      */
-    public V removeVertex(Vertex<V> v) throws InvalidVertexException;
+    V removeVertex(Vertex<V> v) throws InvalidVertexException;
 
     /**
      * Removes an edge and return its element.
@@ -202,7 +202,7 @@ public interface Graph<V, E> {
      * 
      * @exception InvalidEdgeException if <code>e</code> is an invalid edge for the graph.
      */
-    public E removeEdge(Edge<E, V> e) throws InvalidEdgeException;
+    E removeEdge(Edge<E, V> e) throws InvalidEdgeException;
     
     /**
      * Replaces the element of a given vertex with a new element and returns the
@@ -220,7 +220,7 @@ public interface Graph<V, E> {
      *                                      {@link Object#equals(java.lang.Object) }
      *                                      method.
      */
-    public V replace(Vertex<V> v, V newElement) throws InvalidVertexException;
+    V replace(Vertex<V> v, V newElement) throws InvalidVertexException;
     
     /**
      * Replaces the element of a given edge with a new element and returns the
@@ -238,5 +238,5 @@ public interface Graph<V, E> {
      *                                      {@link Object#equals(java.lang.Object)} 
      *                                      method.
      */
-    public E replace(Edge<E, V> e, E newElement) throws InvalidEdgeException;
+    E replace(Edge<E, V> e, E newElement) throws InvalidEdgeException;
 }

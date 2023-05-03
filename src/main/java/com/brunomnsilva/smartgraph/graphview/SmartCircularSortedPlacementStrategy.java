@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019 brunomnsilva.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +23,10 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import javafx.geometry.Point2D;
 import com.brunomnsilva.smartgraph.graph.Graph;
+import javafx.geometry.Point2D;
+
+import java.util.*;
 
 /**
  * Places vertices around a circle, ordered by the underlying

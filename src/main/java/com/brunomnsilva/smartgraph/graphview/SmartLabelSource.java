@@ -1,7 +1,7 @@
-/* 
+/*
  * The MIT License
  *
- * Copyright 2019 brunomnsilva@gmail.com.
+ * JavaFXSmartGraph | Copyright 2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,23 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.brunomnsilva.smartgraph.graph;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.brunomnsilva.smartgraph.graphview;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * A vertex contains an element of type <code>V</code> and is used both in
- * graphs and digraphs.
+ * Method annotation to override an element's label provider.
+ * <br/>
+ * The annotated method must return a value, otherwise an exception will be thrown.
+ * <br/>
+ * By default the text label is obtained from the toString method if this
+ * annotation is not present in any other class method; this is also the case
+ * with String and other boxed-types, e.g., Integer, Double, etc.
+ * <br/>
+ * If multiple annotations exist, the behavior is undefined.
  * 
- * @param <V> Type of value stored in the vertex.
- * 
- * @see Graph
- * @see Digraph
+ * @author brunomnsilva
  */
-public interface Vertex<V> {
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface SmartLabelSource {
     
-    /**
-     * Returns the element stored in the vertex.
-     * 
-     * @return      stored element
-     */
-    public V element();
 }

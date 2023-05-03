@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019 brunomnsilva.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,34 +23,25 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
-import java.util.Collection;
-import com.brunomnsilva.smartgraph.graph.Graph;
-
 /**
- * Contains the method that should be implemented when creating new vertex placement
- * strategies.
+ * A node to which a {@link SmartLabel} can be attached.
  * 
  * @author brunomnsilva
  */
-public interface SmartPlacementStrategy {
-
+public interface SmartLabelledNode {
+    
     /**
-     * Implementations of placement strategies must implement this interface.
+     * Own and bind the <code>label</code> position to the desired position.
      * 
-     * Should use the {@link SmartGraphVertex#setPosition(double, double) }
-     *                  method to place individual vertices.
-     * 
-     * 
-     * @param <V>       Generic type for element stored at vertices.
-     * @param <E>       Generic type for element stored at edges.
-     * @param width     Width of the area in which to place the vertices.
-     * @param height    Height of the area in which to place the vertices.
-     * @param theGraph  Reference to the {@link Graph} containing the graph model.
-     *                  Can use methods to check for additional information
-     *                  pertaining the model.
-     * 
-     * @param vertices  Collection of {@link SmartGraphVertex} to place.
-     *                  
+     * @param label     text label node
      */
-    public <V,E> void place(double width, double height, Graph<V,E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices);
+    void attachLabel(SmartLabel label);
+    
+    /**
+     * Returns the attached text label, if any.
+     * 
+     * @return      the text label reference or null if no label is attached
+     */
+    SmartLabel getAttachedLabel();
+    
 }

@@ -1,7 +1,7 @@
-/* 
+/*
  * The MIT License
  *
- * Copyright 2019 brunomnsilva@gmail.com.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,37 +24,20 @@
 package com.brunomnsilva.smartgraph.graph;
 
 /**
- * An edge connects two {@link Vertex} of type <code>V</code> and stores
- * an element of type <code>E</code>.
+ * A vertex contains an element of type <code>V</code> and is used both in
+ * graphs and digraphs.
  * 
- * The edge may be used in oriented and non-oriented graphs.
- * 
- * @param <E> Type of value stored in the edge
- * @param <V> Type of value stored in the vertices that this edge connects.
+ * @param <V> Type of value stored in the vertex.
  * 
  * @see Graph
  * @see Digraph
  */
-public interface Edge<E, V> {
+public interface Vertex<V> {
     
     /**
-     * Returns the element stored in the edge.
+     * Returns the element stored in the vertex.
      * 
      * @return      stored element
      */
-    public E element();
-    
-    /**
-     * Returns and array of size 2, with references for both vertices at the ends
-     * of an edge.
-     * 
-     * In a {@link Digraph} the reference at {@code vertices()[0]} must be that
-     * of the <i>outbound vertex</i> and at {@code vertices()[1]} that of the <i>inbound</i>
-     * vertex.
-     * 
-     * @return      an array of length 2, containing the vertices at both ends.
-     */
-    public Vertex<V>[] vertices();
-    
-    
+    V element();
 }

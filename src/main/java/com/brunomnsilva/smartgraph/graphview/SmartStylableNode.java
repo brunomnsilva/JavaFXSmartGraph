@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019 brunomnsilva.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,51 +37,51 @@ public interface SmartStylableNode {
     
     /**
      * Applies cumulatively the <code>css</code> inline styles to the node.
-     * 
+     * <br/>
      * These inline JavaFX styles have higher priority and are not overwritten by
      * any css classes set by {@link SmartStylableNode#addStyleClass(java.lang.String) }.
      * But will be discarded if you use  {@link SmartStylableNode#setStyleClass(java.lang.String) }
-     * 
+     * <br/>
      * If you need to clear any previously set inline styles, use 
      * <code>.setStyle(null)</code>
      * 
      * @param css styles
      */
-    public void setStyle(String css);
+    void setStyle(String css);
     
     /**
      * Applies the CSS styling defined in class selector <code>cssClass</code>.
-     * 
+     * <br/>
      * The <code>cssClass</code> string must not contain a preceding dot, e.g.,
      * "myClass" instead of ".myClass".
-     * 
+     * <br/>
      * The CSS Class must be defined in <code>smartpgraph.css</code> file or
      * in the custom provided stylesheet.
-     * 
+     * <br/>
      * The expected behavior is to remove all current styling before 
      * applying the class css.
      * 
      * @param cssClass name of the CSS class.
      */
-    public void setStyleClass(String cssClass);
+    void setStyleClass(String cssClass);
     
     /**
      * Applies cumulatively the CSS styling defined in class selector 
      * <code>cssClass</code>.
-     * 
+     * <br/>
      * The CSS Class must be defined in <code>smartpgraph.css</code> file or
      * in the custom provided stylesheet.
-     * 
+     * <br/>
      * The cumulative operation will overwrite any existing styling elements
      * previously defined for previous classes.
      * 
      * @param cssClass name of the CSS class.
      */
-    public void addStyleClass(String cssClass);
+    void addStyleClass(String cssClass);
     
     /**
      * Removes a previously <code>cssClass</code> existing CSS styling.
-     * 
+     * <br/>
      * Given styles can be added sequentially, the removal of a css class
      * will be a removal that keeps the previous ordering of kept styles.
      * 
@@ -90,5 +90,5 @@ public interface SmartStylableNode {
      * @return true if successful; false if <code>cssClass</code> wasn't 
      * previously set.
      */
-    public boolean removeStyleClass(String cssClass);
+    boolean removeStyleClass(String cssClass);
 }

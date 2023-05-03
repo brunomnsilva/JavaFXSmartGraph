@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019 brunomnsilva.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,25 +23,47 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
+import com.brunomnsilva.smartgraph.graph.Edge;
+import com.brunomnsilva.smartgraph.graph.Vertex;
+
 /**
- * A node to which a {@link SmartLabel} can be attached.
+ * A graph edge visually connects two {@link Vertex} of type <code>V</code>.
+ * <br>
+ * Concrete edge implementations used by {@link SmartGraphPanel} should
+ * implement this interface as this type is the only one exposed to the user.
+ * 
+ * @param <E> Type stored in the underlying edge
+ * @param <V> Type of connecting vertex
+ *
+ * @see Vertex
+ * @see SmartGraphPanel
  * 
  * @author brunomnsilva
  */
-public interface SmartLabelledNode {
+public interface SmartGraphEdge<E, V> extends SmartStylableNode {
+    
+     /**
+     * Returns the underlying (stored reference) graph edge.
+     * 
+     * @return edge reference 
+     * 
+     * @see SmartGraphPanel
+     */
+    Edge<E, V> getUnderlyingEdge();
     
     /**
-     * Own and bind the <code>label</code> position to the desired position.
+     * Returns the attached arrow of the edge, for styling purposes.
+     * <br/>
+     * The arrows are only used with directed graphs.
      * 
-     * @param label     text label node
+     * @return arrow reference; null if does not exist.
      */
-    public void attachLabel(SmartLabel label);
+    SmartStylableNode getStylableArrow();
     
     /**
-     * Returns the attached text label, if any.
+     * Returns the label node for further styling.
      * 
-     * @return      the text label reference or null if no label is attached
+     * @return the label node.
      */
-    public SmartLabel getAttachedLabel();
-    
+    SmartStylableNode getStylableLabel();
 }

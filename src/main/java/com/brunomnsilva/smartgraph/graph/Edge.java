@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * JavaFXSmartGraph | Copyright 2023  brunomnsilva@gmail.com
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,51 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.brunomnsilva.smartgraph.example;
-
-import com.brunomnsilva.smartgraph.graphview.SmartLabelSource;
+package com.brunomnsilva.smartgraph.graph;
 
 /**
- *
- * @author brunomnsilva
+ * An edge connects two {@link Vertex} of type <code>V</code> and stores
+ * an element of type <code>E</code>.
+ * <br/>
+ * The edge may be used in oriented and non-oriented graphs.
+ * 
+ * @param <E> Type of value stored in the edge
+ * @param <V> Type of value stored in the vertices that this edge connects.
+ * 
+ * @see Graph
+ * @see Digraph
  */
-public class City {
-    private String name;
-    private int population;
-
-    public City(String name, int age) {
-        this.name = name;
-        this.population = age;
-    }
-
-    @SmartLabelSource
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
+public interface Edge<E, V> {
     
-    public int getPopulation() {
-        return population;
-    }
-
-    public void setPopulation(int population) {
-        this.population = population;
-    }
-
-    @Override
-    public String toString() {
-        return "City{" + "name=" + name + ", population=" + population + '}';
-    }
-   
+    /**
+     * Returns the element stored in the edge.
+     * 
+     * @return      stored element
+     */
+    E element();
+    
+    /**
+     * Returns and array of size 2, with references for both vertices at the ends
+     * of an edge.
+     * <br/>
+     * In a {@link Digraph} the reference at {@code vertices()[0]} must be that
+     * of the <i>outbound vertex</i> and at {@code vertices()[1]} that of the <i>inbound</i>
+     * vertex.
+     * 
+     * @return      an array of length 2, containing the vertices at both ends.
+     */
+    Vertex<V>[] vertices();
+    
     
 }

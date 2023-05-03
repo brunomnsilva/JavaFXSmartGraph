@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019 Bruno Silva.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,10 @@
  */
 package com.brunomnsilva.smartgraph.containers;
 
+import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 
 /**
  *

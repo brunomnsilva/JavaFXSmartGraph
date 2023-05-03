@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019 brunomnsilva.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,47 +23,65 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
-import com.brunomnsilva.smartgraph.graph.Edge;
+import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 
 /**
- * A graph edge visually connects two {@link Vertex} of type <code>V</code>.
- * <br>
- * Concrete edge implementations used by {@link SmartGraphPanel} should
- * implement this interface as this type is the only one exposed to the user.
+ * Abstracts the internal representation and behavior of a visualized graph vertex.
  * 
- * @param <E> Type stored in the underlying edge
- * @param <V> Type of connecting vertex
- *
- * @see Vertex
+ * @param <V> Type stored in the underlying vertex
+ * 
  * @see SmartGraphPanel
  * 
  * @author brunomnsilva
  */
-public interface SmartGraphEdge<E, V> extends SmartStylableNode {
-    
-     /**
-     * Returns the underlying (stored reference) graph edge.
-     * 
-     * @return edge reference 
-     * 
-     * @see SmartGraphPanel
-     */
-    public Edge<E, V> getUnderlyingEdge();
+public interface SmartGraphVertex<V> extends SmartStylableNode {
     
     /**
-     * Returns the attached arrow of the edge, for styling purposes.
+     * Returns the underlying (stored reference) graph vertex.
      * 
-     * The arrows are only used with directed graphs.
+     * @return vertex reference 
      * 
-     * @return arrow reference; null if does not exist.
+     * @see Graph
      */
-    public SmartStylableNode getStylableArrow();
+    Vertex<V> getUnderlyingVertex();
+    
+    /**
+     * Sets the position of this vertex in panel coordinates. 
+     * <br/>
+     * Apart from its usage in the {@link SmartGraphPanel}, this method
+     * should only be called when implementing {@link SmartPlacementStrategy}.
+     * 
+     * @param x     x-coordinate for the vertex
+     * @param y     y-coordinate for the vertex
+     */
+    void setPosition(double x, double y);
+    
+    /**
+     * Return the center x-coordinate of this vertex in panel coordinates.
+     * 
+     * @return     x-coordinate of the vertex 
+     */
+    double getPositionCenterX();
+    
+    /**
+     * Return the center y-coordinate of this vertex in panel coordinates.
+     * 
+     * @return     y-coordinate of the vertex 
+     */
+    double getPositionCenterY();
+    
+    /**
+     * Returns the circle radius used to represent this vertex.
+     * 
+     * @return      circle radius
+     */
+    double getRadius();
     
     /**
      * Returns the label node for further styling.
      * 
      * @return the label node.
      */
-    public SmartStylableNode getStylableLabel();
+    SmartStylableNode getStylableLabel();
 }

@@ -1,7 +1,7 @@
-/* 
+/*
  * The MIT License
  *
- * Copyright 2019 brunomnsilva@gmail.com.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,11 +23,7 @@
  */
 package com.brunomnsilva.smartgraph.graph;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * ADT Graph implementation that stores a collection of edges (and vertices) and
@@ -337,11 +333,11 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
     }
 
     /**
-     * Checks whether a given vertex is valid and belongs to this graph
+     * Checks whether a given vertex is valid (i.e., not <i>null</i>) and belongs to this graph
      *
-     * @param v
-     * @return
-     * @throws InvalidVertexException
+     * @param v vertex to check
+     * @return the reference of the vertex
+     * @throws InvalidVertexException if the vertice is invalid
      */
     private MyVertex checkVertex(Vertex<V> v) throws InvalidVertexException {
         if(v == null) throw new InvalidVertexException("Null vertex.");

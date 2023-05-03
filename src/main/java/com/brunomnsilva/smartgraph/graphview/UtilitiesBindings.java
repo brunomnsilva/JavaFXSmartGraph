@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2019 Bruno Silva.
+ * JavaFXSmartGraph | Copyright 2019-2023  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,9 +23,10 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
-import static javafx.beans.binding.Bindings.createDoubleBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.value.ObservableDoubleValue;
+
+import static javafx.beans.binding.Bindings.createDoubleBinding;
 
 /**
  * Some {@link Math} operations implemented as bindings.

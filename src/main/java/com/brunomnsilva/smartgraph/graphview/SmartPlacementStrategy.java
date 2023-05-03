@@ -26,30 +26,30 @@ package com.brunomnsilva.smartgraph.graphview;
 import com.brunomnsilva.smartgraph.graph.Graph;
 
 import java.util.Collection;
-import java.util.Random;
 
 /**
- * Scatters the vertices randomly.
- * 
- * @see SmartPlacementStrategy
+ * Contains the method that should be implemented when creating new vertex placement
+ * strategies.
  * 
  * @author brunomnsilva
  */
-public class SmartRandomPlacementStrategy implements SmartPlacementStrategy {
+public interface SmartPlacementStrategy {
 
-    @Override
-    public <V, E> void place(double width, double height, Graph<V, E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices) {
-        
-        Random rand = new Random();
-
-        for (SmartGraphVertex<V> vertex : vertices) {
-            
-            double x = rand.nextDouble() * width;
-            double y = rand.nextDouble() * height;
-                        
-            vertex.setPosition(x, y);
-          
-        }
-    }
-    
+    /**
+     * Implementations of placement strategies must implement this interface.
+     * <br/>
+     * Should use the {@link SmartGraphVertex#setPosition(double, double) } method to place individual vertices.
+     * 
+     * @param <V>       Generic type for element stored at vertices.
+     * @param <E>       Generic type for element stored at edges.
+     * @param width     Width of the area in which to place the vertices.
+     * @param height    Height of the area in which to place the vertices.
+     * @param theGraph  Reference to the {@link Graph} containing the graph model.
+     *                  Can use methods to check for additional information
+     *                  pertaining the model.
+     * 
+     * @param vertices  Collection of {@link SmartGraphVertex} to place.
+     *                  
+     */
+    <V,E> void place(double width, double height, Graph<V,E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices);
 }
