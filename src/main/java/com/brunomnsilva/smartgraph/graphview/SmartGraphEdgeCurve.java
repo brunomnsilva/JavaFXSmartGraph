@@ -23,12 +23,12 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
+import com.brunomnsilva.smartgraph.graph.Edge;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
-import com.brunomnsilva.smartgraph.graph.Edge;
 
 /**
  * Concrete implementation of a curved edge.
@@ -39,9 +39,9 @@ import com.brunomnsilva.smartgraph.graph.Edge;
  * is updated automatically as the vertices move.
  * <br>
  * Given there can be several curved edges connecting two vertices, when calling
- * the constructor {@link #SmartGraphEdgeCurve(com.brunomnsilva.smartgraph.graph.Edge, 
- * com.brunomnsilva.smartgraph.graphview.SmartGraphVertexNode, 
- * com.brunomnsilva.smartgraph.graphview.SmartGraphVertexNode, int) } the <code>edgeIndex</code>
+ * the constructor {@link #SmartGraphEdgeCurve(Edge,
+ * SmartGraphVertexNode,
+ * SmartGraphVertexNode, int) } the <code>edgeIndex</code>
  * can be specified as to create non-overlaping curves.
  *
  * @param <E> Type stored in the underlying edge

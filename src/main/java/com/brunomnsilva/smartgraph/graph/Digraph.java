@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package com.brunomnsilva.smartgraph.graph;
 
 import java.util.Collection;
@@ -45,7 +46,7 @@ public interface Digraph<V, E> extends Graph<V, E> {
     
     /**
      * Returns a vertex's <i>incident</i> edges as a collection.
-     * 
+     * <br/>
      * Incident edges are all edges that have vertex <code>inbound</code> as the
      * <i>inbound vertex</i>, i.e., the edges "entering" vertex <code>inbound</code>.
      * If there are no incident edges, e.g., an isolated vertex, 
@@ -56,12 +57,12 @@ public interface Digraph<V, E> extends Graph<V, E> {
      * @return            collection of edges
      */
     @Override
-    public Collection<Edge<E, V>> incidentEdges(Vertex<V> inbound)
+    Collection<Edge<E, V>> incidentEdges(Vertex<V> inbound)
             throws InvalidVertexException;
 
     /**
      * Returns a vertex's <i>outbound</i> edges as a collection.
-     * 
+     * <br/>
      * Incident edges are all edges that have vertex <code>outbound</code> as the
      * <i>outbound vertex</i>, i.e., the edges "leaving" vertex <code>outbound</code>.
      * If there are no outbound edges, e.g., an isolated vertex, 
@@ -71,16 +72,16 @@ public interface Digraph<V, E> extends Graph<V, E> {
      * 
      * @return            collection of edges
      */
-    public Collection<Edge<E, V>> outboundEdges(Vertex<V> outbound)
+    Collection<Edge<E, V>> outboundEdges(Vertex<V> outbound)
             throws InvalidVertexException;
     
     
     /**
      * Evaluates whether two vertices are adjacent, i.e., there exists some
      * directed-edge connecting <code>outbound</code> and <code>inbound</code>.
-     * 
+     * <br/>
      * The existing edge must be directed as <code>outbound --&gt; inbound</code>.
-     * 
+     * <br/>
      * If, for example, there exists only an edge <code>outbound &lt;-- inbound</code>,
      * they are not considered adjacent.
      * 
@@ -94,7 +95,7 @@ public interface Digraph<V, E> extends Graph<V, E> {
      *                                      are invalid vertices for the graph
      */
     @Override
-    public boolean areAdjacent(Vertex<V> outbound, Vertex<V> inbound)
+    boolean areAdjacent(Vertex<V> outbound, Vertex<V> inbound)
             throws InvalidVertexException;
 
     /**
@@ -118,7 +119,7 @@ public interface Digraph<V, E> extends Graph<V, E> {
      *                                      method.
      */
     @Override
-    public Edge<E, V> insertEdge(Vertex<V> outbound, Vertex<V> inbound, E edgeElement)
+    Edge<E, V> insertEdge(Vertex<V> outbound, Vertex<V> inbound, E edgeElement)
             throws InvalidVertexException, InvalidEdgeException;
 
     
@@ -146,7 +147,7 @@ public interface Digraph<V, E> extends Graph<V, E> {
      *                                      method.
      */
     @Override
-    public Edge<E, V> insertEdge(V outboundElement, V inboundElement, E edgeElement)
+    Edge<E, V> insertEdge(V outboundElement, V inboundElement, E edgeElement)
             throws InvalidVertexException, InvalidEdgeException;;
 
     

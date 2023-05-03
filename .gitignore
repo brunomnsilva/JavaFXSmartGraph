@@ -1,5 +1,41 @@
-#Ignore folders
+# IntelliJ IDEA files
+.idea
+*.iml
+*.ipr
+*.iws
 
+# Netbeans IDE files
+nbproject/
+releases/
+build.xml
+
+# Compiled classes
+target/
+
+# Maven files
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Log files
+*.log
+log/
+logs/
+logging/
+
+# IDE-specific files
+*.backup.*
+*.bak
+*.swp
+
+#Ignore folders
 /test/
 /build/
 /dist/
@@ -10,9 +46,6 @@
 
 # Compiled class file
 *.class
-
-# Log file
-*.log
 
 #Java Network Launch Protocol
 *.jnlp
