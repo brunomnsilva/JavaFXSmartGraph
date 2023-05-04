@@ -22,11 +22,6 @@
  * THE SOFTWARE.
  */
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.brunomnsilva.smartgraph.graph;
 
 import java.util.*;
@@ -148,20 +143,12 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
 
     @Override
     public synchronized Collection<Vertex<V>> vertices() {
-        List<Vertex<V>> list = new ArrayList<>();
-        vertices.values().forEach((v) -> {
-            list.add(v);
-        });
-        return list;
+        return new ArrayList<>(vertices.values());
     }
 
     @Override
     public synchronized Collection<Edge<E, V>> edges() {
-        List<Edge<E, V>> list = new ArrayList<>();
-        edges.values().forEach((e) -> {
-            list.add(e);
-        });
-        return list;
+        return new ArrayList<>(edges.values());
     }
 
     @Override
@@ -327,7 +314,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
 
         @Override
         public Vertex<V>[] vertices() {
-            Vertex[] vertices = new Vertex[2];
+            Vertex<V>[] vertices = new Vertex[2];
             vertices[0] = vertexOutbound;
             vertices[1] = vertexInbound;
 
@@ -350,11 +337,11 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     }
 
     /**
-     * Checks whether a given vertex is valid and belongs to this graph
+     * Checks whether a given vertex is valid and belongs to this graph.
      *
-     * @param v
-     * @return
-     * @throws InvalidVertexException
+     * @param v the vertex to check
+     * @return the reference of the vertex, with cast to the underlying implementation of {@link Vertex}
+     * @throws InvalidVertexException if the vertex is <code>null</code> or does not belong to this graph
      */
     private MyVertex checkVertex(Vertex<V> v) throws InvalidVertexException {
         if(v == null) throw new InvalidVertexException("Null vertex.");

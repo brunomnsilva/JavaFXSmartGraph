@@ -52,11 +52,11 @@ public class UtilitiesBindings {
     /**
      * Binding for {@link java.lang.Math#toDegrees(double)}
      *
-     * @param   angrad   an angle, in radians
-     * @return  the measurement of the angle {@code angrad}
+     * @param   angRad   an angle, in radians
+     * @return  the measurement of the angle {@code angRad}
      *          in degrees.
      */
-    public static DoubleBinding toDegrees(final ObservableDoubleValue angrad) {
-        return createDoubleBinding(() -> Math.toDegrees(angrad.get()), angrad);
+    public static DoubleBinding toDegrees(final ObservableDoubleValue angRad) {
+        return createDoubleBinding(() -> Math.toDegrees(angRad.get()), angRad);
     }
 }

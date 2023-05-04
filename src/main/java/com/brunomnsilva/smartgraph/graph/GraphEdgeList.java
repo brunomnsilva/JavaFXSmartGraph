@@ -40,11 +40,11 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
 
     /* inner classes are defined at the end of the class, so are the auxiliary methods 
      */
-    private Map<V, Vertex<V>> vertices;
-    private Map<E, Edge<E, V>> edges;
+    private final Map<V, Vertex<V>> vertices;
+    private final Map<E, Edge<E, V>> edges;
 
     /**
-     * Creates a empty graph.
+     * Default constructor that initializes an empty graph.
      */
     public GraphEdgeList() {
         this.vertices = new HashMap<>();
@@ -63,20 +63,12 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
 
     @Override
     public Collection<Vertex<V>> vertices() {
-        List<Vertex<V>> list = new ArrayList<>();
-        for (Vertex<V> v : vertices.values()) {
-            list.add(v);
-        }
-        return list;
+        return new ArrayList<>(vertices.values());
     }
 
     @Override
     public Collection<Edge<E, V>> edges() {
-        List<Edge<E, V>> list = new ArrayList<>();
-        for (Edge<E, V> e : edges.values()) {
-            list.add(e);
-        }
-        return list;
+        return new ArrayList<>(edges.values());
     }
 
     @Override
@@ -318,7 +310,7 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
 
         @Override
         public Vertex<V>[] vertices() {
-            Vertex[] vertices = new Vertex[2];
+            Vertex<V>[] vertices = new Vertex[2];
             vertices[0] = vertexOutbound;
             vertices[1] = vertexInbound;
 
@@ -337,7 +329,7 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
      *
      * @param v vertex to check
      * @return the reference of the vertex
-     * @throws InvalidVertexException if the vertice is invalid
+     * @throws InvalidVertexException if the vertex is invalid
      */
     private MyVertex checkVertex(Vertex<V> v) throws InvalidVertexException {
         if(v == null) throw new InvalidVertexException("Null vertex.");

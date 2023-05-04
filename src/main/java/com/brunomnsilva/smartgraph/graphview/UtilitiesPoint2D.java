@@ -94,8 +94,9 @@ public class UtilitiesPoint2D {
             distance = 1;
         }
 
-        //the attractive strenght grows logarithmically with distance 
-        
+        // The attractive strength grows logarithmically with distance
+        // Several possibilities were tested.
+
         //return force * Math.log(distance / scale) * (1.0 / (1.0 * numVertices));
         //return force * Math.log(distance / numVertices) * (1 / scale);
         

@@ -43,7 +43,7 @@ import javafx.scene.text.Text;
  * It shows the zoom level with a slider control and reacts to mouse scrolls and
  * mouse dragging.
  * <br/>
- * The content node is out forward in the z-index so it can react to mouse
+ * The content node is out forward in the z-index, so it can react to mouse
  * events first. The node should consume any event not meant to propagate to
  * this pane.
  *
@@ -51,9 +51,6 @@ import javafx.scene.text.Text;
  */
 public class ContentZoomPane extends BorderPane {
 
-    /*
-    PAN AND ZOOM
-     */
     private final DoubleProperty scaleFactorProperty = new ReadOnlyDoubleWrapper(1);
     private final Node content;
 
@@ -68,10 +65,9 @@ public class ContentZoomPane extends BorderPane {
 
         this.content = content;
 
-        Node center = content;
         content.toFront();
 
-        setCenter(center);
+        setCenter(content);
         setRight(createSlider());
 
         enablePanAndZoom();
@@ -149,9 +145,8 @@ public class ContentZoomPane extends BorderPane {
                 }
 
             }
-            //do not propagate
+            //do not propagate event
             event.consume();
-
         });
 
         final DragContext sceneDragContext = new DragContext();
@@ -188,7 +183,7 @@ public class ContentZoomPane extends BorderPane {
         return scaleFactorProperty;
     }
 
-    class DragContext {
+    private static class DragContext {
 
         double mouseAnchorX;
         double mouseAnchorY;

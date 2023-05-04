@@ -51,6 +51,7 @@ import java.util.Set;
 public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<T>, SmartLabelledNode {
 
     private final Vertex<T> underlyingVertex;
+
     /* Critical for performance, so we don't rely on the efficiency of the Graph.areAdjacent method */
     private final Set<SmartGraphVertexNode<T>> adjacentVertices;
 
@@ -355,7 +356,7 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
      * Internal representation of a 2D point or vector for quick access to its
      * attributes.
      */
-    private class PointVector {
+    private static class PointVector {
 
         double x, y;
 

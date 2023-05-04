@@ -36,6 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Class that provides an example of using the library.
  *
  * @author brunomnsilva
  */
@@ -77,13 +78,13 @@ public class Main extends Application {
         stage.show();
 
         /*
-        IMPORTANT: Must call init() after scene is displayed so we can have width and height values
-        to initially place the vertices according to the placement strategy
+        IMPORTANT: Must call init() after scene is displayed, so we can have width and height values
+        to initially place the vertices according to the placement strategy.
         */
         graphView.init();
 
         /*
-        Bellow you can see how to attach actions for when vertices and edges are double clicked
+        Bellow you can see how to attach actions for when vertices and edges are double-clicked
          */        
         graphView.setVertexDoubleClickAction((SmartGraphVertex<String> graphVertex) -> {
             System.out.println("Vertex contains element: " + graphVertex.getUnderlyingVertex().element());

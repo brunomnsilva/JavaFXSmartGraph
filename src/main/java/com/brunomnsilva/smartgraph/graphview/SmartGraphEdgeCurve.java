@@ -42,7 +42,7 @@ import javafx.scene.transform.Translate;
  * the constructor {@link #SmartGraphEdgeCurve(Edge,
  * SmartGraphVertexNode,
  * SmartGraphVertexNode, int) } the <code>edgeIndex</code>
- * can be specified as to create non-overlaping curves.
+ * can be specified as to create non-overlapping curves.
  *
  * @param <E> Type stored in the underlying edge
  * @param <V> Type of connecting vertex
@@ -66,11 +66,11 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
 
-    public SmartGraphEdgeCurve(Edge<E, V> edge, SmartGraphVertexNode inbound, SmartGraphVertexNode outbound) {
+    public SmartGraphEdgeCurve(Edge<E, V> edge, SmartGraphVertexNode<V> inbound, SmartGraphVertexNode<V> outbound) {
         this(edge, inbound, outbound, 0);
     }
 
-    public SmartGraphEdgeCurve(Edge<E, V> edge, SmartGraphVertexNode inbound, SmartGraphVertexNode outbound, int edgeIndex) {
+    public SmartGraphEdgeCurve(Edge<E, V> edge, SmartGraphVertexNode<V> inbound, SmartGraphVertexNode<V> outbound, int edgeIndex) {
         this.inbound = inbound;
         this.outbound = outbound;
 

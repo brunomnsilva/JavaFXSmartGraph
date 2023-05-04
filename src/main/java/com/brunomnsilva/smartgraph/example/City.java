@@ -22,26 +22,26 @@
  * THE SOFTWARE.
  */
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.brunomnsilva.smartgraph.example;
 
 import com.brunomnsilva.smartgraph.graphview.SmartLabelSource;
 
 /**
- *
+ * A simple class to represent a city in an example usage of the library.
  * @author brunomnsilva
  */
 public class City {
     private String name;
-    private int population;
+    private float population;
 
-    public City(String name, int age) {
+    /**
+     * City constructor
+     * @param name name of the city
+     * @param population population (in millions)
+     */
+    public City(String name, float population) {
         this.name = name;
-        this.population = age;
+        this.population = population;
     }
 
     @SmartLabelSource
@@ -54,11 +54,11 @@ public class City {
     }
 
     
-    public int getPopulation() {
+    public float getPopulation() {
         return population;
     }
 
-    public void setPopulation(int population) {
+    public void setPopulation(float population) {
         this.population = population;
     }
 

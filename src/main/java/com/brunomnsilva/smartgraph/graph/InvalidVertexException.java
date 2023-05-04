@@ -24,7 +24,7 @@
 package com.brunomnsilva.smartgraph.graph;
 
 /**
- * Error when using an invalid vertex in calls of methods in {@link Graph}
+ * Thrown when using an invalid vertex in calls of methods in {@link Graph}
  * and {@link Digraph} implementations.
  * 
  * @see Graph
@@ -32,12 +32,20 @@ package com.brunomnsilva.smartgraph.graph;
  */
 public class InvalidVertexException extends RuntimeException {
 
+    /**
+     * Constructs a new InvalidVertexException with a default error message.
+     */
     public InvalidVertexException() {
         super("The vertex is invalid or does not belong to this graph.");
     }
 
-    public InvalidVertexException(String string) {
-        super(string);
+    /**
+     * Constructs a new InvalidVertexException with the specified error message.
+     *
+     * @param message the error message to display
+     */
+    public InvalidVertexException(String message) {
+        super(message);
     }
     
 }

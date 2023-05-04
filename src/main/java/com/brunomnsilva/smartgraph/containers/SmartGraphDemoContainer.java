@@ -29,12 +29,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
 /**
+ * A simple container that provides zoom and toggling of automatic layout of a SmartGraphPanel.
  *
- * @author Bruno Silva
+ * @author brunomnsilva
  */
 public class SmartGraphDemoContainer extends BorderPane {
 
-    public SmartGraphDemoContainer(SmartGraphPanel graphView) {
+    public SmartGraphDemoContainer(SmartGraphPanel<?,?> graphView) {
         
         setCenter(new ContentZoomPane(graphView));
         

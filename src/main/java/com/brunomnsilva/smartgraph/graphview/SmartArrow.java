@@ -38,7 +38,7 @@ public class SmartArrow extends Path implements SmartStylableNode {
     private final SmartStyleProxy styleProxy;
     
     /**
-     * Constructor
+     * Default constructor.
      * 
      * @param size determines the size of the arrow (side of the triangle in pixels)
      */

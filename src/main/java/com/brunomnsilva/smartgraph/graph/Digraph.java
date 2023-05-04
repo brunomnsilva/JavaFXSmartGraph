@@ -30,10 +30,10 @@ import java.util.Collection;
  * A directed graph (or digraph) is a graph that is made up of a set of vertices 
  * connected by edges, where the edges have a direction associated with them.
  * <br>
- * An directed-edge leaves the <i>outbound vertex</i>
+ * A directed-edge leaves the <i>outbound vertex</i>
  * towards the <i>inbound vertex</i> and this changes the reasoning behind some
  * methods of the {@link Graph} interface, which are overridden in this interface
- * so as to provide different documentation of expected behavior.
+ * to provide different documentation of expected behavior.
  * 
  * @param <V> Type of element stored at a vertex
  * @param <E> Type of element stored at an edge
@@ -148,7 +148,7 @@ public interface Digraph<V, E> extends Graph<V, E> {
      */
     @Override
     Edge<E, V> insertEdge(V outboundElement, V inboundElement, E edgeElement)
-            throws InvalidVertexException, InvalidEdgeException;;
+            throws InvalidVertexException, InvalidEdgeException;
 
     
     

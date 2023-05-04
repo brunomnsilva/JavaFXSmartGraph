@@ -22,11 +22,6 @@
  * THE SOFTWARE.
  */
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.brunomnsilva.smartgraph.example;
 
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
@@ -52,12 +47,12 @@ public class ExampleMain extends Application {
         
         Graph<City, Distance> distances = new GraphEdgeList<>();
         
-        Vertex<City> prague = distances.insertVertex(new City("Prague", 0));
-        Vertex<City> tokyo = distances.insertVertex(new City("Tokyo", 0));
-        Vertex<City> beijing = distances.insertVertex(new City("Beijing", 0));
-        Vertex<City> newYork = distances.insertVertex(new City("New York", 0));
-        Vertex<City> london = distances.insertVertex(new City("London", 0));
-        Vertex<City> helsinky = distances.insertVertex(new City("Helsinky", 0));
+        Vertex<City> prague = distances.insertVertex(new City("Prague", 1.3f));
+        Vertex<City> tokyo = distances.insertVertex(new City("Tokyo", 37.5f));
+        Vertex<City> beijing = distances.insertVertex(new City("Beijing", 21.5f));
+        Vertex<City> newYork = distances.insertVertex(new City("New York", 19.5f));
+        Vertex<City> london = distances.insertVertex(new City("London", 14.4f));
+        Vertex<City> helsinky = distances.insertVertex(new City("Helsinky", 0.6f));
         
         distances.insertEdge(tokyo, newYork, new Distance(10838));
         distances.insertEdge(beijing, newYork, new Distance(11550));
@@ -68,7 +63,7 @@ public class ExampleMain extends Application {
         distances.insertEdge(prague, helsinky, new Distance(1845));
         distances.insertEdge(beijing, london, new Distance(8132));
         
-        /* Only Java 15 allows for multi-line strings */
+        /* Only Java 15 allows for multi-line strings. */
         String customProps = "edge.label = true" + "\n" + "edge.arrow = false";
                 
         SmartGraphProperties properties = new SmartGraphProperties(customProps);
@@ -88,8 +83,11 @@ public class ExampleMain extends Application {
         
         //graphView.setAutomaticLayout(true);
         
-        /* You can mannualy place vertices at any time. However, these are
-        absolute coordinates inside the container panel. */
+        /* You can manually place vertices at any time. However, these are
+        absolute coordinates inside the container panel.
+        Careful choice of a panel's background image can allow you to overlay
+        the vertices over a, e.g., world map.
+        */
         graphView.setVertexPosition(beijing, 100, 100);
         graphView.setVertexPosition(helsinky, 924, 100);
         graphView.setVertexPosition(london, 200, 668);
@@ -98,7 +96,6 @@ public class ExampleMain extends Application {
         graphView.setVertexPosition(newYork, 512, 400);
         
         graphView.getStylableLabel(tokyo).setStyle("-fx-stroke: red; -fx-fill: red;");
-        
     }
     
     public static void main(String[] args) {

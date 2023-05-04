@@ -22,17 +22,12 @@
  * THE SOFTWARE.
  */
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.brunomnsilva.smartgraph.example;
 
 import com.brunomnsilva.smartgraph.graphview.SmartLabelSource;
 
 /**
- *
+ * A simple class to represent a distance in an example usage of the library.
  * @author brunomnsilva
  */
 public class Distance {

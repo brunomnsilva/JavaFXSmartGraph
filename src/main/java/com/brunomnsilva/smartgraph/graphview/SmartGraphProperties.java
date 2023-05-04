@@ -77,7 +77,7 @@ public class SmartGraphProperties {
     private static final String PROPERTY_ATTRACTION_SCALE = "layout.attraction-scale";
 
     private static final String DEFAULT_FILE = "smartgraph.properties";
-    private Properties properties;
+    private final Properties properties;
     
     /**
      * Uses default properties file.
@@ -229,7 +229,7 @@ public class SmartGraphProperties {
     private double getDoubleProperty(String propertyName, double defaultValue) {
         String p = properties.getProperty(propertyName, Double.toString(defaultValue));
         try {
-            return Double.valueOf(p);
+            return Double.parseDouble(p);
         } catch (NumberFormatException e) {
             System.err.printf("Error in reading property %s: %s", propertyName, e.getMessage());
             return defaultValue;
@@ -240,7 +240,7 @@ public class SmartGraphProperties {
     private boolean getBooleanProperty(String propertyName, boolean defaultValue) {
         String p = properties.getProperty(propertyName, Boolean.toString(defaultValue));
         try {
-            return Boolean.valueOf(p);
+            return Boolean.parseBoolean(p);
         } catch (NumberFormatException e) {
             System.err.printf("Error in reading property %s: %s", propertyName, e.getMessage());
             return defaultValue;

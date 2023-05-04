@@ -22,11 +22,6 @@
  * THE SOFTWARE.
  */
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.brunomnsilva.smartgraph.graphview;
 
 import java.lang.annotation.ElementType;
@@ -39,7 +34,7 @@ import java.lang.annotation.Target;
  * <br/>
  * The annotated method must return a value, otherwise an exception will be thrown.
  * <br/>
- * By default the text label is obtained from the toString method if this
+ * By default, the text label is obtained from the toString method if this
  * annotation is not present in any other class method; this is also the case
  * with String and other boxed-types, e.g., Integer, Double, etc.
  * <br/>

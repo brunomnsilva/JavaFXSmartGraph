@@ -24,7 +24,7 @@
 package com.brunomnsilva.smartgraph.graph;
 
 /**
- * Error when using an invalid edge in calls of methods in {@link Graph}
+ * Thrown when using an invalid edge in calls of methods in {@link Graph}
  * and {@link Digraph} implementations.
  * 
  * @see Graph
@@ -32,12 +32,20 @@ package com.brunomnsilva.smartgraph.graph;
  */
 public class InvalidEdgeException extends RuntimeException {
 
+    /**
+     * Constructs a new InvalidEdgeException with a default error message.
+     */
     public InvalidEdgeException() {
         super("The edge is invalid or does not belong to this graph.");
     }
 
-    public InvalidEdgeException(String string) {
-        super(string);
+    /**
+     * Constructs a new InvalidEdgeException with the specified error message.
+     *
+     * @param message the error message to display
+     */
+    public InvalidEdgeException(String message) {
+        super(message);
     }
     
 }

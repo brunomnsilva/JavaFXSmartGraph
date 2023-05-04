@@ -55,7 +55,7 @@ public interface SmartStylableNode {
      * The <code>cssClass</code> string must not contain a preceding dot, e.g.,
      * "myClass" instead of ".myClass".
      * <br/>
-     * The CSS Class must be defined in <code>smartpgraph.css</code> file or
+     * The CSS Class must be defined in <code>smartgraph.css</code> file or
      * in the custom provided stylesheet.
      * <br/>
      * The expected behavior is to remove all current styling before 
@@ -69,7 +69,7 @@ public interface SmartStylableNode {
      * Applies cumulatively the CSS styling defined in class selector 
      * <code>cssClass</code>.
      * <br/>
-     * The CSS Class must be defined in <code>smartpgraph.css</code> file or
+     * The CSS Class must be defined in <code>smartgraph.css</code> file or
      * in the custom provided stylesheet.
      * <br/>
      * The cumulative operation will overwrite any existing styling elements

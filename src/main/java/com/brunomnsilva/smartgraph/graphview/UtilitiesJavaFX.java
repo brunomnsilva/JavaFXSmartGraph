@@ -39,7 +39,7 @@ public class UtilitiesJavaFX {
     /**
      * Determines the closest node that resides in the x,y scene position, if any.
      * <br>
-     * Obtained from <a href="http://fxexperience.com/2016/01/node-picking-in-javafx/>here</a>
+     * Obtained from <a href="http://fxexperience.com/2016/01/node-picking-in-javafx/">here</a>
      * 
      * @param node      parent node
      * @param sceneX    x-coordinate of picking point
