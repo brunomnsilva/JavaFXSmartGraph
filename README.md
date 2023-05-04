@@ -11,13 +11,25 @@ Vertices and edges can be styled through a *css stylesheet* or programmatically 
 
 ### Prerequisites
 
-You need a working JDK with JavaFX libraries to compile/use the library. The code was tested with JDK 8 and OpenJDK 11.
+You need a working JDK with JavaFX libraries to use/compile the library. The code was tested with JDK 8, OpenJDK 11 and LibericaJDK 19.
 
 ### Using the library
 
-Check the `releases` folder for compiled library and source code. The **jar** library is the only requirement, but if you need to attach the *javadoc* and *source code* in your IDE, additionally use the **zip** file.
+> The visualization library can be used together with any ADT that adheres to the `Graph<V,E>` or `Digraph<V,E>` interfaces. Sample implementations are included, but you can devise your own.
 
-The visualization library can be used together with any ADT that adheres to the `Graph<V,E>` or `Digraph<V,E>` interfaces. Sample implementations are included.
+You can find in the [releases section](https://github.com/brunomnsilva/JavaFXSmartGraph/releases) the binaries, source code and documentation.
+
+The library is available through Maven Central. The coordinates are:
+
+```xml
+<dependency>
+    <groupId>com.brunomnsilva</groupId>
+    <artifactId>smartgraph</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+You should be able to use the artifact with Maven and Gradle projects with little effort. 
 
 ### Accelerated graphics
 
@@ -29,9 +41,11 @@ In windows the JVM machine should automatically take care of that, while in Linu
 
 ### What's **new**?
 
+- (1.0.0) Package now available through [Maven Central](https://central.sonatype.com/?smo=true). The library seems stable, after dozens of college projects of my students have used it. Hence, the version was bumped to 1.0.0.
+
 - (0.9.4) You can now annotate a method with `@SmartLabelSource` within a model class to provide the displayed label for a vertex/edge; see the example at `com.brunomnsilva.smartgraph.example`. If no annotation is present, then the `toString()` method is used to obtain the label's text.
 
-- (0.9.4) You can mannualy alter a vertex position on the panel at anytime, through `SmartGraphPanel.setVertexPosition(Vertex<V> v)`; see the example at `com.brunomnsilva.smartgraph.example`.
+- (0.9.4) You can manually alter a vertex position on the panel at anytime, through `SmartGraphPanel.setVertexPosition(Vertex<V> v)`; see the example at `com.brunomnsilva.smartgraph.example`.
 
 - (0.9.4) You can override specific default properties by using a *String* parameter to the `SmartGraphProperties` constructor; see the example at `com.brunomnsilva.smartgraph.example`. This is useful if you want to display visually different graphs within the same application.
 
@@ -53,7 +67,7 @@ stage.setTitle("JavaFXGraph Visualization");
 stage.setScene(scene);
 stage.show();
 
-//IMPORTANT - Called after scene is displayed so we can have width and height values
+//IMPORTANT - Called after scene is displayed, so we can have width and height values
 graphView.init();
 
 ```
@@ -91,7 +105,7 @@ graphView.setEdgeDoubleClickAction(graphEdge -> {
 });
 ```
 
-These actions will be performed whenever you *double click* a vertex and/or an edge.
+These actions will be performed whenever you *double-click* a vertex and/or an edge.
 
 ### Updating the view
 
@@ -101,7 +115,7 @@ When you make changes to the graph, you can update the visualization by calling
 graphView.update();
 ```
 
-this will add/remove the corresponding vertices and edges from the visualization. If a new vertex is connected to an existing one, it will be initially placed in the vicinity of the later. Otherwise, if it is an *isolated* vertex it will be placed in the center of the plot.
+this will add/remove the corresponding vertices and edges from the visualization. If a new vertex is connected to an existing one, it will be initially placed in the vicinity of the latter. Otherwise, if it is an *isolated* vertex it will be placed in the center of the plot.
 
 ### SmartGraph Properties
 
@@ -277,7 +291,7 @@ g.insertEdge("A", "A", "Loop");
 
 Please note that we use the property values `edge.arrow = true` and `vertex.label = true`.
 
-Given its a small graph, we increased the `layout.repulsive-force = 25000`. You should use higher values for smaller graphs; inversely, use smaller values for larger graphs.
+Given it's a small graph, we increased the `layout.repulsive-force = 25000`. You should use higher values for smaller graphs; inversely, use smaller values for larger graphs.
 
 #### Sample Digraph circular sorted placement (static)
 
