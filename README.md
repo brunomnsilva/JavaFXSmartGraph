@@ -41,7 +41,7 @@ In windows the JVM machine should automatically take care of that, while in Linu
 
 ### What's **new**?
 
-- (1.0.0) Package now available through [Maven Central](https://central.sonatype.com/?smo=true). The library seems stable, after dozens of college projects of my students have used it. Hence, the version was bumped to 1.0.0.
+- (1.0.0) Package now available through [Maven Central](https://central.sonatype.com/namespace/com.brunomnsilva). The library seems stable, after dozens of college projects of my students have used it. Hence, the version was bumped to 1.0.0.
 
 - (0.9.4) You can now annotate a method with `@SmartLabelSource` within a model class to provide the displayed label for a vertex/edge; see the example at `com.brunomnsilva.smartgraph.example`. If no annotation is present, then the `toString()` method is used to obtain the label's text.
 
