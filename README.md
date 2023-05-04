@@ -29,7 +29,9 @@ The library is available through Maven Central. The coordinates are:
 </dependency>
 ```
 
-You should be able to use the artifact with Maven and Gradle projects with little effort. 
+:warning: But please note that the files `smartgraph.css` and `smartgraph.properties` **must be added manually** to your project.
+
+:bulb: You should be able to use the artifact with Maven and Gradle projects with little effort. 
 
 ### Accelerated graphics
 

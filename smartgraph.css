@@ -1,9 +1,22 @@
 /*
-STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
+STYLESHEET FOR SMARTGRAPH VISUALIZATION.
+
+For your customization, please see:
+https://openjfx.io/javadoc/19/javafx.graphics/javafx/scene/doc-files/cssref.html
+
+And know that:
+- The drawing area itself is of type Pane, which is an extension of Region;
+- A vertex is of type Circle;
+- The edges are of type Line and CubicLine;
+- The labels are of type Text, and;
+- The arrows are of type Path.
+
+This should help you understand which styles you can apply.
 */
 
 .graph {
-    -fx-background-color: #F4FFFB;    
+    -fx-background-color: #F4FFFB;
+    /* you can use -fx-background-image to set a background image */
 }
 
 .vertex {
@@ -13,6 +26,11 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
     -fx-fill: #B1DFF7;
 }
 
+.vertex:hover { /* pseudo-classes also work */
+    /*-fx-cursor: default; */ /* You can use this style to override the hand/move cursors while hovering. */
+    -fx-stroke-width: 4;
+}
+
 .vertex-label {
     -fx-font: bold 8pt "sans-serif";
 }
@@ -20,8 +38,8 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 .edge {
     -fx-stroke-width: 2;
     -fx-stroke: #FF6D66;  
-    -fx-stroke-dash-array: 2 5 2 5; /* remove for clean edges */  
-    -fx-fill: transparent; /*important for curved edges */
+    -fx-stroke-dash-array: 2 5 2 5; /* remove for clean lines */
+    -fx-fill: transparent; /* important to keep for curved edges */
     -fx-stroke-line-cap: round;
     -fx-opacity: 0.8;
 }
@@ -39,7 +57,7 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 /* Custom vertex. You should revert any unwanted styling in the default element, 
    style, since custom styles will be appended to the default style */
 .myVertex {
-    -fx-stroke-width: 5;
+    -fx-stroke-width: 4;
     -fx-stroke: green;
     -fx-stroke-type: inside; /* you should keep this if using arrows */
     -fx-fill: yellowgreen;
