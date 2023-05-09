@@ -168,7 +168,8 @@ Please note that we use the property values `edge.arrow = true` and `vertex.labe
 
 Given it's a small graph, we increased the `layout.repulsive-force = 25000`. You should use higher values for smaller graphs; inversely, use smaller values for larger graphs.
 
-> See Configuration section.
+> See Configuration and Styling section.
+> 
 #### Sample Digraph circular sorted placement (static)
 
 ![digraph circular placement](examples/digraph_circle_placement.png)
@@ -210,9 +211,9 @@ graphView.setEdgeDoubleClickAction(graphEdge -> {
 
 These actions will be performed whenever you *double-click* a vertex and/or an edge.
 
-### Configuration
+## Configuration and Styling
 
-#### SmartGraph Properties
+### SmartGraph Properties
 
 :warning: The `smartgraph.properties` file must exist in you project folder.
 
@@ -242,7 +243,7 @@ layout.attraction-force = 30
 layout.attraction-scale = 10
 ```
 
-#### SmartGraph CSS styling
+### SmartGraph CSS styling
 
 :warning: Either using the library or including the source code, the `smartgraph.css` file must exist in you project folder. 
 For example, if all your vertices turn out black, this is because this file cannot be found.
