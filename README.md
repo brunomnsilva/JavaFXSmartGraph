@@ -245,7 +245,7 @@ layout.attraction-scale = 10
 
 ### SmartGraph CSS styling
 
-:warning: Either using the library or including the source code, the `smartgraph.css` file must exist in you project folder. 
+:warning: The `smartgraph.css` file must exist in you project folder. 
 For example, if all your vertices turn out black, this is because this file cannot be found.
 
 You can set the default CSS styles in the `smartgraph.css` file; see below.
