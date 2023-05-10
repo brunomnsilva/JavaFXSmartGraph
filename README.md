@@ -34,8 +34,10 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 - (0.9.4) You can now style labels and arrows individually.
 
 ### Using the library
- 
-The library is available through Maven Central. The coordinates are:
+
+Binaries and dependency information for Maven, Gradle and others can be found at [http://search.maven.org](https://central.sonatype.com/search?q=g%3Acom.brunomnsilva++a%3Asmartgraph&smo=true).
+
+Example for Maven:
 
 ```xml
 <dependency>
@@ -46,8 +48,6 @@ The library is available through Maven Central. The coordinates are:
 ```
 
 :warning: Please note that the files `smartgraph.css` and `smartgraph.properties` **must be added manually** to your project.
-
-:bulb: You should be able to use the artifact with Maven and Gradle projects with little effort. 
 
 You can also find in the [releases section](https://github.com/brunomnsilva/JavaFXSmartGraph/releases) the binaries, source code and documentation.
 
