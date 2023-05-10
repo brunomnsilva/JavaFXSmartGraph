@@ -51,6 +51,12 @@ The library is available through Maven Central. The coordinates are:
 
 You can also find in the [releases section](https://github.com/brunomnsilva/JavaFXSmartGraph/releases) the binaries, source code and documentation.
 
+#### Accelerated graphics
+
+Since the visualization is computation-intensive during automatic force-directed layout of vertices, you should make sure that the graphics card is used to offload much of the work. 
+
+In windows the JVM machine should automatically take care of that, while in Linux you must configure it manually with the `-Dsun.java2d.opengl=True` flag.
+
 ### Basic usage
 
 ```java
