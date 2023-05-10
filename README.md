@@ -3,7 +3,7 @@
 This project provides a generic (Java FX) **graph visualization library** that can automatically arrange the vertices' locations
 through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directed_graph_drawing) in real-time.
 
-![smartgraph realtime](examples/smartgraph_realtime.gif)
+![smartgraph realtime](assets/smartgraph_realtime.gif)
 
 ## Features
 
@@ -130,11 +130,11 @@ g.insertEdge("A", "H", "0");
 
 #### Sample Graph circular sorted placement (static)
 
-![graph circular placement](examples/graph_circle_placement.png)
+![graph circular placement](assets/graph_circle_placement.png)
 
 #### Sample Graph automatic layout
 
-![graph automatic layout](examples/graph_automatic_layout.png)
+![graph automatic layout](assets/graph_automatic_layout.png)
 
 ### Sample Digraph (directed graph)
 
@@ -172,11 +172,11 @@ Given it's a small graph, we increased the `layout.repulsive-force = 25000`. You
 > 
 #### Sample Digraph circular sorted placement (static)
 
-![digraph circular placement](examples/digraph_circle_placement.png)
+![digraph circular placement](assets/digraph_circle_placement.png)
 
 #### Sample Digraph automatic layout
 
-![digraph automatic layout](examples/digraph_automatic_layout.png)
+![digraph automatic layout](assets/digraph_automatic_layout.png)
 
 ### Updating the view
 
