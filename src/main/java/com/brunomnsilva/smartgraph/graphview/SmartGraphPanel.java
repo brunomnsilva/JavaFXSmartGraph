@@ -29,6 +29,7 @@ import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.beans.NamedArg;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.BoundingBox;
@@ -173,8 +174,12 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @param placementStrategy placement strategy, null for default
      * @param cssFile alternative css file, instead of default 'smartgraph.css'
      */
-    public SmartGraphPanel(Graph<V, E> theGraph, SmartGraphProperties properties,
-            SmartPlacementStrategy placementStrategy, URI cssFile) {
+    public SmartGraphPanel(
+        @NamedArg("graph") Graph<V, E> theGraph,
+        @NamedArg("properties") SmartGraphProperties properties,
+        @NamedArg("strategy") SmartPlacementStrategy placementStrategy,
+        @NamedArg("css") URI cssFile
+    ) {
 
         if (theGraph == null) {
             throw new IllegalArgumentException("The graph cannot be null.");
