@@ -26,21 +26,20 @@ package com.brunomnsilva.smartgraph.containers;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+import javafx.scene.shape.Rectangle;
+
+import java.io.File;
+import java.net.MalformedURLException;
 
 /**
  * This class provides zooming and panning for a JavaFX node.
  * <br/>
- * It shows the zoom level with a slider control and reacts to mouse scrolls and
+ * Reacts to mouse scrolls and
  * mouse dragging.
  * <br/>
  * The content node is out forward in the z-index, so it can react to mouse
@@ -54,54 +53,41 @@ public class ContentZoomPane extends BorderPane {
     private final DoubleProperty scaleFactorProperty = new ReadOnlyDoubleWrapper(1);
     private final Node content;
 
-    private static final double MIN_SCALE = 1;
-    private static final double MAX_SCALE = 5;
-    private static final double SCROLL_DELTA = 0.25;
+    public static final double MIN_SCALE = 1;
+    public static final double MAX_SCALE = 5;
+    public static final double SCROLL_DELTA = 0.25;
 
     public ContentZoomPane(Node content) {
         if (content == null) {
             throw new IllegalArgumentException("Content cannot be null.");
         }
 
-        this.content = content;
-
         content.toFront();
 
-        setCenter(content);
-        setRight(createSlider());
+        // Apply same background color of graph to mask the "panning"
+        try {
+            File f = new File("smartgraph.css");
+            String css = f.toURI().toURL().toExternalForm();
+            getStylesheets().add(css);
+            this.getStyleClass().add("graph");
+        } catch (MalformedURLException e) {
+            // do nothing
+        }
 
+        setCenter(this.content = content);
         enablePanAndZoom();
     }
 
-    private Node createSlider() {
-
-        Slider slider = new Slider(MIN_SCALE, MAX_SCALE, MIN_SCALE);
-        slider.setOrientation(Orientation.VERTICAL);
-        slider.setShowTickMarks(true);
-        slider.setShowTickLabels(true);
-        slider.setMajorTickUnit(SCROLL_DELTA);
-        slider.setMinorTickCount(1);
-        slider.setBlockIncrement(0.125f);
-        slider.setSnapToTicks(true);
-
-        Text label = new Text("Zoom");
-
-        VBox paneSlider = new VBox(slider, label);
-
-        paneSlider.setPadding(new Insets(10, 10, 10, 10));
-        paneSlider.setSpacing(10);
-
-        slider.valueProperty().bind(this.scaleFactorProperty());
-
-        return paneSlider;
+    public DoubleProperty scaleFactorProperty() {
+        return scaleFactorProperty;
     }
 
-    public void setContentPivot(double x, double y) {
+    private void setContentPivot(double x, double y) {
         content.setTranslateX(content.getTranslateX() - x);
         content.setTranslateY(content.getTranslateY() - y);
     }
 
-    public static double boundValue(double value, double min, double max) {
+    private static double boundValue(double value, double min, double max) {
 
         if (Double.compare(value, min) < 0) {
             return min;
@@ -134,7 +120,6 @@ public class ContentZoomPane extends BorderPane {
                     content.setTranslateX(-getTranslateX());
                     content.setTranslateY(-getTranslateY());
                 } else {
-                    scaleFactorProperty.setValue(computedScale);
 
                     Bounds bounds = content.localToScene(content.getBoundsInLocal());
                     double f = (computedScale / currentScale) - 1;
@@ -142,7 +127,10 @@ public class ContentZoomPane extends BorderPane {
                     double dy = (event.getY() - (bounds.getHeight() / 2 + bounds.getMinY()));
 
                     setContentPivot(f * dx, f * dy);
+
+                    clipArea();
                 }
+                scaleFactorProperty.setValue(computedScale);
 
             }
             //do not propagate event
@@ -174,14 +162,19 @@ public class ContentZoomPane extends BorderPane {
                 
                 content.setTranslateX(sceneDragContext.translateAnchorX + event.getX() - sceneDragContext.mouseAnchorX);
                 content.setTranslateY(sceneDragContext.translateAnchorY + event.getY() - sceneDragContext.mouseAnchorY);
+
+                clipArea();
             }
         });
 
     }
 
-    public DoubleProperty scaleFactorProperty() {
-        return scaleFactorProperty;
+    private void clipArea() {
+        double height = getHeight();
+        double width = getWidth();
+        setClip(new Rectangle(width,height));
     }
+
 
     private static class DragContext {
 
