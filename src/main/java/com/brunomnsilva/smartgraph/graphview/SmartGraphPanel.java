@@ -889,7 +889,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     
     /**
      * Computes the collection for edges that are currently being displayed but do
-     * not longer exist in the underlying graph.
+     * no longer exist in the underlying graph.
      *
      * @return collection of edges
      */
