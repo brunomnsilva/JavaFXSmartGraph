@@ -41,7 +41,7 @@ public final class Args {
      */
     public static void requireNotNull(Object param, String name) {
         if (param == null) {
-            throw new IllegalArgumentException("Null '" + name + "' argument.");
+            throw new IllegalArgumentException(String.format("Require '%s' to be not null.", name));
         }
     }
 
@@ -56,8 +56,7 @@ public final class Args {
      */
     public static void requireGreaterThan(double value, String name, double minValue) {
         if(value <= minValue) {
-            throw new IllegalArgumentException(String.format("%s (%f) must be greater than %f",
-                    name, value, minValue));
+            throw new IllegalArgumentException(String.format("Require '%s' (%f) to be greater than %f.", name, value, minValue));
         }
     }
 
@@ -70,7 +69,22 @@ public final class Args {
      */
     public static void requireNonNegative(double value, String name) {
         if (value < 0.0) {
-            throw new IllegalArgumentException("Require '" + name + "' (" + value + ") to be non-negative.");
+            throw new IllegalArgumentException(String.format("Require '%s' (%f) to be non-negative.", name, value));
+        }
+    }
+
+    /**
+     * This method checks if a value falls within a specified range.
+     * If the value is less than the lower bound or greater than the upper bound, an IllegalArgumentException is thrown.
+     * @param value the value to check
+     * @param name the name of the value being checked
+     * @param lowerBound the lower bound of the range (inclusive)
+     * @param upperBound the upper bound of the range (inclusive)
+     * @throws IllegalArgumentException if the value is outside the specified range
+     */
+    public static void requireInRange(double value, String name, double lowerBound, double upperBound) {
+        if (value < lowerBound || value > upperBound) {
+            throw new IllegalArgumentException(String.format("Require '%s' (%f) to be in range [%f, %f].", name, value, lowerBound, upperBound));
         }
     }
 
@@ -82,7 +96,7 @@ public final class Args {
      */
     public static void requireFinite(double value, String name) {
         if (!Double.isFinite(value)) {
-            throw new IllegalArgumentException("Require '" + name + "' (" + value + ") to be finite.");
+            throw new IllegalArgumentException(String.format("Require '%s' (%f) to be finite.", name, value));
         }
     }
 }
