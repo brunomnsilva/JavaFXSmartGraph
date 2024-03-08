@@ -123,7 +123,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             new SmartGraphProperties(),
             new SmartCircularSortedPlacementStrategy(),
             null,
-            new ForceDirectedSpringSystemLayoutStrategy<>()
+            new ForceDirectedSpringGravityLayoutStrategy<>()
         );
     }
 
@@ -158,7 +158,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             properties,
             new SmartCircularSortedPlacementStrategy(),
             null,
-            new ForceDirectedSpringSystemLayoutStrategy<>()
+            new ForceDirectedSpringGravityLayoutStrategy<>()
         );
     }
 
@@ -175,7 +175,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             new SmartGraphProperties(),
             placementStrategy,
             null,
-            new ForceDirectedSpringSystemLayoutStrategy<>()
+            new ForceDirectedSpringGravityLayoutStrategy<>()
         );
     }
 
@@ -195,7 +195,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             properties,
             placementStrategy,
             null,
-            new ForceDirectedSpringSystemLayoutStrategy<>()
+            new ForceDirectedSpringGravityLayoutStrategy<>()
         );
     }
     
@@ -216,7 +216,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             properties,
             placementStrategy,
             cssFile,
-            new ForceDirectedSpringSystemLayoutStrategy<>()
+            new ForceDirectedSpringGravityLayoutStrategy<>()
         );
     }
 
