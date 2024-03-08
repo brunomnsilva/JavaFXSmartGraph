@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * JavaFXSmartGraph | Copyright 2018-2023  brunomnsilva@gmail.com
+ * JavaFXSmartGraph | Copyright 2018-2024  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -133,6 +133,13 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         return this.adjacentVertices.contains(v);
     }
 
+    /**
+     * Returns the number of adjacent vertices.
+     * @return the number of adjacent vertices
+     */
+    public int neighborhoodSize() {
+        return this.adjacentVertices.size();
+    }
     /**
      * Returns the current position of the instance in pixels.
      *
