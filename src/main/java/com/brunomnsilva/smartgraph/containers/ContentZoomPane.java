@@ -76,6 +76,7 @@ public class ContentZoomPane extends BorderPane {
 
         setCenter(this.content = content);
         enablePanAndZoom();
+        enableResizeListener();
     }
 
     public DoubleProperty scaleFactorProperty() {
@@ -98,6 +99,11 @@ public class ContentZoomPane extends BorderPane {
         }
 
         return value;
+    }
+
+    private void enableResizeListener() {
+        this.widthProperty().addListener((observableValue, oldValue, newValue) -> clipArea());
+        this.heightProperty().addListener((observableValue, oldValue, newValue) -> clipArea());
     }
 
     private void enablePanAndZoom() {
@@ -175,15 +181,15 @@ public class ContentZoomPane extends BorderPane {
         setClip(new Rectangle(width,height));
     }
 
-
+    /**
+     * Keeps track of mouse drag action.
+     */
     private static class DragContext {
-
         double mouseAnchorX;
         double mouseAnchorY;
 
         double translateAnchorX;
         double translateAnchorY;
-
     }
 
 }
