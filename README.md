@@ -69,8 +69,8 @@ In windows the JVM machine should automatically take care of that, while in Linu
 Graph<String, String> g = new GraphEdgeList<>();
 // ... see Examples below
 
-SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
-SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, strategy);
+SmartPlacementStrategy initialPlacement = new SmartCircularSortedPlacementStrategy();
+SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, initialPlacement);
 Scene scene = new Scene(graphView, 1024, 768);
 
 Stage stage = new Stage(StageStyle.DECORATED);
@@ -246,6 +246,11 @@ edge.label = false
 edge.arrow = false
 
 # (automatic) Force-directed layout related configurations
+#
+# Notice: deprecated since version 1.1. Force directed layout strategies are now
+# instantiated and can be swapped at runtime, per the Strategy design pattern.
+# The parameters are passed as arguments or one can use the default ones described
+# in the javadoc documentation.
 #   -- You should experiment with different values for your 
 #   -- particular problem, knowing that not all will achieve 
 #   -- a stable state
