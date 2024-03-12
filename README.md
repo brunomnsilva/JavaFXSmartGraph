@@ -21,7 +21,12 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 
 ## Documentation
 
-### What's **new**?
+### What's new?
+
+- (1.1.0) Automatic layout is now performed through an instantiated *strategy*. There are two available (but the pattern allows for the user to devise others):
+  
+  - `ForceDirectedSpringSystemLayoutStrategy`: this is the original implementation for the automatic placement, through a spring system;
+  - `ForceDirectedSpringGravityLayoutStrategy`: (**new**) this is a variant of the spring system implementation, but with a gravity pull towards the center of the panel. This is now the default strategy and has the advantage of not repelling isolated vertices and/or bipartite graphs to the edges of the panel.
 
 - (1.0.0) Package now available through [Maven Central](https://central.sonatype.com/namespace/com.brunomnsilva). The library seems stable, after dozens of college projects of my students have used it. Hence, the version was bumped to 1.0.0.
 
