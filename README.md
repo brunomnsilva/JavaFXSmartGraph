@@ -48,7 +48,7 @@ Example for Maven:
 <dependency>
     <groupId>com.brunomnsilva</groupId>
     <artifactId>smartgraph</artifactId>
-    <version>1.0.0</version>
+    <version>x.y.z</version>
 </dependency>
 ```
 
