@@ -51,9 +51,13 @@ public class Main extends Application {
         //Graph<String, String> g = build_flower_graph();
         System.out.println(g);
         
-        SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
-        //SmartPlacementStrategy strategy = new SmartRandomPlacementStrategy();
-        SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, strategy);
+        SmartPlacementStrategy initialPlacement = new SmartCircularSortedPlacementStrategy();
+        //SmartPlacementStrategy initialPlacement = new SmartRandomPlacementStrategy();
+
+        ForceDirectedLayoutStrategy<String> automaticPlacementStrategy = new ForceDirectedSpringGravityLayoutStrategy<>();
+        //ForceDirectedLayoutStrategy<String> automaticPlacementStrategy = new ForceDirectedSpringSystemLayoutStrategy<>();
+
+        SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, initialPlacement, automaticPlacementStrategy);
 
         /*
         After creating, you can change the styling of some element.
