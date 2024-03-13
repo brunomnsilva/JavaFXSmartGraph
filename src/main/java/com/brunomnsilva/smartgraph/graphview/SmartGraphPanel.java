@@ -634,12 +634,11 @@ public class SmartGraphPanel<V, E> extends Pane {
                         x = mx;
                         y = my;
                     } else {
-                        /* TODO: fix -- the placing point can be set out of bounds*/
                         Point2D p = UtilitiesPoint2D.rotate(existing.getPosition().add(50.0, 50.0),
                                 existing.getPosition(), Math.random() * 360);
 
-                        x = p.getX();
-                        y = p.getY();
+                        x = boundValue(p.getX(), 0, getWidth());
+                        y = boundValue(p.getY(), 0, getHeight());
                     }
                 }
 
@@ -1130,6 +1129,19 @@ public class SmartGraphPanel<V, E> extends Pane {
                 }
             }
         });
+    }
+
+    private static double boundValue(double value, double min, double max) {
+
+        if (Double.compare(value, min) < 0) {
+            return min;
+        }
+
+        if (Double.compare(value, max) > 0) {
+            return max;
+        }
+
+        return value;
     }
 
     /**
