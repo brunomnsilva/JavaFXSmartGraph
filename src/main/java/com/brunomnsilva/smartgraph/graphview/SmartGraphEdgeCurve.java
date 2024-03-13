@@ -24,7 +24,6 @@
 package com.brunomnsilva.smartgraph.graphview;
 
 import com.brunomnsilva.smartgraph.graph.Edge;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.transform.Rotate;
@@ -51,7 +50,10 @@ import javafx.scene.transform.Translate;
  */
 public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphEdgeBase<E, V> {
 
-    private static final double MAX_EDGE_CURVE_ANGLE = 20;
+    private static final double MAX_EDGE_CURVE_ANGLE = 45;
+    private static final double MIN_EDGE_CURVE_ANGLE = 3;
+    public static final int DISTANCE_THRESHOLD = 400;
+    public static final int LOOP_RADIUS_FACTOR = 4;
 
     private final Edge<E, V> underlyingEdge;
 
@@ -61,7 +63,7 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     private SmartLabel attachedLabel = null;
     private SmartArrow attachedArrow = null;
 
-    private double randomAngleFactor = 0;
+    private double randomAngleFactor;
     
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
@@ -112,11 +114,11 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
             /* Make a loop using the control points proportional to the vertex radius */
             
             //TODO: take into account several "self-loops" with randomAngleFactor
-            double midpointX1 = outbound.getCenterX() - inbound.getRadius() * 5;
-            double midpointY1 = outbound.getCenterY() - inbound.getRadius() * 2;
+            double midpointX1 = outbound.getCenterX() - inbound.getRadius() * LOOP_RADIUS_FACTOR;
+            double midpointY1 = outbound.getCenterY() - inbound.getRadius() * LOOP_RADIUS_FACTOR;
             
-            double midpointX2 = outbound.getCenterX() + inbound.getRadius() * 5;
-            double midpointY2 = outbound.getCenterY() - inbound.getRadius() * 2;
+            double midpointX2 = outbound.getCenterX() + inbound.getRadius() * LOOP_RADIUS_FACTOR;
+            double midpointY2 = outbound.getCenterY() - inbound.getRadius() * LOOP_RADIUS_FACTOR;
             
             setControlX1(midpointX1);
             setControlY1(midpointY1);
@@ -124,51 +126,58 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
             setControlY2(midpointY2);
             
         } else {          
-            /* Make a curved edge. The curve is proportional to the distance  */
-            double midpointX = (outbound.getCenterX() + inbound.getCenterX()) / 2;
-            double midpointY = (outbound.getCenterY() + inbound.getCenterY()) / 2;
-
-            Point2D midpoint = new Point2D(midpointX, midpointY);
+            /* Make a curved edge. The curvature is bounded and proportional to the distance;
+                higher curvature for closer vertices  */
 
             Point2D startpoint = new Point2D(inbound.getCenterX(), inbound.getCenterY());
             Point2D endpoint = new Point2D(outbound.getCenterX(), outbound.getCenterY());
 
-            //TODO: improvement lower max_angle_placement according to distance between vertices
-            double angle = MAX_EDGE_CURVE_ANGLE;
-
             double distance = startpoint.distance(endpoint);
 
-            //TODO: remove "magic number" 1500 and provide a distance function for the 
-            //decreasing angle with distance
-            angle = angle - (distance / 1500 * angle);
+            double angle = linearDecay(MAX_EDGE_CURVE_ANGLE, MIN_EDGE_CURVE_ANGLE, distance, DISTANCE_THRESHOLD);
 
-            midpoint = UtilitiesPoint2D.rotate(midpoint,
-                    startpoint,
-                    (-angle) + randomAngleFactor * (angle - (-angle)));
+            Point2D midpoint = UtilitiesPoint2D.calculateTriangleBetween(startpoint, endpoint,
+                    (-angle) + randomAngleFactor * 2 * angle);
 
             setControlX1(midpoint.getX());
             setControlY1(midpoint.getY());
             setControlX2(midpoint.getX());
             setControlY2(midpoint.getY());
         }
-
     }
 
-    /*
-    With a curved edge we need to continuously update the control points.
-    TODO: Maybe we can achieve this solely with bindings.
-    */
+    /**
+     * Provides the decreasing linear function decay.
+     * @param initialValue initial value
+     * @param finalValue maximum value
+     * @param distance current distance
+     * @param distanceThreshold distance threshold (maximum distance -> maximum value)
+     * @return the decay function value for <code>distance</code>
+     */
+    private static double linearDecay(double initialValue, double finalValue, double distance, double distanceThreshold) {
+        //Args.requireNonNegative(distance, "distance");
+        //Args.requireNonNegative(distanceThreshold, "distanceThreshold");
+        // Parameters are internally guaranteed to be positive. We avoid two method calls.
+
+        if(distance >= distanceThreshold) return finalValue;
+
+        return initialValue + (finalValue - initialValue) * distance / distanceThreshold;
+    }
+
     private void enableListeners() {
-        this.startXProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+        // With a curved edge we need to continuously update the control points.
+        // TODO: Maybe we can achieve this solely with bindings? Maybe there's no performance gain in doing so.
+
+        this.startXProperty().addListener((ov, oldValue, newValue) -> {
             update();
         });
-        this.startYProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+        this.startYProperty().addListener((ov, oldValue, newValue) -> {
             update();
         });
-        this.endXProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+        this.endXProperty().addListener((ov, oldValue, newValue) -> {
             update();
         });
-        this.endYProperty().addListener((ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+        this.endYProperty().addListener((ov, oldValue, newValue) -> {
             update();
         });
     }
