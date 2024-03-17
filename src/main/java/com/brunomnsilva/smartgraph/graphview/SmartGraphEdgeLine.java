@@ -41,8 +41,8 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     
     private final Edge<E, V> underlyingEdge;
     
-    private final SmartGraphVertexNode inbound;
-    private final SmartGraphVertexNode outbound;
+    private final SmartGraphVertexNode<V> inbound;
+    private final SmartGraphVertexNode<V> outbound;
     
     private SmartLabel attachedLabel = null;
     private SmartArrow attachedArrow = null;
@@ -50,7 +50,7 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
     
-    public SmartGraphEdgeLine(Edge<E, V> edge, SmartGraphVertexNode inbound, SmartGraphVertexNode outbound) {
+    public SmartGraphEdgeLine(Edge<E, V> edge, SmartGraphVertexNode<V> inbound, SmartGraphVertexNode<V> outbound) {
         if( inbound == null || outbound == null) {
             throw new IllegalArgumentException("Cannot connect null vertices.");
         }
@@ -69,7 +69,12 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
         this.endXProperty().bind(inbound.centerXProperty());
         this.endYProperty().bind(inbound.centerYProperty());
     }
-    
+
+    @Override
+    public void setStyleInline(String css) {
+        styleProxy.setStyleInline(css);
+    }
+
     @Override
     public void setStyleClass(String cssClass) {
         styleProxy.setStyleClass(cssClass);
@@ -125,9 +130,8 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
         arrow.getTransforms().add(rotation);
         
         /* add translation transform to put the arrow touching the circle's bounds */
-        Translate t = new Translate(- outbound.getRadius(), 0);
+        Translate t = new Translate(-inbound.getRadius(), 0);
         arrow.getTransforms().add(t);
-        
     }
 
     @Override

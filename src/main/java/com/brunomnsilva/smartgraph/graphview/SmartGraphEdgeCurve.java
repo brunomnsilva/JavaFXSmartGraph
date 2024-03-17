@@ -95,6 +95,11 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     }
 
     @Override
+    public void setStyleInline(String css) {
+        styleProxy.setStyleInline(css);
+    }
+
+    @Override
     public void setStyleClass(String cssClass) {
         styleProxy.setStyleClass(cssClass);
     }
@@ -219,7 +224,7 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         arrow.getTransforms().add(rotation);
 
         /* add translation transform to put the arrow touching the circle's bounds */
-        Translate t = new Translate(-outbound.getRadius(), 0);
+        Translate t = new Translate(-inbound.getRadius(), 0);
         arrow.getTransforms().add(t);
     }
 
