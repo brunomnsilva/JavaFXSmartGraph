@@ -24,6 +24,7 @@
 package com.brunomnsilva.smartgraph.graphview;
 
 import com.brunomnsilva.smartgraph.graph.Edge;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.transform.Rotate;
@@ -68,10 +69,25 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
 
+    /**
+     * Constructs a SmartGraphEdgeCurve representing a curved edge between two SmartGraphVertexNodes.
+     *
+     * @param edge     the edge associated with this curve
+     * @param inbound  the inbound SmartGraphVertexNode
+     * @param outbound the outbound SmartGraphVertexNode
+     */
     public SmartGraphEdgeCurve(Edge<E, V> edge, SmartGraphVertexNode<V> inbound, SmartGraphVertexNode<V> outbound) {
         this(edge, inbound, outbound, 0);
     }
 
+    /**
+     * Constructs a SmartGraphEdgeCurve representing an edge curve between two SmartGraphVertexNodes.
+     *
+     * @param edge     the edge associated with this curve
+     * @param inbound  the inbound SmartGraphVertexNode
+     * @param outbound the outbound SmartGraphVertexNode
+     * @param edgeIndex the edge index (>=0)
+     */
     public SmartGraphEdgeCurve(Edge<E, V> edge, SmartGraphVertexNode<V> inbound, SmartGraphVertexNode<V> outbound, int edgeIndex) {
         this.inbound = inbound;
         this.outbound = outbound;
@@ -190,8 +206,9 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
-        label.xProperty().bind(controlX1Property().add(controlX2Property()).divide(2).subtract(label.getLayoutBounds().getWidth() / 2));
-        label.yProperty().bind(controlY1Property().add(controlY2Property()).divide(2).add(label.getLayoutBounds().getHeight() / 2));
+
+        label.xProperty().bind(controlX1Property().add(controlX2Property()).divide(2).subtract(Bindings.divide(label.layoutWidthProperty(),2)));
+        label.yProperty().bind(controlY1Property().add(controlY2Property()).divide(2).add(Bindings.divide(label.layoutHeightProperty(), 2)));
     }
 
     @Override
@@ -224,7 +241,9 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         arrow.getTransforms().add(rotation);
 
         /* add translation transform to put the arrow touching the circle's bounds */
-        Translate t = new Translate(-inbound.getRadius(), 0);
+        Translate t = new Translate(0, 0);
+        t.xProperty().bind( inbound.radiusProperty().negate() );
+        
         arrow.getTransforms().add(t);
     }
 

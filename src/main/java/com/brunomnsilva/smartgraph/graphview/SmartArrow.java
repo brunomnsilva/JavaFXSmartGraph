@@ -56,6 +56,11 @@ public class SmartArrow extends Path implements SmartStylableNode {
     }
 
     @Override
+    public void setStyleInline(String css) {
+        styleProxy.setStyleInline(css);
+    }
+
+    @Override
     public void setStyleClass(String cssClass) {
         styleProxy.setStyleClass(cssClass);
     }

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * JavaFXSmartGraph | Copyright 2023-2024  brunomnsilva@gmail.com
+ * JavaFXSmartGraph | Copyright 2024  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,26 +24,20 @@
 
 package com.brunomnsilva.smartgraph.graphview;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * Method annotation to override an element's label provider.
- * <br/>
- * The annotated method must return a value, otherwise an exception will be thrown.
- * <br/>
- * By default, the text label is obtained from the toString method if this
- * annotation is not present in any other class method; this is also the case
- * with String and other boxed-types, e.g., Integer, Double, etc.
- * <br/>
- * If multiple annotations exist, the behavior is undefined.
- * 
- * @author brunomnsilva
+ * A provider interface for generating labels.
+ *
+ * @param <T> the type of the elements for which labels are generated
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface SmartLabelSource {
-    
+public interface SmartLabelProvider<T> {
+
+    /**
+     * Returns the label for the specified element.
+     * <br/>
+     * The returned value is expected to be non-null.
+     *
+     * @param element the element for which the label is generated
+     * @return the label for the specified element
+     */
+    String valueFor(T element);
 }

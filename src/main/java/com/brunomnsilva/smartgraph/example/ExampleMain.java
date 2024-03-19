@@ -25,12 +25,13 @@
 package com.brunomnsilva.smartgraph.example;
 
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
-import com.brunomnsilva.smartgraph.graph.Graph;
-import com.brunomnsilva.smartgraph.graph.GraphEdgeList;
+import com.brunomnsilva.smartgraph.graph.Digraph;
+import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphProperties;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -45,7 +46,7 @@ public class ExampleMain extends Application {
     @Override
     public void start(Stage ignored) {
         
-        Graph<City, Distance> distances = new GraphEdgeList<>();
+        Digraph<City, Distance> distances = new DigraphEdgeList<>();
         
         Vertex<City> prague = distances.insertVertex(new City("Prague", 1.3f));
         Vertex<City> tokyo = distances.insertVertex(new City("Tokyo", 37.5f));
@@ -64,7 +65,7 @@ public class ExampleMain extends Application {
         distances.insertEdge(beijing, london, new Distance(8132));
         
         /* Only Java 15 allows for multi-line strings. */
-        String customProps = "edge.label = true" + "\n" + "edge.arrow = false";
+        String customProps = "edge.label = true" + "\n" + "edge.arrow = true";
                 
         SmartGraphProperties properties = new SmartGraphProperties(customProps);
         
@@ -92,10 +93,15 @@ public class ExampleMain extends Application {
         graphView.setVertexPosition(helsinky, 924, 100);
         graphView.setVertexPosition(london, 200, 668);
         graphView.setVertexPosition(prague, 824, 668);
-        graphView.setVertexPosition(tokyo, 512, 300);
+        graphView.setVertexPosition(tokyo, 512, 200);
         graphView.setVertexPosition(newYork, 512, 400);
         
-        graphView.getStylableLabel(tokyo).setStyle("-fx-stroke: red; -fx-fill: red;");
+        graphView.getStylableLabel(tokyo).setStyleInline("-fx-stroke: green; -fx-fill: green;");
+
+        graphView.setVertexDoubleClickAction((SmartGraphVertex<City> graphVertex) -> {
+            graphVertex.addStyleClass("myVertex");
+        });
+
     }
     
     public static void main(String[] args) {

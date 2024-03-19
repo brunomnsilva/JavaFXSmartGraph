@@ -101,7 +101,20 @@ public class SmartGraphPanel<V, E> extends Pane {
     private Consumer<SmartGraphEdge<E, V>> edgeClickConsumer = null;
 
     /*
+    OPTIONAL PROVIDERS FOR LABELS, RADII AND SHAPE TYPES OF NODES.
+    THESE HAVE PRIORITY OVER ANY MODEL ANNOTATIONS (E.G., SmartLabelSource)
+     */
+    private SmartLabelProvider<V> vertexLabelProvider;
+    private SmartLabelProvider<E> edgeLabelProvider;
+    private SmartRadiusProvider<V> vertexRadiusProvider;
+    private SmartShapeTypeProvider<V> vertexShapeTypeProvider;
+
+    /*
     AUTOMATIC LAYOUT RELATED ATTRIBUTES
+     */
+
+    /**
+     * Property to toggle the automatic layout of nodes.
      */
     public final BooleanProperty automaticLayoutProperty;
     private final AnimationTimer timer;
@@ -398,7 +411,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         //this will be called from a non-javafx thread, so this must be guaranteed to run of the graphics thread
-        Platform.runLater(() -> updateNodes());
+        Platform.runLater(() -> updateViewModel());
     }
     
     /**
@@ -422,7 +435,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
         
         final FutureTask<Boolean> update = new FutureTask<>(() -> {
-            updateNodes();
+            updateViewModel();
             return true;
         });
         
@@ -438,15 +451,15 @@ public class SmartGraphPanel<V, E> extends Pane {
                 Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            updateNodes();
+            updateViewModel();
         }
         
     }
 
-    private synchronized void updateNodes() {
+    private synchronized void updateViewModel() {
         removeNodes();
         insertNodes();
-        updateLabels();
+        updateNodes();
     }
 
     /*
@@ -470,15 +483,69 @@ public class SmartGraphPanel<V, E> extends Pane {
         this.edgeClickConsumer = action;
     }
 
-    /*
-    NODES CREATION/UPDATES
+    /* PROVIDERS */
+
+    /**
+     * Sets the vertex label provider for this SmartGraphPanel.
+     * <br/>
+     * The label provider has priority over any other method of obtaining the same values, such as annotations.
+     * <br/>
+     * To remove the provider, call this method with a <code>null</code> argument.
+     *
+     * @param labelProvider the label provider to set
      */
+    public void setVertexLabelProvider(SmartLabelProvider<V> labelProvider) {
+        this.vertexLabelProvider = labelProvider;
+    }
+
+    /**
+     * Sets the edge label provider for this SmartGraphPanel.
+     * <br/>
+     * The label provider has priority over any other method of obtaining the same values, such as annotations.
+     * <br/>
+     * To remove the provider, call this method with a <code>null</code> argument.
+     *
+     * @param labelProvider the label provider to set
+     */
+    public void setEdgeLabelProvider(SmartLabelProvider<E> labelProvider) {
+        this.edgeLabelProvider = labelProvider;
+    }
+
+    /**
+     * Sets the radius provider for this SmartGraphPanel.
+     * <br/>
+     * The radius provider has priority over any other method of obtaining the same values, such as annotations.
+     * <br/>
+     * To remove the provider, call this method with a <code>null</code> argument.
+     *
+     * @param vertexRadiusProvider the radius provider to set
+     */
+    public void setVertexRadiusProvider(SmartRadiusProvider<V> vertexRadiusProvider) {
+        this.vertexRadiusProvider = vertexRadiusProvider;
+    }
+
+    /**
+     * Sets the shape type provider for this SmartGraphPanel.
+     * <br/>
+     * The shape type provider has priority over any other method of obtaining the same values, such as annotations.
+     * <br/>
+     * To remove the provider, call this method with a <code>null</code> argument.
+     *
+     * @param vertexShapeTypeProvider the shape type provider to set
+     */
+    public void setVertexShapeTypeProvider(SmartShapeTypeProvider<V> vertexShapeTypeProvider) {
+        this.vertexShapeTypeProvider = vertexShapeTypeProvider;
+    }
+
+    /*
+        NODES CREATION/UPDATES
+         */
     private void initNodes() {
 
         /* create vertex graphical representations */
         for (Vertex<V> vertex : listOfVertices()) {
-            SmartGraphVertexNode<V> vertexAnchor = new SmartGraphVertexNode<>(vertex, 0, 0,
-                    graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
+
+            SmartGraphVertexNode<V> vertexAnchor = createVertex(vertex, 0, 0);
 
             vertexNodes.put(vertex, vertexAnchor);
         }
@@ -531,6 +598,16 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
+    private SmartGraphVertexNode<V> createVertex(Vertex<V> v, double x, double y) {
+        // Read shape type from annotation or use default (circle)
+        String shapeType = inferVertexShapeType(v.element());
+
+        // Read shape radius from annotation or use default
+        double shapeRadius = inferVertexShapeRadius(v.element());
+
+        return new SmartGraphVertexNode<>(v, x, y, shapeRadius, shapeType, graphProperties.getVertexAllowUserMove());
+    }
+
     private SmartGraphEdgeBase<E,V> createEdge(Edge<E, V> edge, SmartGraphVertexNode<V> graphVertexInbound, SmartGraphVertexNode<V> graphVertexOutbound) {
         /*
         Even if edges are later removed, the corresponding index remains the same. Otherwise, we would have to
@@ -559,7 +636,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private void addVertex(SmartGraphVertexNode<V> v) {
         this.getChildren().add(v);
 
-        String labelText = generateVertexLabel(v.getUnderlyingVertex().element());
+        String labelText = inferVertexLabel(v.getUnderlyingVertex().element());
         
         if (graphProperties.getUseVertexTooltip()) {            
             Tooltip t = new Tooltip(labelText);
@@ -580,7 +657,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         this.getChildren().add(0, (Node) e);
         edgeNodes.put(edge, e);
 
-        String labelText = generateEdgeLabel(edge.element());
+        String labelText = inferEdgeLabel(edge.element());
         
         if (graphProperties.getUseEdgeTooltip()) {
             Tooltip t = new Tooltip(labelText);
@@ -642,8 +719,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                     }
                 }
 
-                SmartGraphVertexNode<V> newVertex = new SmartGraphVertexNode<>(vertex,
-                        x, y, graphProperties.getVertexRadius(), graphProperties.getVertexAllowUserMove());
+                SmartGraphVertexNode<V> newVertex = createVertex(vertex, x, y);
 
                 //track new nodes
                 newVertices.add(newVertex);
@@ -757,17 +833,24 @@ public class SmartGraphPanel<V, E> extends Pane {
     /**
      * Updates node's labels
      */
-    private void updateLabels() {
+    private void updateNodes() {
         theGraph.vertices().forEach((v) -> {
             SmartGraphVertexNode<V> vertexNode = vertexNodes.get(v);
             if (vertexNode != null) {
                 SmartLabel label = vertexNode.getAttachedLabel();
                 if(label != null) {
-                    String text = generateVertexLabel(v.element());
-                    label.setText( text );
+                    String text = inferVertexLabel(v.element());
+                    label.setText_( text );
                 }
                 
             }
+
+            double radius = inferVertexShapeRadius(v.element());
+            vertexNode.setRadius(radius);
+
+            String shapeType = inferVertexShapeType(v.element());
+            vertexNode.setShapeType(shapeType);
+
         });
         
         theGraph.edges().forEach((e) -> {
@@ -775,21 +858,27 @@ public class SmartGraphPanel<V, E> extends Pane {
             if (edgeNode != null) {
                 SmartLabel label = edgeNode.getAttachedLabel();
                 if (label != null) {
-                    String text = generateEdgeLabel(e.element());
-                    label.setText( text );
+                    String text = inferEdgeLabel(e.element());
+                    label.setText_( text );
                 }
             }
         });
     }
     
-    private String generateVertexLabel(V vertex) {
+    private String inferVertexLabel(V vertexElement) {
+
+        if(vertexElement == null) return "<NULL>";
+
+        if(vertexLabelProvider != null) {
+            return vertexLabelProvider.valueFor(vertexElement);
+        }
         
         try {
-            Class<?> clazz = vertex.getClass();
+            Class<?> clazz = vertexElement.getClass();
             for (Method method : clazz.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(SmartLabelSource.class)) {
                     method.setAccessible(true);
-                    Object value = method.invoke(vertex);
+                    Object value = method.invoke(vertexElement);
                     return value.toString();
                 }
             }
@@ -797,17 +886,23 @@ public class SmartGraphPanel<V, E> extends Pane {
             Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return vertex != null ? vertex.toString() : "<NULL>";
+        return vertexElement.toString();
     }
     
-    private String generateEdgeLabel(E edge) {
+    private String inferEdgeLabel(E edgeElement) {
+
+        if(edgeElement == null) return "<NULL>";
+
+        if(edgeLabelProvider != null) {
+            return edgeLabelProvider.valueFor(edgeElement);
+        }
         
         try {
-            Class<?> clazz = edge.getClass();
+            Class<?> clazz = edgeElement.getClass();
             for (Method method : clazz.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(SmartLabelSource.class)) {
                     method.setAccessible(true);
-                    Object value = method.invoke(edge);
+                    Object value = method.invoke(edgeElement);
                     return value.toString();
                 }
             }
@@ -815,7 +910,55 @@ public class SmartGraphPanel<V, E> extends Pane {
             Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return edge != null ? edge.toString() : "<NULL>";
+        return edgeElement.toString();
+    }
+
+    private String inferVertexShapeType(V vertexElement) {
+
+        if(vertexElement == null) return graphProperties.getVertexShape();
+
+        if(vertexShapeTypeProvider != null) {
+            return vertexShapeTypeProvider.valueFor(vertexElement);
+        }
+
+        try {
+            Class<?> clazz = vertexElement.getClass();
+            for (Method method : clazz.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(SmartShapeTypeSource.class)) {
+                    method.setAccessible(true);
+                    Object value = method.invoke(vertexElement);
+                    return value.toString();
+                }
+            }
+        } catch (SecurityException | IllegalAccessException  | IllegalArgumentException | InvocationTargetException ex) {
+            Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return graphProperties.getVertexShape();
+    }
+
+    private double inferVertexShapeRadius(V vertexElement) {
+
+        if(vertexElement == null) return graphProperties.getVertexRadius();
+
+        if(vertexRadiusProvider != null) {
+            return vertexRadiusProvider.valueFor(vertexElement);
+        }
+
+        try {
+            Class<?> clazz = vertexElement.getClass();
+            for (Method method : clazz.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(SmartRadiusSource.class)) {
+                    method.setAccessible(true);
+                    Object value = method.invoke(vertexElement);
+                    return Double.valueOf(value.toString());
+                }
+            }
+        } catch (SecurityException | IllegalAccessException  | IllegalArgumentException | InvocationTargetException ex) {
+            Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return graphProperties.getVertexRadius();
     }
     
     /**

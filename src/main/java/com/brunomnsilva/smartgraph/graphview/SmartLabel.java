@@ -23,6 +23,9 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.text.Text;
 
 /**
@@ -36,6 +39,10 @@ import javafx.scene.text.Text;
 public class SmartLabel extends Text implements SmartStylableNode {
     
     private final SmartStyleProxy styleProxy;
+
+    private final DoubleProperty layoutWidth;
+    private final DoubleProperty layoutHeight;
+
 
     /**
      * Default constructor.
@@ -54,8 +61,56 @@ public class SmartLabel extends Text implements SmartStylableNode {
     public SmartLabel(double x, double y, String text) {
         super(x, y, text);
         styleProxy = new SmartStyleProxy(this);
+
+        this.layoutWidth = new SimpleDoubleProperty(  );
+        this.layoutHeight = new SimpleDoubleProperty(  );
+
+        layoutBoundsProperty().addListener((observableValue, oldValue, newValue) -> {
+            if(newValue != null) {
+                if(Double.compare(layoutWidth.doubleValue(), newValue.getWidth()) != 0) {
+                    layoutWidth.set(newValue.getWidth());
+                }
+                if(Double.compare(layoutHeight.doubleValue(), newValue.getHeight()) != 0) {
+                    layoutHeight.set(newValue.getHeight());
+                }
+            }
+        });
     }
-    
+
+
+    /**
+     * Returns the read-only property representing the layout width of this label.
+     *
+     * @return the read-only property representing the layout width
+     */
+    public ReadOnlyDoubleProperty layoutWidthProperty() {
+        return layoutWidth;
+    }
+
+    /**
+     * Returns the read-only property representing the layout height of this label.
+     *
+     * @return the read-only property representing the layout height
+     */
+    public ReadOnlyDoubleProperty layoutHeightProperty() {
+        return layoutHeight;
+    }
+
+    /**
+     * Use instead of {@link #setText(String)} to allow for correct layout adjustments and label placement.
+     * @param text the text to display on the label
+     */
+    public void setText_(String text) {
+        if(getText().compareTo(text) != 0) {
+            setText(text);
+        }
+    }
+
+    @Override
+    public void setStyleInline(String css) {
+        styleProxy.setStyleInline(css);
+    }
+
     @Override
     public void setStyleClass(String cssClass) {
         styleProxy.setStyleClass(cssClass);
@@ -70,5 +125,5 @@ public class SmartLabel extends Text implements SmartStylableNode {
     public boolean removeStyleClass(String cssClass) {
         return styleProxy.removeStyleClass(cssClass);
     }
-    
+
 }

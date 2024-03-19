@@ -23,20 +23,27 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 
 ### What's new?
 
-- (1.1.0) Automatic layout is now performed through an instantiated *strategy*. There are two available (but the pattern allows for the user to devise others):
-  
-  - `ForceDirectedSpringSystemLayoutStrategy`: this is the original implementation for the automatic placement, through a spring system;
-  - `ForceDirectedSpringGravityLayoutStrategy`: (**new**) this is a variant of the spring system implementation, but with a gravity pull towards the center of the panel. This is now the default strategy and has the advantage of not repelling isolated vertices and/or bipartite graphs to the edges of the panel.
+This is a *release candidate* version, as it hasn't been thoroughly tested yet. Feedback is appreciated.
 
-- (1.0.0) Package now available through [Maven Central](https://central.sonatype.com/namespace/com.brunomnsilva). The library seems stable, after dozens of college projects of my students have used it. Hence, the version was bumped to 1.0.0.
+Although one full version number higher than the previous *stable* version (1.1.0), existing applications are expected to work with this library version without significant changes.
 
-- (0.9.4) You can now annotate a method with `@SmartLabelSource` within a model class to provide the displayed label for a vertex/edge; see the example at `com.brunomnsilva.smartgraph.example`. If no annotation is present, then the `toString()` method is used to obtain the label's text.
+:warning: The only exception is the necessary use of `SmartStylableNode.setStyleInline(...)` instead of `SmartStylableNode.setStyle(...)` to correctly apply inline styles to nodes (vertices and edges). Css classes are set the same way as before.
 
-- (0.9.4) You can manually alter a vertex position on the panel at anytime, through `SmartGraphPanel.setVertexPosition(Vertex<V> v)`; see the example at `com.brunomnsilva.smartgraph.example`.
+- (2.0.0-rc1) Shapes, sizes, providers, annotations and minor improvements:
 
-- (0.9.4) You can override specific default properties by using a *String* parameter to the `SmartGraphProperties` constructor; see the example at `com.brunomnsilva.smartgraph.example`. This is useful if you want to display visually different graphs within the same application.
+  - Different shapes can be used to represent vertices, namely circles, stars and regular polygons (from triangles to dodecagons);
+      - The default shape can be specified with the `vertex.shape` property in `smartgraph.properties`
+      - Can be set/changed at runtime through a `SmartShapeTypeProvider` or `SmartShapeTypeSource` annotation.
 
-- (0.9.4) You can now style labels and arrows individually.
+  - The radius of the shape (enclosing circle) used to represent a vertex can be set/changed at runtime through a `SmartRadiusProvider` or `SmartRadiusSource` annotation.
+    
+  - Updated shapes and radii are only reflected in the visualization after calling `SmartGraphPanel.update()` or `SmartGraphPanel.updateAndWait()`.
+
+  - Improvements: 
+    - When dragging nodes, they will be kept within the panel's bounds.
+    - The look of curved edges has been improved.
+
+See the [wiki](https://github.com/brunomnsilva/JavaFXSmartGraph/wiki) for the complete changelist.
 
 ### Using the library
 
@@ -216,7 +223,7 @@ graphView.setVertexDoubleClickAction(graphVertex -> {
 graphView.setEdgeDoubleClickAction(graphEdge -> {
     System.out.println("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
     //dynamically change the style, can also be done for a vertex
-    graphEdge.setStyle("-fx-stroke: black; -fx-stroke-width: 2;");
+    graphEdge.setStyleInline("-fx-stroke: black; -fx-stroke-width: 2;");
 });
 ```
 
@@ -234,7 +241,8 @@ You can set the graph visualization properties in the `smartgraph.properties` fi
 # Vertex related configurations
 #
 vertex.allow-user-move = true
-vertex.radius = 15 
+vertex.radius = 15
+vertex.shape = circle
 vertex.tooltip = true
 vertex.label = false
 

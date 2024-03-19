@@ -49,6 +49,9 @@ public class SmartGraphProperties {
     private static final double DEFAULT_VERTEX_RADIUS = 15;
     private static final String PROPERTY_VERTEX_RADIUS = "vertex.radius";
 
+    private static final String DEFAULT_VERTEX_SHAPE = "circle";
+    private static final String PROPERTY_VERTEX_SHAPE = "vertex.shape";
+
     private static final boolean DEFAULT_VERTEX_USE_TOOLTIP = true;
     private static final String PROPERTY_VERTEX_USE_TOOLTIP = "vertex.tooltip";
     
@@ -107,7 +110,11 @@ public class SmartGraphProperties {
             Logger.getLogger(SmartGraphProperties.class.getName()).log(Level.WARNING, msg);
         }
     }
-    
+
+    /**
+     * Reads properties from the desired string.
+     * @param content string from where to read the properties
+     */
     public SmartGraphProperties(String content) {
         properties = new Properties();
         try {
@@ -137,11 +144,22 @@ public class SmartGraphProperties {
     public double getVertexRadius() {
         return getDoubleProperty(PROPERTY_VERTEX_RADIUS, DEFAULT_VERTEX_RADIUS);
     }
-    
+
+    /**
+     * Returns a property that indicates the shape of each vertex.
+     *
+     * @return corresponding property value
+     */
+    public String getVertexShape() {
+        return getStringProperty(PROPERTY_VERTEX_SHAPE, DEFAULT_VERTEX_SHAPE);
+    }
+
     /**
      * Returns a property that indicates the repulsion force to use in the
      * automatic force-based layout.
-     * 
+     *
+     * @deprecated since version 1.1
+     *
      * @return corresponding property value
      */
     public double getRepulsionForce() {
@@ -151,7 +169,9 @@ public class SmartGraphProperties {
     /**
      * Returns a property that indicates the attraction force to use in the
      * automatic force-based layout.
-     * 
+     *
+     * @deprecated since version 1.1
+     *
      * @return corresponding property value
      */
     public double getAttractionForce() {
@@ -161,7 +181,9 @@ public class SmartGraphProperties {
     /**
      * Returns a property that indicates the attraction scale to use in the
      * automatic force-based layout.
-     * 
+     *
+     * @deprecated since version 1.1
+     *
      * @return corresponding property value
      */
     public double getAttractionScale() {
@@ -247,10 +269,18 @@ public class SmartGraphProperties {
         }        
     }
     
-    
+    private String getStringProperty(String propertyName, String defaultValue) {
+        return properties.getProperty(propertyName, defaultValue);
+    }
+
+    /**
+     * Test program.
+     * @param args not used
+     */
     public static void main(String[] args) {
         SmartGraphProperties props = new SmartGraphProperties();
+
         System.out.println("Prop vertex radius: " + props.getVertexRadius());
-        System.out.println("Prop vertex use label: " + props.getUseVertexLabel());
+        System.out.println("Prop vertex shape: " + props.getVertexShape());
     }
 }

@@ -24,8 +24,13 @@
 package com.brunomnsilva.smartgraph.graphview;
 
 import com.brunomnsilva.smartgraph.graph.Vertex;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 
@@ -48,24 +53,36 @@ import java.util.Set;
  *
  * @author brunomnsilva
  */
-public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<T>, SmartLabelledNode {
+public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T>, SmartLabelledNode {
 
     private final Vertex<T> underlyingVertex;
 
+    private boolean isDragging;
+
     /* Critical for performance, so we don't rely on the efficiency of the Graph.areAdjacent method */
     private final Set<SmartGraphVertexNode<T>> adjacentVertices;
-
-    private SmartLabel attachedLabel = null;
-    private boolean isDragging = false;
 
     /*
     Automatic layout functionality members
      */
     private final PointVector forceVector = new PointVector(0, 0);
     private final PointVector updatedPosition = new PointVector(0, 0);
+    private final DoubleProperty centerX;
+    private final DoubleProperty centerY;
+    private final DoubleProperty radius;
 
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
+    private SmartLabel attachedLabel;
+
+    /* Shape proxy and related properties used to represent the underlying vertex.
+    *  We will allow to change the shape at runtime, but other elements (e.g., lines/arrows)
+    *  when created will bind to the vertex's location and radius values.
+    *  Hence, we need separate properties here to be bound; later we'll bind and unbind these
+    *  to the concrete shape being used.
+    */
+    private ShapeWithRadius<?> shapeProxy;
+    private String shapeProxyName;
     
     /**
      * Constructor which sets the instance attributes.
@@ -73,24 +90,150 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
      * @param v the underlying vertex
      * @param x initial x position on the parent pane
      * @param y initial y position on the parent pane
-     * @param radius radius of this vertex representation, i.e., a circle
+     * @param radius radius of this vertex representation
+     * @param shapeType type of the shape to represent this vertex, see {@link ShapeFactory}
      * @param allowMove should the vertex be draggable with the mouse
+     * @throws IllegalArgumentException if <code>shapeType</code> is invalid or if <code>x</code> or <code>y</code> or
+     * <code>radius</code> are negative.
      */
-    public SmartGraphVertexNode(Vertex<T> v, double x, double y, double radius, boolean allowMove) {
-        super(x, y, radius);
-
+    public SmartGraphVertexNode(Vertex<T> v, double x, double y, double radius, String shapeType, boolean allowMove) {
         this.underlyingVertex = v;
+        this.adjacentVertices = new HashSet<>();
+
         this.attachedLabel = null;
         this.isDragging = false;
 
-        this.adjacentVertices = new HashSet<>();
+        /* Shape proxy */
+        this.centerX = new SimpleDoubleProperty();
+        this.centerY = new SimpleDoubleProperty();
+        this.radius = new SimpleDoubleProperty();
 
-        styleProxy = new SmartStyleProxy(this);
+        this.shapeProxy = ShapeFactory.create(shapeType, x, y, radius);
+        this.shapeProxyName = shapeType;
+
+        bindShapeProperties(this.shapeProxy);
+
+        this.getChildren().add(this.shapeProxy.getShape());
+
+        /* Styling proxy */
+        styleProxy = new SmartStyleProxy(this.shapeProxy.getShape());
         styleProxy.addStyleClass("vertex");
 
+        /* Enable dragging */
         if (allowMove) {
             enableDrag();
         }
+    }
+
+    /**
+     * Returns the x-coordinate of the center of this node.
+     *
+     * @return the x-coordinate of the center of this node
+     */
+    public double getCenterX() {
+        return centerX.doubleValue();
+    }
+
+    /**
+     * Sets the x-coordinate of the center of this node.
+     *
+     * @param x the x-coordinate of the center of this node
+     */
+    public void setCenterX(double x) {
+        centerX.set(x);
+    }
+
+    /**
+     * Returns the y-coordinate of the center of this node.
+     *
+     * @return the y-coordinate of the center of this node
+     */
+    public double getCenterY() {
+        return centerY.doubleValue();
+    }
+
+    /**
+     * Sets the y-coordinate of the center of this node.
+     *
+     * @param y the y-coordinate of the center of this node
+     */
+    public void setCenterY(double y) {
+        centerY.set(y);
+    }
+
+    /**
+     * Returns the property representing the x-coordinate of the center of this node.
+     *
+     * @return the property representing the x-coordinate of the center of this node
+     */
+    public DoubleProperty centerXProperty() {
+        return centerX;
+    }
+
+    /**
+     * Returns the property representing the y-coordinate of the center of this node.
+     *
+     * @return the property representing the y-coordinate of the center of this node
+     */
+    public DoubleProperty centerYProperty() {
+        return centerY;
+    }
+
+    /**
+     * Returns the property representing the radius of this node.
+     *
+     * @return the property representing the radius of this node
+     */
+    public ReadOnlyDoubleProperty radiusProperty() {
+        return radius;
+    }
+
+    /**
+     * Returns the radius of this node.
+     *
+     * @return the radius of this node
+     */
+    public double getRadius() {
+        return radius.doubleValue();
+    }
+
+    /**
+     * Sets the radius of this node.
+     * Since it is a bound value, the value will only be updated if it has changed.
+     *
+     * @param radius the new radius of this node
+     */
+    public void setRadius(double radius) {
+        if (Double.compare(getRadius(), radius) != 0) {
+            this.radius.set(radius);
+        }
+    }
+
+    /**
+     * Changes the shape used to represent this node.
+     * <br/>
+     * When "swapping" shapes, the new shape will retain the positioning, radius and styling of the previous shape.
+     *
+     * @param shapeType the shape type name. See {@link ShapeFactory}.
+     */
+    public void setShapeType(String shapeType) {
+        // If the shape is the same, no need to change it
+        if(shapeProxyName.compareToIgnoreCase(shapeType) == 0) return;
+
+        ShapeWithRadius<?> newShapeProxy = ShapeFactory.create(shapeType, getCenterX(), getCenterY(), getRadius());
+        // Shape correctly instantiated, i.e., 'shapeType' is valid, proceed...
+
+        // Style copying and proxy set
+        SmartStyleProxy.copyStyling(this.shapeProxy.getShape(), newShapeProxy.getShape());
+        styleProxy.setClient(newShapeProxy.getShape());
+
+        this.shapeProxy = newShapeProxy;
+        this.shapeProxyName = shapeType;
+
+        bindShapeProperties(newShapeProxy);
+
+        this.getChildren().clear();
+        this.getChildren().add(newShapeProxy.getShape());
     }
     
     /**
@@ -152,6 +295,15 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     /**
      * Sets the position of the instance in pixels.
      *
+     * @param p coordinates
+     */
+    public void setPosition(Point2D p) {
+        setPosition(p.getX(), p.getY());
+    }
+    
+    /**
+     * Sets the position of the instance in pixels.
+     *
      * @param x x coordinate
      * @param y y coordinate
      */
@@ -164,7 +316,7 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         setCenterX(x);
         setCenterY(y);
     }
-    
+
      @Override
     public double getPositionCenterX() {
         return getCenterX();
@@ -173,16 +325,6 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
     @Override
     public double getPositionCenterY() {
         return getCenterY();
-    }
-
-
-    /**
-     * Sets the position of the instance in pixels.
-     *
-     * @param p coordinates
-     */
-    public void setPosition(Point2D p) {
-        setPosition(p.getX(), p.getY());
     }
 
     /**
@@ -254,6 +396,49 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         setPosition(updatedPosition.x, updatedPosition.y);
     }
 
+    @Override
+    public void attachLabel(SmartLabel label) {
+        this.attachedLabel = label;
+
+        label.xProperty().bind(centerXProperty().subtract(Bindings.divide( label.layoutWidthProperty(), 2.0)));
+        label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), label.layoutHeightProperty())));
+    }
+
+    @Override
+    public SmartLabel getAttachedLabel() {
+        return attachedLabel;
+    }
+
+    @Override
+    public Vertex<T> getUnderlyingVertex() {
+        return underlyingVertex;
+    }
+
+    @Override
+    public void setStyleInline(String css) {
+        styleProxy.setStyleInline(css);
+    }
+
+    @Override
+    public void setStyleClass(String cssClass) {
+        styleProxy.setStyleClass(cssClass);
+    }
+
+    @Override
+    public void addStyleClass(String cssClass) {
+        styleProxy.addStyleClass(cssClass);
+    }
+
+    @Override
+    public boolean removeStyleClass(String cssClass) {
+        return styleProxy.removeStyleClass(cssClass);
+    }
+
+    @Override
+    public SmartStylableNode getStylableLabel() {
+        return this.attachedLabel;
+    }
+
     /**
      * Make a node movable by dragging it around with the mouse primary button.
      */
@@ -309,6 +494,9 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         });
     }
 
+    /*
+     * Limit a value within an interval.
+     */
     private double boundCenterCoordinate(double value, double min, double max) {
         double radius = getRadius();
 
@@ -321,45 +509,28 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         }
     }
 
-    @Override
-    public void attachLabel(SmartLabel label) {
-        this.attachedLabel = label;
-        label.xProperty().bind(centerXProperty().subtract(label.getLayoutBounds().getWidth() / 2.0));
-        label.yProperty().bind(centerYProperty().add(getRadius() + label.getLayoutBounds().getHeight()));
+    /*
+     * (re)Bind properties of the exposed properties and the underlying shape.
+     */
+    private void bindShapeProperties(ShapeWithRadius<?> shape) {
+        if( this.shapeProxy != null && this.centerX.isBound() ) {
+            this.centerX.unbindBidirectional(this.shapeProxy.centerXProperty());
+        }
+
+        if( this.shapeProxy != null && this.centerY.isBound() ) {
+            this.centerY.unbindBidirectional(this.shapeProxy.centerYProperty());
+        }
+
+        if( this.shapeProxy != null && this.radius.isBound() ) {
+            this.radius.unbindBidirectional(this.shapeProxy.radiusProperty());
+        }
+
+        this.centerX.bindBidirectional(shape.centerXProperty());
+        this.centerY.bindBidirectional(shape.centerYProperty());
+        this.radius.bindBidirectional(shape.radiusProperty());
     }
 
-    @Override
-    public SmartLabel getAttachedLabel() {
-        return attachedLabel;
-    }
-
-    @Override
-    public Vertex<T> getUnderlyingVertex() {
-        return underlyingVertex;
-    }
-
-     
-    @Override
-    public void setStyleClass(String cssClass) {
-        styleProxy.setStyleClass(cssClass);
-    }
-
-    @Override
-    public void addStyleClass(String cssClass) {
-        styleProxy.addStyleClass(cssClass);
-    }
-
-    @Override
-    public boolean removeStyleClass(String cssClass) {
-        return styleProxy.removeStyleClass(cssClass);
-    }
-
-    @Override
-    public SmartStylableNode getStylableLabel() {
-        return this.attachedLabel;
-    }
-
-    /**
+    /*
      * Internal representation of a 2D point or vector for quick access to its
      * attributes.
      */

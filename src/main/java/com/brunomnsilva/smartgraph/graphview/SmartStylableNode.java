@@ -43,11 +43,11 @@ public interface SmartStylableNode {
      * But will be discarded if you use  {@link SmartStylableNode#setStyleClass(java.lang.String) }
      * <br/>
      * If you need to clear any previously set inline styles, use 
-     * <code>.setStyle(null)</code>
+     * <code>.setStyleInline(null)</code>
      * 
      * @param css styles
      */
-    void setStyle(String css);
+    void setStyleInline(String css);
     
     /**
      * Applies the CSS styling defined in class selector <code>cssClass</code>.

@@ -64,7 +64,7 @@ public class Main extends Application {
         This can be done at any time afterwards.
         */
         if (g.numVertices() > 0) {
-            graphView.getStylableVertex("A").setStyle("-fx-fill: gold; -fx-stroke: brown;");
+            graphView.getStylableVertex("A").setStyleInline("-fx-fill: gold; -fx-stroke: brown;");
         }
 
         /*
@@ -110,9 +110,9 @@ public class Main extends Application {
         graphView.setEdgeDoubleClickAction(graphEdge -> {
             System.out.println("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
             //dynamically change the style when clicked
-            graphEdge.setStyle("-fx-stroke: black; -fx-stroke-width: 3;");
+            graphEdge.setStyleInline("-fx-stroke: black; -fx-stroke-width: 3;");
             
-            graphEdge.getStylableArrow().setStyle("-fx-stroke: black; -fx-stroke-width: 3;");
+            graphEdge.getStylableArrow().setStyleInline("-fx-stroke: black; -fx-stroke-width: 3;");
             
             //uncomment to see edges being removed after click
             //Edge<String, String> underlyingEdge = graphEdge.getUnderlyingEdge();
@@ -250,7 +250,7 @@ public class Main extends Application {
                     //color new vertices
                     SmartStylableNode stylableVertex = graphView.getStylableVertex(vertexId);
                     if(stylableVertex != null) {
-                        stylableVertex.setStyle("-fx-fill: orange;");
+                        stylableVertex.setStyleInline("-fx-fill: orange;");
                     }
                 } else {
                     Vertex<String> existing1 = get_random_vertex(g);

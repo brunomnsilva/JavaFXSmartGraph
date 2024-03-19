@@ -38,14 +38,26 @@ import javafx.scene.shape.Shape;
  */
 public class SmartStyleProxy implements SmartStylableNode {
 
-    private final Shape client;
-    
+    private Shape client;
+
+    /**
+     * Creates a new style proxy for a shape client.
+     * @param client the shape client
+     */
     public SmartStyleProxy(Shape client) {
+        this.client = client;
+    }
+
+    /**
+     * Changes the shape client of this proxy.
+     * @param client the new shape client
+     */
+    public void setClient(Shape client) {
         this.client = client;
     }
     
     @Override
-    public void setStyle(String css) {
+    public void setStyleInline(String css) {
         client.setStyle(css);
     }
 
@@ -65,5 +77,14 @@ public class SmartStyleProxy implements SmartStylableNode {
     public boolean removeStyleClass(String cssClass) {
         return client.getStyleClass().remove(cssClass);
     }
-    
+
+    /**
+     * Copies all the styles and classes (currently applied) of <code>source</code> to <code>destination</code>.
+     * @param source the shape whose styles are to be copied
+     * @param destination the shape that receives the copied styles
+     */
+    public static void copyStyling(Shape source, Shape destination) {
+        destination.setStyle(source.getStyle());
+        destination.getStyleClass().addAll(source.getStyleClass());
+    }
 }

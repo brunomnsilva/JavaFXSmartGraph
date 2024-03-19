@@ -24,6 +24,7 @@
 package com.brunomnsilva.smartgraph.graphview;
 
 import com.brunomnsilva.smartgraph.graph.Edge;
+import javafx.beans.binding.Bindings;
 import javafx.scene.shape.Line;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -49,7 +50,14 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
-    
+
+    /**
+     * Constructs a SmartGraphEdgeLine representing an edge between two SmartGraphVertexNodes.
+     *
+     * @param edge     the edge associated with this line
+     * @param inbound  the inbound SmartGraphVertexNode
+     * @param outbound the outbound SmartGraphVertexNode
+     */
     public SmartGraphEdgeLine(Edge<E, V> edge, SmartGraphVertexNode<V> inbound, SmartGraphVertexNode<V> outbound) {
         if( inbound == null || outbound == null) {
             throw new IllegalArgumentException("Cannot connect null vertices.");
@@ -94,8 +102,9 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
-        label.xProperty().bind(startXProperty().add(endXProperty()).divide(2).subtract(label.getLayoutBounds().getWidth() / 2));
-        label.yProperty().bind(startYProperty().add(endYProperty()).divide(2).add(label.getLayoutBounds().getHeight() / 1.5));  
+
+        label.xProperty().bind(startXProperty().add(endXProperty()).divide(2).subtract(Bindings.divide(label.layoutWidthProperty(), 2)));
+        label.yProperty().bind(startYProperty().add(endYProperty()).divide(2).add(Bindings.divide(label.layoutHeightProperty(), 1.5)));
     }
 
     @Override
@@ -130,7 +139,9 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
         arrow.getTransforms().add(rotation);
         
         /* add translation transform to put the arrow touching the circle's bounds */
-        Translate t = new Translate(-inbound.getRadius(), 0);
+        Translate t = new Translate(0, 0);
+        t.xProperty().bind( inbound.radiusProperty().negate() );
+
         arrow.getTransforms().add(t);
     }
 

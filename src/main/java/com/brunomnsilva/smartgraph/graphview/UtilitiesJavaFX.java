@@ -58,7 +58,7 @@ public class UtilitiesJavaFX {
         // at this point we know that _at least_ the given node is a valid
         // answer to the given point, so we will return that if we don't find
         // a better child option
-        if (node instanceof Parent) {
+        if (node instanceof Parent && !(node instanceof SmartGraphVertexNode)) {
             // we iterate through all children in reverse order, and stop when we find a match.
             // We do this as we know the elements at the end of the list have a higher
             // z-order, and are therefore the better match, compared to children that

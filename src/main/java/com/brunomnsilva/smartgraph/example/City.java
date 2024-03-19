@@ -25,6 +25,8 @@
 package com.brunomnsilva.smartgraph.example;
 
 import com.brunomnsilva.smartgraph.graphview.SmartLabelSource;
+import com.brunomnsilva.smartgraph.graphview.SmartRadiusSource;
+import com.brunomnsilva.smartgraph.graphview.SmartShapeTypeSource;
 
 /**
  * A simple class to represent a city in an example usage of the library.
@@ -53,7 +55,6 @@ public class City {
         this.name = name;
     }
 
-    
     public float getPopulation() {
         return population;
     }
@@ -67,5 +68,33 @@ public class City {
         return "City{" + "name=" + name + ", population=" + population + '}';
     }
    
-    
+    @SmartShapeTypeSource
+    public String modelShape() {
+        if(this.name == "Tokyo") {
+            return "star";
+        }
+
+        return "circle";
+    }
+
+    @SmartRadiusSource
+    public Double modelRadius() {
+        return convertToLogScale(Double.valueOf(String.valueOf(this.population)));
+    }
+
+    private static double convertToLogScale(double value) {
+        // Define input range
+        double minValue = 1;
+        double maxValue = 40;
+
+        // Define output range
+        double minOutputValue = 15;
+        double maxOutputValue = 40;
+
+        // Map the input value to the output range using logarithmic function
+        double mappedValue = (Math.log(value) - Math.log(minValue)) / (Math.log(maxValue) - Math.log(minValue));
+
+        // Map the mapped value to the output range
+        return minOutputValue + mappedValue * (maxOutputValue - minOutputValue);
+    }
 }

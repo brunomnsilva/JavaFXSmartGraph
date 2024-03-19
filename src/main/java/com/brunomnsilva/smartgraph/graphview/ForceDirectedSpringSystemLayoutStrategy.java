@@ -97,7 +97,7 @@ public class ForceDirectedSpringSystemLayoutStrategy<V> extends ForceDirectedLay
 
         Point2D vPosition = v.getUpdatedPosition();
         Point2D wPosition = w.getUpdatedPosition();
-        double distance = vPosition.distance(wPosition);
+        double distance = vPosition.distance(wPosition) - (v.getRadius() + w.getRadius());
         Point2D forceDirection = wPosition.subtract(vPosition).normalize();
 
         if (distance < 1) {
