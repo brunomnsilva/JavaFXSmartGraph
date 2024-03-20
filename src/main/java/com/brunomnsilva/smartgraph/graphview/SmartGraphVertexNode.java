@@ -293,8 +293,9 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     }
 
     /**
-     * Sets the position of the instance in pixels.
-     *
+     * Sets the position (in relative pixels coordinates of the panel) of the node.
+     * <br/>
+     * If the entered position falls outside the bounds of the panel, it will be bounded to the dimensions of the panel.
      * @param p coordinates
      */
     public void setPosition(Point2D p) {
@@ -302,8 +303,9 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     }
     
     /**
-     * Sets the position of the instance in pixels.
-     *
+     * Sets the position (in relative pixels coordinates of the panel) of the node.
+     * <br/>
+     * If the entered position falls outside the bounds of the panel, it will be bounded to the dimensions of the panel.
      * @param x x coordinate
      * @param y y coordinate
      */
@@ -390,8 +392,8 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         double height = getParent().getLayoutBounds().getHeight();
         double width = getParent().getLayoutBounds().getWidth();
 
-        updatedPosition.x = boundCenterCoordinate(updatedPosition.x, 0, width);
-        updatedPosition.y = boundCenterCoordinate(updatedPosition.y, 0, height);
+        updatedPosition.x = boundVertexNodeXPositioning(updatedPosition.x, 0, width);
+        updatedPosition.y = boundVertexNodeYPositioning(updatedPosition.y, 0, height);
 
         setPosition(updatedPosition.x, updatedPosition.y);
     }
@@ -402,6 +404,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
 
         label.xProperty().bind(centerXProperty().subtract(Bindings.divide( label.layoutWidthProperty(), 2.0)));
         label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), label.layoutHeightProperty())));
+        //label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), LABEL_Y_OFFSET)));
     }
 
     @Override
@@ -455,7 +458,6 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
 
                 mouseEvent.consume();
             }
-
         });
 
         setOnMouseReleased((MouseEvent mouseEvent) -> {
@@ -468,44 +470,58 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         setOnMouseDragged((MouseEvent mouseEvent) -> {
             if (mouseEvent.isPrimaryButtonDown()) {
                 double newX = mouseEvent.getX() + dragDelta.x;
-                double x = boundCenterCoordinate(newX, 0, getParent().getLayoutBounds().getWidth());
+                double x = boundVertexNodeXPositioning(newX, 0, getParent().getLayoutBounds().getWidth());
                 setCenterX(x);
 
                 double newY = mouseEvent.getY() + dragDelta.y;
-                double y = boundCenterCoordinate(newY, 0, getParent().getLayoutBounds().getHeight());
+                double y = boundVertexNodeYPositioning(newY, 0, getParent().getLayoutBounds().getHeight());
                 setCenterY(y);
                 mouseEvent.consume();
             }
-
         });
 
         setOnMouseEntered((MouseEvent mouseEvent) -> {
             if (!mouseEvent.isPrimaryButtonDown()) {
                 getScene().setCursor(Cursor.HAND);
             }
-
         });
 
         setOnMouseExited((MouseEvent mouseEvent) -> {
             if (!mouseEvent.isPrimaryButtonDown()) {
                 getScene().setCursor(Cursor.DEFAULT);
             }
-
         });
     }
 
     /*
-     * Limit a value within an interval.
+     * Bounds the positioning of this vertex node within bounds.
+     * It takes into account the overall size of the node.
      */
-    private double boundCenterCoordinate(double value, double min, double max) {
-        double radius = getRadius();
+    private double boundVertexNodeXPositioning(double xCoord, double minCoordValue, double maxCoordValue) {
+        // The shape and (possibly attached) label are centered, so its bounds are equals for each side
+        double lengthToSide = Math.max(getRadius(), (attachedLabel != null ? attachedLabel.layoutWidthProperty().get()/2 : 0));
 
-        if (value < min + radius) {
-            return min + radius;
-        } else if (value > max - radius) {
-            return max - radius;
+        if (xCoord < minCoordValue + lengthToSide) {
+            return minCoordValue + lengthToSide;
+        } else if (xCoord > maxCoordValue - lengthToSide) {
+            return maxCoordValue - lengthToSide;
         } else {
-            return value;
+            return xCoord;
+        }
+    }
+
+    private double boundVertexNodeYPositioning(double yCoord, double minCoordValue, double maxCoordValue) {
+        // The length to the top from the center point is the radius of the surrogate shape
+        // The length to the bottom from the center point is the radius of the surrogate shape, plus the label offset and height
+        double lengthToTop = getRadius();
+        double lengthToBottom = getRadius() + (attachedLabel != null ? attachedLabel.layoutHeightProperty().get() : 0);
+
+        if (yCoord < minCoordValue + lengthToTop) {
+            return minCoordValue + lengthToTop;
+        } else if (yCoord > maxCoordValue - lengthToBottom) {
+            return maxCoordValue - lengthToBottom;
+        } else {
+            return yCoord;
         }
     }
 
