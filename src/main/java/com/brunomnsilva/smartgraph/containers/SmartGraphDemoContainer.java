@@ -26,60 +26,109 @@ package com.brunomnsilva.smartgraph.containers;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Slider;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 /**
- * A simple container that provides zoom and toggling of automatic layout of a SmartGraphPanel.
+ * A simple container that provides zoom and toggling of automatic layout of a SmartGraphPanel instance. It can
+ * also force update of the SmartGraphPanel instance for testing purposes.
  * <br/>
  * It shows the current zoom level with a slider control.
+ *
  * @author brunomnsilva
  */
 public class SmartGraphDemoContainer extends BorderPane {
 
     private final ContentZoomPane contentZoomPane;
 
+    /**
+     * Creates a new instance of SmartGraphDemoContainer pane.
+     * @param graphView the SmartGraphPanel instance to show and control
+     */
     public SmartGraphDemoContainer(SmartGraphPanel<?,?> graphView) {
         if(graphView == null) throw new IllegalArgumentException("View cannot be null.");
 
         setCenter(this.contentZoomPane = new ContentZoomPane(graphView));
 
-        // Create right side scale slider
-        setRight(createSlider());
+        Background background = new Background(new BackgroundFill(Color.WHITE, null, null));
 
-        // Create bottom pane with automatic layout toggle
-        HBox bottom = new HBox(10);
-        CheckBox automatic = new CheckBox("Automatic layout");
-        automatic.selectedProperty().bindBidirectional(graphView.automaticLayoutProperty());
-        bottom.getChildren().add(automatic);
-        setBottom(bottom);
+        setRight(createSidebar(this.contentZoomPane, background));
+        setBottom(createBottomBar(graphView, background));
     }
 
-    private Node createSlider() {
+    /**
+     * Create bottom pane with automatic layout toggle, force update button and help.
+     * @param view the SmartGraphPanel instance to control
+     * @param bg the background to apply
+     * @return the bottom pane
+     */
+    private Node createBottomBar(SmartGraphPanel<?,?> view, Background bg) {
+        HBox bar = new HBox(20);
+        bar.setAlignment(Pos.CENTER);
+        bar.setPadding(new Insets(10));
+        bar.setBackground(bg);
 
-        Slider slider = new Slider(ContentZoomPane.MIN_SCALE,
-                ContentZoomPane.MAX_SCALE, ContentZoomPane.MIN_SCALE);
+        /* Create toggle to control automatic layout */
+        CheckBox automatic = new CheckBox("Automatic layout");
+        automatic.selectedProperty().bindBidirectional(view.automaticLayoutProperty());
+
+        /* Create button to force SmartGraphPanel update() */
+        Button btUpdate = new Button("Force update");
+        btUpdate.setOnAction(actionEvent -> view.update());
+
+        /* Create help */
+        Text helpLabel = new Text("?");
+        helpLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        // Create a Tooltip with the help message
+        Tooltip tooltip = new Tooltip("Mouse wheel to zoom; left-click to drag and interact; right-click for panning.");
+
+        // Attach the Tooltip to the Label
+        Tooltip.install(helpLabel, tooltip);
+
+        /* Add components */
+        bar.getChildren().addAll(automatic,
+                new Separator(Orientation.VERTICAL),
+                btUpdate,
+                new Separator(Orientation.VERTICAL),
+                helpLabel);
+
+        return bar;
+    }
+
+    /**
+     * Creates a sidebar with slider control pane to control the zoom level
+     * @param zoomPane the ContentZoomPane instance to control
+     * @param bg the background to apply
+     * @return the side pane
+     */
+    private Node createSidebar(ContentZoomPane zoomPane, Background bg) {
+        VBox paneSlider = new VBox(10);
+        paneSlider.setAlignment(Pos.CENTER);
+        paneSlider.setPadding(new Insets(10));
+        paneSlider.setSpacing(10);
+        paneSlider.setBackground(bg);
+
+        /* Create slider to control zoom level */
+        Slider slider = new Slider(zoomPane.getMinScaleFactor(),
+                contentZoomPane.getMaxScaleFactor(), zoomPane.getMinScaleFactor());
+
         slider.setOrientation(Orientation.VERTICAL);
         slider.setShowTickMarks(true);
         slider.setShowTickLabels(true);
-        slider.setMajorTickUnit(ContentZoomPane.SCROLL_DELTA);
+        slider.setMajorTickUnit(zoomPane.getDeltaScaleFactor());
         slider.setMinorTickCount(1);
         slider.setBlockIncrement(0.125f);
         slider.setSnapToTicks(true);
 
-        Text label = new Text("Zoom");
+        slider.valueProperty().bind(zoomPane.scaleFactorProperty());
 
-        VBox paneSlider = new VBox(slider, label);
-
-        paneSlider.setPadding(new Insets(10, 10, 10, 10));
-        paneSlider.setSpacing(10);
-
-        slider.valueProperty().bind(this.contentZoomPane.scaleFactorProperty());
+        /* Add components */
+        paneSlider.getChildren().addAll(slider, new Text("Zoom"));
 
         return paneSlider;
     }
