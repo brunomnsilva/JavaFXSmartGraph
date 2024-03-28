@@ -579,7 +579,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 connections.put(edge, new Tuple<>(vertex, oppositeVertex));
                 addEdge(graphEdge, edge);
 
-                if (this.edgesWithArrows) {
+                if (this.edgesWithArrows && theGraph instanceof Digraph) {
                     SmartArrow arrow = new SmartArrow(this.graphProperties.getEdgeArrowSize());
                     graphEdge.attachArrow(arrow);
                     this.getChildren().add(arrow);
@@ -754,7 +754,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
                 SmartGraphEdgeBase<E,V> graphEdge = createEdge(edge, graphVertexIn, graphVertexOut);
 
-                if (this.edgesWithArrows) {
+                if (this.edgesWithArrows && theGraph instanceof Digraph) {
                     SmartArrow arrow = new SmartArrow(this.graphProperties.getEdgeArrowSize());
                     graphEdge.attachArrow(arrow);
                     this.getChildren().add(arrow);
