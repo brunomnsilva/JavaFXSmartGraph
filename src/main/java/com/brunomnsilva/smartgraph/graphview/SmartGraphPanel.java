@@ -1029,8 +1029,6 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     private int getTotalEdgesBetween(Vertex<V> v, Vertex<V> u) {
-        //TODO: It may be necessary to adjust this method if you use another Graph
-        //variant, e.g., Digraph (directed graph)
         int count = 0;
         for (Edge<E, V> edge : theGraph.edges()) {
             if (edge.vertices()[0] == v && edge.vertices()[1] == u
