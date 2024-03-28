@@ -25,8 +25,8 @@
 package com.brunomnsilva.smartgraph.example;
 
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
-import com.brunomnsilva.smartgraph.graph.Digraph;
-import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
+import com.brunomnsilva.smartgraph.graph.Graph;
+import com.brunomnsilva.smartgraph.graph.GraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
@@ -38,7 +38,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 /**
- *
+ * Example program that depicts some world cities and their distances.
  * @author brunomnsilva
  */
 public class ExampleMain extends Application {
@@ -46,7 +46,7 @@ public class ExampleMain extends Application {
     @Override
     public void start(Stage ignored) {
         
-        Digraph<City, Distance> distances = new DigraphEdgeList<>();
+        Graph<City, Distance> distances = new GraphEdgeList<>();
         
         Vertex<City> prague = distances.insertVertex(new City("Prague", 1.3f));
         Vertex<City> tokyo = distances.insertVertex(new City("Tokyo", 37.5f));
@@ -103,7 +103,11 @@ public class ExampleMain extends Application {
         });
 
     }
-    
+
+    /**
+     * Main program.
+     * @param args program arguments
+     */
     public static void main(String[] args) {
         launch(args);
     }
