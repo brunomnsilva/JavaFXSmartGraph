@@ -33,9 +33,6 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Rectangle;
 
-import java.io.File;
-import java.net.MalformedURLException;
-
 /**
  * This class provides zooming and panning for any JavaFX Node.
  * <br/>
@@ -45,9 +42,13 @@ import java.net.MalformedURLException;
  * events first. The node should consume any event not meant to propagate to
  * this pane.
  *
+ * @deprecated This class will be removed in the final stable 2.0.0 version
+ * in favor of ContentZoomScrollPane.
+ *
  * @author brunomnsilva
  */
 public class ContentZoomPane extends BorderPane {
+
     /** Minimum scale factor */
     public static final double MIN_SCALE = 1;
     /** Maximum scale factor */
@@ -58,7 +59,6 @@ public class ContentZoomPane extends BorderPane {
     private final Node content;
     private final DoubleProperty scaleFactorProperty;
     private final double minScaleFactor, maxScaleFactor, deltaScaleFactor;
-
 
     /**
      * Creates a new instance of ContentZoomPane.
@@ -85,17 +85,6 @@ public class ContentZoomPane extends BorderPane {
 
         content.toFront();
 
-        // Apply same background color of graph to mask the "panning"
-        // This is a project-specific "hack"
-        try {
-            File f = new File("smartgraph.css");
-            String css = f.toURI().toURL().toExternalForm();
-            getStylesheets().add(css);
-            this.getStyleClass().add("graph");
-        } catch (MalformedURLException e) {
-            // do nothing
-        }
-
         this.minScaleFactor = minScaleFactor;
         this.maxScaleFactor = maxScaleFactor;
         this.deltaScaleFactor = deltaScaleFactor;
@@ -104,7 +93,7 @@ public class ContentZoomPane extends BorderPane {
 
         setCenter(this.content = content);
         enablePanAndZoom();
-        enableResizeListener();
+        enableClipping();
     }
 
     /**
@@ -142,14 +131,119 @@ public class ContentZoomPane extends BorderPane {
         return deltaScaleFactor;
     }
 
+
     /**
-     * Sets the center pivot point for (un)zooming.
-     * @param x x coordinate
-     * @param y y coordinate
+     * Processes mouse scroll-wheel and right-click drags to achieve the intended purposes.
      */
-    private void setContentPivot(double x, double y) {
-        content.setTranslateX(content.getTranslateX() - x);
-        content.setTranslateY(content.getTranslateY() - y);
+    private void enablePanAndZoom() {
+
+        setOnScroll((ScrollEvent event) -> {
+
+            double direction = event.getDeltaY() >= 0 ? 1 : -1;
+
+            double currentScale = scaleFactorProperty.getValue();
+            double computedScale = currentScale + direction * deltaScaleFactor;
+
+            scaleContent(event.getX(), event.getY(), computedScale);
+
+            //do not propagate event
+            event.consume();
+        });
+
+        final DragContext sceneDragContext = new DragContext();
+
+        setOnMousePressed((MouseEvent event) -> {
+
+            if (event.isSecondaryButtonDown()) {
+                getScene().setCursor(Cursor.MOVE);
+
+                sceneDragContext.mouseAnchorX = event.getX();
+                sceneDragContext.mouseAnchorY = event.getY();
+
+                sceneDragContext.translateAnchorX = content.getTranslateX();
+                sceneDragContext.translateAnchorY = content.getTranslateY();
+
+            }
+
+        });
+
+        setOnMouseReleased((MouseEvent event) -> getScene().setCursor(Cursor.DEFAULT));
+
+        setOnMouseDragged((MouseEvent event) -> {
+            if (event.isSecondaryButtonDown()) {
+
+                // TranslateAnchorX and translateAnchorY are the current content.translateX/Y values
+                // when the mouse was pressed
+                double translateX = sceneDragContext.translateAnchorX + event.getX() - sceneDragContext.mouseAnchorX;
+                double translateY = sceneDragContext.translateAnchorY + event.getY() - sceneDragContext.mouseAnchorY;
+
+                translateContent(translateX, translateY);
+            }
+        });
+    }
+
+    private void scaleContent(double pivotX, double pivotY, double scaleFactor) {
+        double currentScale = content.getScaleX();
+
+        double computedScale = boundValue(scaleFactor, minScaleFactor, maxScaleFactor);
+
+        if (currentScale != computedScale) {
+
+            if (computedScale == 1) {
+
+                // If scale will be 1, then the content should fit this panel
+                translateContent(0, 0);
+                content.setScaleX(1);
+                content.setScaleY(1);
+
+            } else {
+
+                content.setScaleX(computedScale);
+                content.setScaleY(computedScale);
+
+
+                // This computes the translation needed so the zoom is performed at the mouse positioning location
+                Bounds bounds = content.getBoundsInParent(); //content.localToScene(content.getBoundsInLocal());
+                double f = (computedScale / currentScale) - 1;
+
+                if(bounds.getMinX() > 0) {
+                    pivotX = 0;
+                }
+
+                double dx = (pivotX - (bounds.getWidth() / 2 + bounds.getMinX()));
+                double dy = (pivotY - (bounds.getHeight() / 2 + bounds.getMinY()));
+
+                translateContent(content.getTranslateX() - f * dx, content.getTranslateY() - f * dy);
+
+                System.out.println(content.getBoundsInParent());
+            }
+
+            scaleFactorProperty.setValue(computedScale);
+
+        }
+
+    }
+
+    private void translateContent(double translateX, double translateY) {
+        // If the current scale is 1, then the content should fit the panel and no translation should
+        // be performed/needed. Note that we always scale X and Y together.
+        if(content.getScaleX() == 1) return;
+
+        content.setTranslateX(translateX);
+        content.setTranslateY(translateY);
+    }
+
+    private void enableClipping() {
+        final Rectangle region = new Rectangle();
+        this.widthProperty().addListener((observableValue, oldValue, newValue) -> {
+            region.setWidth(newValue.doubleValue());
+            setClip(region);
+        });
+
+        this.heightProperty().addListener((observableValue, oldValue, newValue) -> {
+            region.setHeight(newValue.doubleValue());
+            setClip(region);
+        });
     }
 
     /**
@@ -170,93 +264,6 @@ public class ContentZoomPane extends BorderPane {
         }
 
         return value;
-    }
-
-    /**
-     * Binds the necessary properties to update the clipping area.
-     */
-    private void enableResizeListener() {
-        this.widthProperty().addListener((observableValue, oldValue, newValue) -> clipArea());
-        this.heightProperty().addListener((observableValue, oldValue, newValue) -> clipArea());
-    }
-
-    /**
-     * Processes mouse scroll-wheel and right-click drags to achieve the intended purposes.
-     */
-    private void enablePanAndZoom() {
-
-        setOnScroll((ScrollEvent event) -> {
-
-            double direction = event.getDeltaY() >= 0 ? 1 : -1;
-
-            double currentScale = scaleFactorProperty.getValue();
-            double computedScale = currentScale + direction * deltaScaleFactor;
-
-            computedScale = boundValue(computedScale, minScaleFactor, maxScaleFactor);
-
-            if (currentScale != computedScale) {
-
-                content.setScaleX(computedScale);
-                content.setScaleY(computedScale);
-
-                if (computedScale == 1) {
-                    content.setTranslateX(-getTranslateX());
-                    content.setTranslateY(-getTranslateY());
-                } else {
-
-                    Bounds bounds = content.localToScene(content.getBoundsInLocal());
-                    double f = (computedScale / currentScale) - 1;
-                    double dx = (event.getX() - (bounds.getWidth() / 2 + bounds.getMinX()));
-                    double dy = (event.getY() - (bounds.getHeight() / 2 + bounds.getMinY()));
-
-                    setContentPivot(f * dx, f * dy);
-
-                    clipArea();
-                }
-                scaleFactorProperty.setValue(computedScale);
-
-            }
-            //do not propagate event
-            event.consume();
-        });
-
-        final DragContext sceneDragContext = new DragContext();
-
-        setOnMousePressed((MouseEvent event) -> {
-
-            if (event.isSecondaryButtonDown()) {
-                getScene().setCursor(Cursor.MOVE);
-
-                sceneDragContext.mouseAnchorX = event.getX();
-                sceneDragContext.mouseAnchorY = event.getY();
-
-                sceneDragContext.translateAnchorX = content.getTranslateX();
-                sceneDragContext.translateAnchorY = content.getTranslateY();
-            }
-
-        });
-
-        setOnMouseReleased((MouseEvent event) -> getScene().setCursor(Cursor.DEFAULT));
-
-        setOnMouseDragged((MouseEvent event) -> {
-            if (event.isSecondaryButtonDown()) {
-                
-                content.setTranslateX(sceneDragContext.translateAnchorX + event.getX() - sceneDragContext.mouseAnchorX);
-                content.setTranslateY(sceneDragContext.translateAnchorY + event.getY() - sceneDragContext.mouseAnchorY);
-
-                clipArea();
-            }
-        });
-
-    }
-
-    /**
-     * Clips the necessary region. The underlying pane, when zoomed, will not extend the region of this pane.
-     */
-    private void clipArea() {
-        double height = getHeight();
-        double width = getWidth();
-        setClip(new Rectangle(width,height));
     }
 
     /**
