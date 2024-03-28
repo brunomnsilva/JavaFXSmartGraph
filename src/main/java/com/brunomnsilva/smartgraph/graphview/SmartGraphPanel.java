@@ -280,9 +280,9 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         this.automaticLayoutStrategy = layoutStrategy;
 
-        vertexNodes = new HashMap<>();
-        edgeNodes = new HashMap<>();
-        connections = new HashMap<>();
+        this.vertexNodes = new HashMap<>();
+        this.edgeNodes = new HashMap<>();
+        this.connections = new HashMap<>();
 
         //set stylesheet and class
         loadStylesheet(cssFile);
@@ -296,7 +296,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
             @Override
             public void handle(long now) {
-                runLayoutIteration();
+                runAutomaticLayout();
             }
         };
 
@@ -310,7 +310,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         });
     }
 
-    private synchronized void runLayoutIteration() {
+    private synchronized void runAutomaticLayout() {
         for (int i = 0; i < AUTOMATIC_LAYOUT_ITERATIONS; i++) {
             resetForces();
             computeForces();
