@@ -23,10 +23,6 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
-import com.brunomnsilva.smartgraph.graph.Graph;
-
-import java.util.Collection;
-
 /**
  * Contains the method that should be implemented when creating new vertex placement
  * strategies.
@@ -44,12 +40,9 @@ public interface SmartPlacementStrategy {
      * @param <E>       Generic type for element stored at edges.
      * @param width     Width of the area in which to place the vertices.
      * @param height    Height of the area in which to place the vertices.
-     * @param theGraph  Reference to the {@link Graph} containing the graph model.
-     *                  Can use methods to check for additional information
-     *                  pertaining the model.
-     * 
-     * @param vertices  Collection of {@link SmartGraphVertex} to place.
+     * @param smartGraphPanel  Reference to the {@link SmartGraphPanel} whose internal vertices are to be placed.
+     *                         The vertices to be placed can be obtained through {@link SmartGraphPanel#getSmartVertices()}
      *                  
      */
-    <V,E> void place(double width, double height, Graph<V,E> theGraph, Collection<? extends SmartGraphVertex<V>> vertices);
+    <V,E> void place(double width, double height, SmartGraphPanel<V, E> smartGraphPanel);
 }
