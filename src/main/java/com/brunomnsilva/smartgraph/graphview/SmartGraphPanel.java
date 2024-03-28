@@ -625,10 +625,10 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     private SmartGraphVertexNode<V> createVertex(Vertex<V> v, double x, double y) {
         // Read shape type from annotation or use default (circle)
-        String shapeType = inferVertexShapeType(v.element());
+        String shapeType = getVertexShapeTypeFor(v.element());
 
         // Read shape radius from annotation or use default
-        double shapeRadius = inferVertexShapeRadius(v.element());
+        double shapeRadius = getVertexShapeRadiusFor(v.element());
 
         return new SmartGraphVertexNode<>(v, x, y, shapeRadius, shapeType, graphProperties.getVertexAllowUserMove());
     }
@@ -867,14 +867,13 @@ public class SmartGraphPanel<V, E> extends Pane {
                     String text = getVertexLabelFor(v.element());
                     label.setText_( text );
                 }
-                
+
+                double radius = getVertexShapeRadiusFor(v.element());
+                vertexNode.setRadius(radius);
+
+                String shapeType = getVertexShapeTypeFor(v.element());
+                vertexNode.setShapeType(shapeType);
             }
-
-            double radius = inferVertexShapeRadius(v.element());
-            vertexNode.setRadius(radius);
-
-            String shapeType = inferVertexShapeType(v.element());
-            vertexNode.setShapeType(shapeType);
 
         });
         
@@ -938,7 +937,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         return edgeElement.toString();
     }
 
-    private String inferVertexShapeType(V vertexElement) {
+    protected final String getVertexShapeTypeFor(V vertexElement) {
 
         if(vertexElement == null) return graphProperties.getVertexShape();
 
@@ -962,7 +961,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         return graphProperties.getVertexShape();
     }
 
-    private double inferVertexShapeRadius(V vertexElement) {
+    protected final double getVertexShapeRadiusFor(V vertexElement) {
 
         if(vertexElement == null) return graphProperties.getVertexRadius();
 
@@ -976,7 +975,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 if (method.isAnnotationPresent(SmartRadiusSource.class)) {
                     method.setAccessible(true);
                     Object value = method.invoke(vertexElement);
-                    return Double.valueOf(value.toString());
+                    return Double.parseDouble(value.toString());
                 }
             }
         } catch (SecurityException | IllegalAccessException  | IllegalArgumentException | InvocationTargetException ex) {
