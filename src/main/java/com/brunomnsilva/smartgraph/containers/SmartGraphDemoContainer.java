@@ -43,17 +43,16 @@ import javafx.scene.text.Text;
  */
 public class SmartGraphDemoContainer extends BorderPane {
 
-    private final ContentZoomPane contentZoomPane;
+    private final ContentZoomScrollPane contentZoomPane;
 
     /**
      * Creates a new instance of SmartGraphDemoContainer pane.
-     * @param graphView the SmartGraphPanel instance to show and control
+     * @param graphView the SmartGraphPanel instance to show and control.
      */
     public SmartGraphDemoContainer(SmartGraphPanel<?,?> graphView) {
         if(graphView == null) throw new IllegalArgumentException("View cannot be null.");
 
-        setCenter(this.contentZoomPane = new ContentZoomPane(graphView));
-
+        setCenter( this.contentZoomPane = new ContentZoomScrollPane(graphView) );
         Background background = new Background(new BackgroundFill(Color.WHITE, null, null));
 
         setRight(createSidebar(this.contentZoomPane, background));
@@ -85,7 +84,7 @@ public class SmartGraphDemoContainer extends BorderPane {
         helpLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
         // Create a Tooltip with the help message
-        Tooltip tooltip = new Tooltip("Mouse wheel to zoom; left-click to drag and interact; right-click for panning.");
+        Tooltip tooltip = new Tooltip("Mouse wheel to zoom; left-click to drag and interact with nodes; drag area (any button) for panning.");
 
         // Attach the Tooltip to the Label
         Tooltip.install(helpLabel, tooltip);
@@ -106,7 +105,7 @@ public class SmartGraphDemoContainer extends BorderPane {
      * @param bg the background to apply
      * @return the side pane
      */
-    private Node createSidebar(ContentZoomPane zoomPane, Background bg) {
+    private Node createSidebar(ContentZoomScrollPane zoomPane, Background bg) {
         VBox paneSlider = new VBox(10);
         paneSlider.setAlignment(Pos.CENTER);
         paneSlider.setPadding(new Insets(10));
@@ -115,7 +114,7 @@ public class SmartGraphDemoContainer extends BorderPane {
 
         /* Create slider to control zoom level */
         Slider slider = new Slider(zoomPane.getMinScaleFactor(),
-                contentZoomPane.getMaxScaleFactor(), zoomPane.getMinScaleFactor());
+                zoomPane.getMaxScaleFactor(), zoomPane.getMinScaleFactor());
 
         slider.setOrientation(Orientation.VERTICAL);
         slider.setShowTickMarks(true);
