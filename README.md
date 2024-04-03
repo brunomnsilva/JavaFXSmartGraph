@@ -29,6 +29,12 @@ Although one full version number higher than the previous *stable* version (1.1.
 
 :warning: The only exception is the necessary use of `SmartStylableNode.setStyleInline(...)` instead of `SmartStylableNode.setStyle(...)` to correctly apply inline styles to nodes (vertices and edges). Css classes are set the same way as before.
 
+- (2.0.0-rc2) Several minor improvements, including: 
+  
+  - Example on how to use a background image for a vertex, see issue \#34.
+
+  - Styles applied to edges are propagated to their respective arrows, see issue \#31.
+  
 - (2.0.0-rc1) Shapes, sizes, providers, annotations and minor improvements:
 
   - Different shapes can be used to represent vertices, namely circles, stars and regular polygons (from triangles to dodecagons);
