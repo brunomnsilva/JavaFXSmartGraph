@@ -6,7 +6,7 @@ https://openjfx.io/javadoc/19/javafx.graphics/javafx/scene/doc-files/cssref.html
 
 And know that:
 - The drawing area itself is of type Pane, which is an extension of Region;
-- A vertex is of type Circle;
+- A vertex is of type Shape;
 - The edges are of type Line and CubicLine;
 - The labels are of type Text, and;
 - The arrows are of type Path.
