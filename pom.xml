@@ -169,7 +169,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.2.2</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -177,6 +177,11 @@
                         <goals>
                             <goal>sign</goal>
                         </goals>
+                        <!--  Values in settings.xml (local .m2 folder) -->
+                        <configuration>
+                            <keyname>${gpg.keyname}</keyname>
+                            <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
