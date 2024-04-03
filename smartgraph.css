@@ -44,21 +44,40 @@ This should help you understand which styles you can apply.
     -fx-opacity: 0.8;
 }
 
+.edge:hover {
+    -fx-stroke-width: 3;
+}
+
 .edge-label {
     -fx-font: normal 5pt "sans-serif";
 }
 
+/* Since version 2.0.0-rc2 this style is cumulatively applied to arrows, after the "edge" class.
+ * Use to, e.g., to remove the dash effect (that will not look good in arrows).
+ * Afterwards, styles applied to the edges are propagated to the respective arrows. You can, however, apply
+ * specific styles to the arrows programmatically. See example programs.
+ */
 .arrow {
-    -fx-stroke-width: 2;
-    -fx-stroke: #FF6D66;  
-    -fx-opacity: 0.8;
+    -fx-stroke-dash-array: none;
 }
 
-/* Custom vertex. You should revert any unwanted styling in the default element, 
-   style, since custom styles will be appended to the default style */
+/* Custom vertex class. If you use node.setStyleClass("myVertex"), any previous styling
+ * will be overwritten. If you use node.addStyleClass("myVertex"), the styles are applied
+ * cumulatively; in the later case, any properties not wanted from the default "vertex" class
+ * must be overwritten.
+ */
 .myVertex {
     -fx-stroke-width: 4;
     -fx-stroke: green;
     -fx-stroke-type: inside; /* you should keep this if using arrows */
     -fx-fill: yellowgreen;
+}
+
+/* Custom edge class. The same above logic applies to edges.
+ */
+.myEdge {
+    -fx-stroke-width: 2;
+    -fx-stroke: red;
+    -fx-opacity: 1;
+    -fx-fill: transparent; /* important to keep for curved edges */
 }

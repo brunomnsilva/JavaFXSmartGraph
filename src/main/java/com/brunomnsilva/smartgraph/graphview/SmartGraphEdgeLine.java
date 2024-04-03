@@ -81,21 +81,34 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     @Override
     public void setStyleInline(String css) {
         styleProxy.setStyleInline(css);
+        if(attachedArrow != null) {
+            attachedArrow.setStyleInline(css);
+        }
     }
 
     @Override
     public void setStyleClass(String cssClass) {
         styleProxy.setStyleClass(cssClass);
+        if(attachedArrow != null) {
+            attachedArrow.setStyleClass(cssClass);
+        }
     }
 
     @Override
     public void addStyleClass(String cssClass) {
         styleProxy.addStyleClass(cssClass);
+        if(attachedArrow != null) {
+            attachedArrow.addStyleClass(cssClass);
+        }
     }
 
     @Override
     public boolean removeStyleClass(String cssClass) {
-        return styleProxy.removeStyleClass(cssClass);
+        boolean result = styleProxy.removeStyleClass(cssClass);
+        if(attachedArrow != null) {
+            attachedArrow.removeStyleClass(cssClass);
+        }
+        return result;
     }
     
 

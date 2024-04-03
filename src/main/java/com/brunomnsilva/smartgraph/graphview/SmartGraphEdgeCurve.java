@@ -53,7 +53,11 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
 
     private static final double MAX_EDGE_CURVE_ANGLE = 45;
     private static final double MIN_EDGE_CURVE_ANGLE = 3;
+
+    /** Distance (in pixels) that establishes the maximum curve threshold */
     public static final int DISTANCE_THRESHOLD = 400;
+
+    /** Radius applied to loop curves */
     public static final int LOOP_RADIUS_FACTOR = 4;
 
     private final Edge<E, V> underlyingEdge;
@@ -110,24 +114,36 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         enableListeners();
     }
 
-    @Override
     public void setStyleInline(String css) {
         styleProxy.setStyleInline(css);
+        if(attachedArrow != null) {
+            attachedArrow.setStyleInline(css);
+        }
     }
 
     @Override
     public void setStyleClass(String cssClass) {
         styleProxy.setStyleClass(cssClass);
+        if(attachedArrow != null) {
+            attachedArrow.setStyleClass(cssClass);
+        }
     }
 
     @Override
     public void addStyleClass(String cssClass) {
         styleProxy.addStyleClass(cssClass);
+        if(attachedArrow != null) {
+            attachedArrow.addStyleClass(cssClass);
+        }
     }
 
     @Override
     public boolean removeStyleClass(String cssClass) {
-        return styleProxy.removeStyleClass(cssClass);
+        boolean result = styleProxy.removeStyleClass(cssClass);
+        if(attachedArrow != null) {
+            attachedArrow.removeStyleClass(cssClass);
+        }
+        return result;
     }
     
     private void update() {                
