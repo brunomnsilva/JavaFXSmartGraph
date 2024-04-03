@@ -83,8 +83,37 @@ public class SmartStyleProxy implements SmartStylableNode {
      * @param source the shape whose styles are to be copied
      * @param destination the shape that receives the copied styles
      */
-    public static void copyStyling(Shape source, Shape destination) {
+    protected static void copyStyling(Shape source, Shape destination) {
         destination.setStyle(source.getStyle());
         destination.getStyleClass().addAll(source.getStyleClass());
     }
+
+    /*
+
+    // This may be used in the future.
+
+    public void removeStyleInlineProperty(String cssProperty) {
+        // Get the current inline style
+        String currentStyle = client.getStyle();
+
+        // Split the style into individual property declarations
+        String[] styleProperties = currentStyle.split(";");
+
+        // Reconstruct the style without the -fx-fill property
+        StringBuilder newStyle = new StringBuilder();
+        for (String property : styleProperties) {
+            // Split each property into key-value pair
+            String[] keyValue = property.split(":");
+            if (keyValue.length == 2) {
+                // Check if the property is -fx-fill, if not, add it to the new style
+                String key = keyValue[0].trim();
+                if (!key.equals(cssProperty)) {
+                    newStyle.append(property).append(";");
+                }
+            }
+        }
+
+        // Apply the modified inline style
+        client.setStyle(newStyle.toString());
+    }*/
 }
