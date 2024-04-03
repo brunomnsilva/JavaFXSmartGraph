@@ -47,7 +47,7 @@ import javafx.scene.layout.Region;
  */
 public class ContentZoomScrollPane extends ScrollPane {
 
-    /** Minimum scale factor. Doesn't make sense to allow < 1 */
+    /** Minimum scale factor. Doesn't make sense to allow &lt; 1 */
     public static final double MIN_SCALE = 1;
 
     /** Maximum scale factor */
