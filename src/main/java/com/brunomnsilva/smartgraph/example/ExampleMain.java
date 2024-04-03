@@ -31,7 +31,6 @@ import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphProperties;
-import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -95,11 +94,20 @@ public class ExampleMain extends Application {
         graphView.setVertexPosition(prague, 824, 668);
         graphView.setVertexPosition(tokyo, 512, 200);
         graphView.setVertexPosition(newYork, 512, 400);
-        
-        graphView.getStylableLabel(tokyo).setStyleInline("-fx-stroke: green; -fx-fill: green;");
 
-        graphView.setVertexDoubleClickAction((SmartGraphVertex<City> graphVertex) -> {
-            graphVertex.addStyleClass("myVertex");
+        /*
+        * This illustrates setting an image to the background of a node.
+        * By default, the css class "vertex" is applied to all vertices.
+        * Note that all inline styles have
+        * priority over any properties set in css classes, even if they are applied cumulatively through
+        * .addStyleClass(class). However, inline styles can be overwritten by using .setStyleInline(css);
+        * also, when you use .setStyleClass(class), all previous styles will be discarded, including inline.
+        */
+        graphView.getStylableVertex(tokyo).setStyleInline("-fx-fill: url(\"file:squares.jpg\");");
+        //graphVertex.setStyleInline("-fx-fill: red;"); //this will overwrite the property later on
+
+        graphView.setVertexDoubleClickAction(graphVertex -> {
+            graphVertex.setStyleClass("myVertex");
         });
 
     }
