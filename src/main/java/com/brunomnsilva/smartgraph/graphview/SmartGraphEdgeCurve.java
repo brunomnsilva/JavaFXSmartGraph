@@ -26,6 +26,8 @@ package com.brunomnsilva.smartgraph.graphview;
 import com.brunomnsilva.smartgraph.graph.Edge;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Point2D;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -112,6 +114,8 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
 
         //update();
         enableListeners();
+
+        propagateHoverEffectToArrow();
     }
 
     public void setStyleInline(String css) {
@@ -276,5 +280,19 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     @Override
     public SmartStylableNode getStylableLabel() {
         return this.attachedLabel;
+    }
+
+    private void propagateHoverEffectToArrow() {
+        this.hoverProperty().addListener((observable, oldValue, newValue) -> {
+            if(attachedArrow != null && newValue) {
+
+                attachedArrow.fireEvent(new MouseEvent(MouseEvent.MOUSE_ENTERED, 0, 0, 0, 0, MouseButton.NONE, 0, true, true, true, true, true, true, true, true, true, true, null));
+
+            } else if(attachedArrow != null) { //newValue is false, hover ended
+
+                attachedArrow.fireEvent(new MouseEvent(MouseEvent.MOUSE_EXITED, 0, 0, 0, 0, MouseButton.NONE, 0, true, true, true, true, true, true, true, true, true, true, null));
+
+            }
+        });
     }
 }
