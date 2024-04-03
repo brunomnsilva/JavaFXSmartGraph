@@ -43,7 +43,7 @@ public interface SmartStylableNode {
      * But will be discarded if you use  {@link SmartStylableNode#setStyleClass(java.lang.String) }
      * <br/>
      * If you need to clear any previously set inline styles, use 
-     * <code>.setStyleInline(null)</code>
+     * <code>.setStyleInline(null)</code>. Not that this will clear all inline styles previously applied.
      * 
      * @param css styles
      */
