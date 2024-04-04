@@ -28,6 +28,8 @@ import com.brunomnsilva.smartgraph.graphview.SmartLabelSource;
 import com.brunomnsilva.smartgraph.graphview.SmartRadiusSource;
 import com.brunomnsilva.smartgraph.graphview.SmartShapeTypeSource;
 
+import java.util.Objects;
+
 /**
  * A simple class to represent a city in an example usage of the library.
  * @author brunomnsilva
@@ -37,7 +39,7 @@ public class City {
     private float population;
 
     /**
-     * City constructor
+     * Constructor for City instances.
      * @param name name of the city
      * @param population population (in millions)
      */
@@ -46,19 +48,35 @@ public class City {
         this.population = population;
     }
 
+    /**
+     * Returns the name of the city.
+     * @return the name of the city
+     */
     @SmartLabelSource
     public String getName() {
         return name;
     }
 
+    /**
+     * Setter for the name of the city.
+     * @param name the name of the city
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Returns the population of the city.
+     * @return the population of the city
+     */
     public float getPopulation() {
         return population;
     }
 
+    /**
+     * Setter for the population of the city.
+     * @param population the population of the city
+     */
     public void setPopulation(float population) {
         this.population = population;
     }
@@ -67,19 +85,27 @@ public class City {
     public String toString() {
         return "City{" + "name=" + name + ", population=" + population + '}';
     }
-   
+
+    /**
+     * Establishes the shape of the vertex to use when representing this city.
+     * @return the name of the shape, see {@link com.brunomnsilva.smartgraph.graphview.ShapeFactory}
+     */
     @SmartShapeTypeSource
     public String modelShape() {
-        if(this.name == "Tokyo") {
+        if(Objects.equals(this.name, "Tokyo")) {
             return "star";
         }
 
         return "circle";
     }
 
+    /**
+     * Returns the radius of the vertex when representing this city.
+     * @return the radius of the vertex
+     */
     @SmartRadiusSource
     public Double modelRadius() {
-        return convertToLogScale(Double.valueOf(String.valueOf(this.population)));
+        return convertToLogScale(Double.parseDouble(String.valueOf(this.population)));
     }
 
     private static double convertToLogScale(double value) {

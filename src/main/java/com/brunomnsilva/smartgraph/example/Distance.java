@@ -33,18 +33,34 @@ import com.brunomnsilva.smartgraph.graphview.SmartLabelSource;
 public class Distance {
     private int distance;
 
+    /**
+     * Constructor for Distance instances.
+     * @param distance the distance
+     */
     public Distance(int distance) {
         this.distance = distance;
     }
 
+    /**
+     * Returns the distance.
+     * @return the distance
+     */
     public int getDistance() {
         return distance;
     }
 
+    /**
+     * Setter for the distance.
+     * @param distance the distance.
+     */
     public void setDistance(int distance) {
         this.distance = distance;
     }
-    
+
+    /**
+     * Establishes the text representation in the graph.
+     * @return the text representation of the distance
+     */
     @SmartLabelSource
     public String getDisplayDistance() {
         /* If the above annotation is not present, the toString()
@@ -58,8 +74,4 @@ public class Distance {
         return "Distance{" + "distance=" + distance + '}';
     }
 
-    
-
-    
-    
 }
