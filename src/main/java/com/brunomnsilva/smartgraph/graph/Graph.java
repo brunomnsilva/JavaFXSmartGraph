@@ -79,6 +79,8 @@ public interface Graph<V, E> {
      * @param v     vertex for which to obtain the incident edges
      * 
      * @return      collection of edges
+     *
+     * @throws InvalidVertexException    if the vertex is invalid for the graph
      */
     Collection<Edge<E, V>> incidentEdges(Vertex<V> v)
             throws InvalidVertexException;
@@ -94,8 +96,8 @@ public interface Graph<V, E> {
      * @param e         edge connected to <code>v</code>
      * @return          opposite vertex along <code>e</code>
      * 
-     * @exception InvalidVertexException    if the vertex is invalid for the graph
-     * @exception InvalidEdgeException      if the edge is invalid for the graph
+     * @throws InvalidVertexException    if the vertex is invalid for the graph
+     * @throws InvalidEdgeException      if the edge is invalid for the graph
      */
     Vertex<V> opposite(Vertex<V> v, Edge<E, V> e)
             throws InvalidVertexException, InvalidEdgeException;
@@ -109,7 +111,7 @@ public interface Graph<V, E> {
      * 
      * @return      true if they are adjacent, false otherwise.
      * 
-     * @exception InvalidVertexException    if <code>u</code> or <code>v</code>
+     * @throws InvalidVertexException    if <code>u</code> or <code>v</code>
      *                                      are invalid vertices for the graph
      */
     boolean areAdjacent(Vertex<V> u, Vertex<V> v)
@@ -122,7 +124,7 @@ public interface Graph<V, E> {
      * 
      * @return              the reference of the newly created vertex
      * 
-     * @exception InvalidVertexException    if there already exists a vertex
+     * @throws InvalidVertexException    if there already exists a vertex
      *                                      containing <code>vElement</code>
      *                                      according to the equality of
      *                                      {@link Object#equals(java.lang.Object) }
@@ -142,10 +144,10 @@ public interface Graph<V, E> {
      * 
      * @return              the reference for the newly created edge
      * 
-     * @exception InvalidVertexException    if <code>u</code> or <code>v</code>
+     * @throws InvalidVertexException    if <code>u</code> or <code>v</code>
      *                                      are invalid vertices for the graph
      * 
-     * @exception InvalidEdgeException    if there already exists an edge
+     * @throws InvalidEdgeException    if there already exists an edge
      *                                      containing <code>edgeElement</code>
      *                                      according to the equality of
      *                                      {@link Object#equals(java.lang.Object) }
@@ -165,14 +167,14 @@ public interface Graph<V, E> {
      * 
      * @return              the reference for the newly created edge
      * 
-     * @exception InvalidVertexException    if <code>vElement1</code> or 
+     * @throws InvalidVertexException    if <code>vElement1</code> or 
      *                                      <code>vElement2</code>
      *                                      are not found in any vertices of the graph
      *                                      according to the equality of
      *                                      {@link Object#equals(java.lang.Object) }
      *                                      method.
      * 
-     * @exception InvalidEdgeException    if there already exists an edge
+     * @throws InvalidEdgeException    if there already exists an edge
      *                                      containing <code>edgeElement</code>
      *                                      according to the equality of
      *                                      {@link Object#equals(java.lang.Object) }
@@ -189,7 +191,7 @@ public interface Graph<V, E> {
      * 
      * @return      element stored at the removed vertex
      * 
-     * @exception InvalidVertexException if <code>v</code> is an invalid vertex for the graph
+     * @throws InvalidVertexException if <code>v</code> is an invalid vertex for the graph
      */
     V removeVertex(Vertex<V> v) throws InvalidVertexException;
 
@@ -200,7 +202,7 @@ public interface Graph<V, E> {
      * 
      * @return      element stored at the removed edge
      * 
-     * @exception InvalidEdgeException if <code>e</code> is an invalid edge for the graph.
+     * @throws InvalidEdgeException if <code>e</code> is an invalid edge for the graph.
      */
     E removeEdge(Edge<E, V> e) throws InvalidEdgeException;
     
@@ -213,7 +215,7 @@ public interface Graph<V, E> {
      * 
      * @return              previous element previously stored in <code>v</code>
      * 
-     * @exception InvalidVertexException    if the vertex <code>v</code> is invalid for the graph, or;
+     * @throws InvalidVertexException    if the vertex <code>v</code> is invalid for the graph, or;
      *                                      if there already exists another vertex containing
      *                                      the element <code>newElement</code>
      *                                      according to the equality of
@@ -231,7 +233,7 @@ public interface Graph<V, E> {
      * 
      * @return              previous element previously stored in <code>e</code>
      * 
-     * @exception InvalidVertexException    if the edge <code>e</code> is invalid for the graph, or;
+     * @throws InvalidEdgeException    if the edge <code>e</code> is invalid for the graph, or;
      *                                      if there already exists another edge containing
      *                                      the element <code>newElement</code>
      *                                      according to the equality of

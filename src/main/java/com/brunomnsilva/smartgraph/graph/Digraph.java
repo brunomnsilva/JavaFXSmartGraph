@@ -71,6 +71,8 @@ public interface Digraph<V, E> extends Graph<V, E> {
      * @param outbound     vertex for which to obtain the outbound edges
      * 
      * @return            collection of edges
+     *
+     * @throws InvalidVertexException  if <code>outbound</code> is an invalid vertex for the graph
      */
     Collection<Edge<E, V>> outboundEdges(Vertex<V> outbound)
             throws InvalidVertexException;
@@ -90,7 +92,7 @@ public interface Digraph<V, E> extends Graph<V, E> {
      * 
      * @return      true if they are adjacent, false otherwise.
      * 
-     * @exception InvalidVertexException    if <code>outbound</code> or 
+     * @throws InvalidVertexException    if <code>outbound</code> or 
      *                                      <code>inbound</code>
      *                                      are invalid vertices for the graph
      */
@@ -108,11 +110,11 @@ public interface Digraph<V, E> extends Graph<V, E> {
      * 
      * @return              the reference for the newly created edge
      * 
-     * @exception InvalidVertexException    if <code>outbound</code> or 
+     * @throws InvalidVertexException    if <code>outbound</code> or 
      *                                      <code>inbound</code>
      *                                      are invalid vertices for the graph
      * 
-     * @exception InvalidEdgeException    if there already exists an edge
+     * @throws InvalidEdgeException    if there already exists an edge
      *                                      containing <code>edgeElement</code>
      *                                      according to the equality of
      *                                      {@link Object#equals(java.lang.Object)} 
@@ -133,14 +135,14 @@ public interface Digraph<V, E> extends Graph<V, E> {
      * 
      * @return              the reference for the newly created edge
      * 
-     * @exception InvalidVertexException    if <code>outboundElement</code> or 
+     * @throws InvalidVertexException    if <code>outboundElement</code> or 
      *                                      <code>inboundElement</code>
      *                                      are not found in any vertices of the graph
      *                                      according to the equality of
      *                                      {@link Object#equals(java.lang.Object) }
      *                                      method.
      * 
-     * @exception InvalidEdgeException    if there already exists an edge
+     * @throws InvalidEdgeException    if there already exists an edge
      *                                      containing <code>edgeElement</code>
      *                                      according to the equality of
      *                                      {@link Object#equals(java.lang.Object) }

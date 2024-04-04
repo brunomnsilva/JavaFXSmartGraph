@@ -43,12 +43,14 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
     private final Map<V, Vertex<V>> vertices;
     private final Map<E, Edge<E, V>> edges;
 
+    /**
+     * Default constructor that initializes an empty digraph.
+     */
     public DigraphEdgeList() {
         this.vertices = new HashMap<>();
         this.edges = new HashMap<>();
     }
-    
-    
+
     @Override
     public synchronized Collection<Edge<E, V>> incidentEdges(Vertex<V> inbound) throws InvalidVertexException {
         checkVertex(inbound);
