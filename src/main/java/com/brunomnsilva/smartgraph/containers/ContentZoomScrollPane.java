@@ -242,8 +242,6 @@ public class ContentZoomScrollPane extends ScrollPane {
             setHvalue(h);
             setVvalue(v);
 
-            System.out.printf("H = %4.2f | V = %4.2f \n", h, v);
-
             scaleFactorProperty.set(scaleTotal);
         }
     }
