@@ -59,6 +59,8 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
 
     private boolean isDragging;
 
+    private boolean allowMove;
+
     /* Critical for performance, so we don't rely on the efficiency of the Graph.areAdjacent method */
     private final Set<SmartGraphVertexNode<T>> adjacentVertices;
 
@@ -119,6 +121,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         styleProxy = new SmartStyleProxy(this.shapeProxy.getShape());
         styleProxy.addStyleClass("vertex");
 
+        this.allowMove = allowMove;
         /* Enable dragging */
         if (allowMove) {
             enableDrag();
@@ -453,7 +456,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
                 // record a delta distance for the drag and drop operation.
                 dragDelta.x = getCenterX() - mouseEvent.getX();
                 dragDelta.y = getCenterY() - mouseEvent.getY();
-                getScene().setCursor(Cursor.MOVE);
+
                 isDragging = true;
 
                 mouseEvent.consume();
@@ -461,7 +464,10 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         });
 
         setOnMouseReleased((MouseEvent mouseEvent) -> {
-            getScene().setCursor(Cursor.HAND);
+            if(allowMove) { // necessary after a possible drag operation
+                setCursor(Cursor.HAND);
+            }
+
             isDragging = false;
 
             mouseEvent.consume();
@@ -469,6 +475,10 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
 
         setOnMouseDragged((MouseEvent mouseEvent) -> {
             if (mouseEvent.isPrimaryButtonDown()) {
+                if(allowMove && getCursor() != Cursor.MOVE) {
+                    setCursor(Cursor.MOVE);
+                }
+
                 double newX = mouseEvent.getX() + dragDelta.x;
                 double x = boundVertexNodeXPositioning(newX, 0, getParent().getLayoutBounds().getWidth());
                 setCenterX(x);
@@ -476,19 +486,20 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
                 double newY = mouseEvent.getY() + dragDelta.y;
                 double y = boundVertexNodeYPositioning(newY, 0, getParent().getLayoutBounds().getHeight());
                 setCenterY(y);
+
                 mouseEvent.consume();
             }
         });
 
         setOnMouseEntered((MouseEvent mouseEvent) -> {
-            if (!mouseEvent.isPrimaryButtonDown()) {
-                getScene().setCursor(Cursor.HAND);
+            if (allowMove && !mouseEvent.isPrimaryButtonDown()) {
+                setCursor(Cursor.HAND);
             }
         });
 
         setOnMouseExited((MouseEvent mouseEvent) -> {
-            if (!mouseEvent.isPrimaryButtonDown()) {
-                getScene().setCursor(Cursor.DEFAULT);
+            if (allowMove && !mouseEvent.isPrimaryButtonDown()) {
+                setCursor(Cursor.DEFAULT);
             }
         });
     }
