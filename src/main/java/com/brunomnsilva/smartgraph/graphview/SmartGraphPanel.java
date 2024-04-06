@@ -29,6 +29,7 @@ import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.beans.NamedArg;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.BoundingBox;
@@ -82,6 +83,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      */
     private final SmartGraphProperties graphProperties;
 
+    private static final String DEFAULT_CSS_FILE = "smartgraph.css";
     /*
     INTERNAL DATA STRUCTURE
      */
@@ -127,16 +129,19 @@ public class SmartGraphPanel<V, E> extends Pane {
      * <code>theGraph</code>, using default properties, default circular
      * placement of vertices, default automatic spring gravity layout strategy
      * and styling from smartgraph.css.
+     * @see Graph
+     * @see SmartGraphProperties
+     * @see SmartCircularSortedPlacementStrategy
+     * @see ForceDirectedSpringGravityLayoutStrategy
      *
      * @param theGraph underlying graph
-     *
-     * @see Graph
+     * @throws IllegalArgumentException if <code>theGraph</code> is <code>null</code>
      */
     public SmartGraphPanel(Graph<V, E> theGraph) {
         this(theGraph,
             new SmartGraphProperties(),
             new SmartCircularSortedPlacementStrategy(),
-            null,
+            new File(DEFAULT_CSS_FILE).toURI(),
             new ForceDirectedSpringGravityLayoutStrategy<>()
         );
     }
@@ -148,14 +153,14 @@ public class SmartGraphPanel<V, E> extends Pane {
      *
      * @param theGraph underlying graph
      * @param layoutStrategy the automatic layout strategy
-     * @see Graph
+     * @throws IllegalArgumentException if any of the arguments is <code>null</code>
      */
     public SmartGraphPanel(Graph<V, E> theGraph, ForceDirectedLayoutStrategy<V> layoutStrategy) {
         this(theGraph,
-                new SmartGraphProperties(),
-                new SmartCircularSortedPlacementStrategy(),
-                null,
-                layoutStrategy
+            new SmartGraphProperties(),
+            new SmartCircularSortedPlacementStrategy(),
+            new File(DEFAULT_CSS_FILE).toURI(),
+            layoutStrategy
         );
     }
 
@@ -166,12 +171,13 @@ public class SmartGraphPanel<V, E> extends Pane {
      *
      * @param theGraph underlying graph
      * @param properties custom properties
+     * @throws IllegalArgumentException if any of the arguments is <code>null</code>
      */
     public SmartGraphPanel(Graph<V, E> theGraph, SmartGraphProperties properties) {
         this(theGraph,
             properties,
             new SmartCircularSortedPlacementStrategy(),
-            null,
+            new File(DEFAULT_CSS_FILE).toURI(),
             new ForceDirectedSpringGravityLayoutStrategy<>()
         );
     }
@@ -183,13 +189,14 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @param theGraph underlying graph
      * @param placementStrategy placement strategy
      * @param layoutStrategy the automatic layout strategy
+     * @throws IllegalArgumentException if any of the arguments is <code>null</code>
      */
     public SmartGraphPanel(Graph<V, E> theGraph, SmartPlacementStrategy placementStrategy,
                            ForceDirectedLayoutStrategy<V> layoutStrategy) {
         this(theGraph,
             new SmartGraphProperties(),
             placementStrategy,
-            null,
+            new File(DEFAULT_CSS_FILE).toURI(),
             layoutStrategy
         );
     }
@@ -202,13 +209,14 @@ public class SmartGraphPanel<V, E> extends Pane {
      *
      * @param theGraph underlying graph
      * @param placementStrategy placement strategy, null for default
+     * @throws IllegalArgumentException if any of the arguments is <code>null</code>
      */
     public SmartGraphPanel(Graph<V, E> theGraph, SmartPlacementStrategy placementStrategy) {
         this(theGraph,
-                new SmartGraphProperties(),
-                placementStrategy,
-                null,
-                new ForceDirectedSpringGravityLayoutStrategy<>()
+            new SmartGraphProperties(),
+            placementStrategy,
+            new File(DEFAULT_CSS_FILE).toURI(),
+            new ForceDirectedSpringGravityLayoutStrategy<>()
         );
     }
 
@@ -221,6 +229,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @param theGraph underlying graph
      * @param properties custom properties, null for default
      * @param placementStrategy placement strategy, null for default
+     * @throws IllegalArgumentException if any of the arguments is <code>null</code>
      */
     public SmartGraphPanel(Graph<V, E> theGraph, SmartGraphProperties properties,
             SmartPlacementStrategy placementStrategy) {
@@ -228,7 +237,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         this(theGraph,
             properties,
             placementStrategy,
-            null,
+            new File(DEFAULT_CSS_FILE).toURI(),
             new ForceDirectedSpringGravityLayoutStrategy<>()
         );
     }
@@ -242,6 +251,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @param properties custom properties, null for default
      * @param placementStrategy placement strategy, null for default
      * @param cssFile alternative css file, instead of default 'smartgraph.css'
+     * @throws IllegalArgumentException if any of the arguments is <code>null</code>
      */
     public SmartGraphPanel(Graph<V, E> theGraph, SmartGraphProperties properties,
             SmartPlacementStrategy placementStrategy, URI cssFile) {
@@ -257,20 +267,34 @@ public class SmartGraphPanel<V, E> extends Pane {
     /**
      * Constructs a visualization of the graph referenced by
      * <code>theGraph</code>, using custom parameters.
+     * <br/>
+     * This is the only FXML-friendly constructor (there can only be one). If you need to instantiate the default
+     * parameters (besides <code>graph</code>), they are the following:
+     * <ul>
+     *     <li>properties - <code>new SmartGraphProperties()</code></li>
+     *     <li>placementStrategy - <code>new SmartCircularSortedPlacementStrategy()</code></li>
+     *     <li>cssFileURI - <code>new File("smartgraph.css").toURI()</code></li>
+     *     <li>automaticLayoutStrategy - <code>new ForceDirectedSpringGravityLayoutStrategy()</code></li>
+     * </ul>
      *
      * @param theGraph underlying graph
-     * @param properties custom properties, null for default
-     * @param placementStrategy placement strategy, null for default
+     * @param properties custom properties
+     * @param placementStrategy placement strategy
      * @param cssFile alternative css file, instead of default 'smartgraph.css'
      * @param layoutStrategy  the automatic layout strategy to use
+     * @throws IllegalArgumentException if any of the arguments is <code>null</code>
      */
-    public SmartGraphPanel(Graph<V, E> theGraph, SmartGraphProperties properties,
-                           SmartPlacementStrategy placementStrategy, URI cssFile,
-                           ForceDirectedLayoutStrategy<V> layoutStrategy) {
+    public SmartGraphPanel(@NamedArg("graph") Graph<V, E> theGraph,
+                           @NamedArg("properties") SmartGraphProperties properties,
+                           @NamedArg("placementStrategy") SmartPlacementStrategy placementStrategy,
+                           @NamedArg("cssFileURI") URI cssFile,
+                           @NamedArg("automaticLayoutStrategy") ForceDirectedLayoutStrategy<V> layoutStrategy) {
 
         Args.requireNotNull(theGraph, "theGraph");
         Args.requireNotNull(properties, "properties");
         Args.requireNotNull(placementStrategy, "placementStrategy");
+        Args.requireNotNull(cssFile, "cssFile");
+        Args.requireNotNull(layoutStrategy, "layoutStrategy");
 
         this.theGraph = theGraph;
         this.graphProperties = properties;
@@ -285,7 +309,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         this.connections = new HashMap<>();
 
         //set stylesheet and class
-        loadStylesheet(cssFile);
+        loadAndApplyStylesheet(cssFile);
 
         initNodes();
 
@@ -347,8 +371,8 @@ public class SmartGraphPanel<V, E> extends Pane {
                     this.heightProperty().doubleValue(),
                     this);
         } else {
-            //apply random placement
-            new SmartRandomPlacementStrategy().place(this.widthProperty().doubleValue(),
+            //apply circular placement, I think it's a better initial state for automatic layout
+            new SmartCircularSortedPlacementStrategy().place(this.widthProperty().doubleValue(),
                     this.heightProperty().doubleValue(),
                     this);
 
@@ -1247,20 +1271,14 @@ public class SmartGraphPanel<V, E> extends Pane {
     /**
      * Loads the stylesheet and applies the .graph class to this panel.
      */
-    private void loadStylesheet(URI cssFile) {
+    private void loadAndApplyStylesheet(URI cssFile) {
         try {
-            String css;
-            if( cssFile != null ) {
-                css = cssFile.toURL().toExternalForm();
-            } else {
-                File f = new File("smartgraph.css");
-                css = f.toURI().toURL().toExternalForm();
-            }
-
+            String css = cssFile.toURL().toExternalForm();
             getStylesheets().add(css);
             this.getStyleClass().add("graph");
         } catch (MalformedURLException ex) {
-            Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
+            String msg = String.format("Error loading stylesheet from URI = %s", cssFile);
+            Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, msg, ex);
         }
     }
 
