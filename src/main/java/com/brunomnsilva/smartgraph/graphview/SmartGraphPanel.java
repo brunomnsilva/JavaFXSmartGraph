@@ -99,8 +99,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     /*
     INTERACTION WITH VERTICES AND EDGES
      */
-    private Consumer<SmartGraphVertex<V>> vertexClickConsumer = null;
-    private Consumer<SmartGraphEdge<E, V>> edgeClickConsumer = null;
+    private Consumer<SmartGraphVertex<V>> vertexClickConsumer;
+    private Consumer<SmartGraphEdge<E, V>> edgeClickConsumer;
 
     /*
     OPTIONAL PROVIDERS FOR LABELS, RADII AND SHAPE TYPES OF NODES.
@@ -307,6 +307,11 @@ public class SmartGraphPanel<V, E> extends Pane {
         this.vertexNodes = new HashMap<>();
         this.edgeNodes = new HashMap<>();
         this.connections = new HashMap<>();
+
+        // consumers initially are not set. This initialization is not necessary, but we make it explicit
+        // for the sake of readability
+        this.vertexClickConsumer = null;
+        this.edgeClickConsumer = null;
 
         //set stylesheet and class
         loadAndApplyStylesheet(cssFile);
@@ -1293,10 +1298,6 @@ public class SmartGraphPanel<V, E> extends Pane {
         setOnMouseClicked((MouseEvent mouseEvent) -> {
             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                 if (mouseEvent.getClickCount() == 2) {
-                    //no need to continue otherwise
-                    if (vertexClickConsumer == null && edgeClickConsumer == null) {
-                        return;
-                    }
 
                     Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
                     if (node == null) {
@@ -1305,10 +1306,14 @@ public class SmartGraphPanel<V, E> extends Pane {
 
                     if (node instanceof SmartGraphVertex) {
                         SmartGraphVertex<V> v = (SmartGraphVertex<V>) node;
-                        vertexClickConsumer.accept(v);
+                        if(vertexClickConsumer != null) { // Only if the consumer is set
+                            vertexClickConsumer.accept(v);
+                        }
                     } else if (node instanceof SmartGraphEdge) {
                         SmartGraphEdge<E,V> e = (SmartGraphEdge<E,V>) node;
-                        edgeClickConsumer.accept(e);
+                        if(edgeClickConsumer != null) { // Only if the consumer is set
+                            edgeClickConsumer.accept(e);
+                        }
                     }
                 }
             }
