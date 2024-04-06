@@ -232,8 +232,15 @@ public class ContentZoomScrollPane extends ScrollPane {
             double newCenterX = centerPosX * scaleFactor;
             double newCenterY = centerPosY * scaleFactor;
 
-            setHvalue( (newCenterX - zoomCenter.getX()) / (contentSize.getWidth() * scaleFactor - viewPort.getWidth()) );
-            setVvalue( (newCenterY - zoomCenter.getY()) / (contentSize.getHeight() * scaleFactor - viewPort.getHeight()) );
+            double h = (newCenterX - zoomCenter.getX()) / (contentSize.getWidth() * scaleFactor - viewPort.getWidth());
+            double v = (newCenterY - zoomCenter.getY()) / (contentSize.getHeight() * scaleFactor - viewPort.getHeight());
+
+            // Check values to avoid scrollbars stuck when the new computed scroll values are NaN or Infinity.
+            // It seems that only NaN leads to this problem, but let's be safe.
+            if(Double.isInfinite(h) || Double.isNaN(h) || Double.isInfinite(v) || Double.isNaN(v) ) return;
+
+            setHvalue(h);
+            setVvalue(v);
 
             scaleFactorProperty.set(scaleTotal);
         }
