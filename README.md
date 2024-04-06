@@ -27,8 +27,6 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 
 ### What's new?
 
-This is a *release candidate* version, as it hasn't been thoroughly tested yet. Feedback is appreciated.
-
 Although one full version number higher than the previous *stable* version (1.1.0), existing applications are expected to work with this library version without significant changes.
 
 :warning: The only exception is the necessary use of `SmartStylableNode.setStyleInline(...)` instead of `SmartStylableNode.setStyle(...)` to correctly apply inline styles to nodes (vertices and edges). Css classes are set the same way as before.
