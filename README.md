@@ -15,9 +15,13 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 
 - Vertices can be freely moved, if the configuration allows it;
 
+- Can use different shapes to represent vertices;
+
 - The appearance of vertices and edges can are determined by a *properties* and a *css stylesheet* files;
 
-- The *styles* can be changed at *runtime*.
+- Can use *annotations* and *providers* to change some properties at runtime, e.g., shape and size of vertices;
+
+- The *styles* can be changed at *runtime* programmatically and based on click events. 
 
 ## Documentation
 
@@ -29,25 +33,7 @@ Although one full version number higher than the previous *stable* version (1.1.
 
 :warning: The only exception is the necessary use of `SmartStylableNode.setStyleInline(...)` instead of `SmartStylableNode.setStyle(...)` to correctly apply inline styles to nodes (vertices and edges). Css classes are set the same way as before.
 
-- (2.0.0-rc2) Several minor improvements, including: 
-  
-  - Example on how to use a background image for a vertex, see issue \#34.
-
-  - Styles applied to edges are propagated to their respective arrows, see issue \#31.
-  
-- (2.0.0-rc1) Shapes, sizes, providers, annotations and minor improvements:
-
-  - Different shapes can be used to represent vertices, namely circles, stars and regular polygons (from triangles to dodecagons);
-      - The default shape can be specified with the `vertex.shape` property in `smartgraph.properties`
-      - Can be set/changed at runtime through a `SmartShapeTypeProvider` or `SmartShapeTypeSource` annotation.
-
-  - The radius of the shape (enclosing circle) used to represent a vertex can be set/changed at runtime through a `SmartRadiusProvider` or `SmartRadiusSource` annotation.
-    
-  - Updated shapes and radii are only reflected in the visualization after calling `SmartGraphPanel.update()` or `SmartGraphPanel.updateAndWait()`.
-
-  - Improvements: 
-    - When dragging nodes, they will be kept within the panel's bounds.
-    - The look of curved edges has been improved.
+- (2.0.0) :tada: Minor fixes and **stable version** release.
 
 See the [wiki](https://github.com/brunomnsilva/JavaFXSmartGraph/wiki) for the complete changelist.
 
@@ -55,7 +41,7 @@ See the [wiki](https://github.com/brunomnsilva/JavaFXSmartGraph/wiki) for the co
 
 Binaries and dependency information for Maven, Gradle and others can be found at [http://search.maven.org](https://central.sonatype.com/search?q=g%3Acom.brunomnsilva++a%3Asmartgraph&smo=true).
 
-Example for Maven:
+Example for Maven, where `x.y.z` is the library version, e.g., `2.0.0`:
 
 ```xml
 <dependency>
