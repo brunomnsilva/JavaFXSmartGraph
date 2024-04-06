@@ -126,6 +126,81 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     /**
      * Constructs a visualization of the graph referenced by
+     * <code>theGraph</code>, using custom parameters.
+     * <br/>
+     * This is the only FXML-friendly constructor (there can only be one). If you need to instantiate the default
+     * parameters (besides <code>graph</code>), they are the following:
+     * <ul>
+     *     <li>properties - <code>new SmartGraphProperties()</code></li>
+     *     <li>placementStrategy - <code>new SmartCircularSortedPlacementStrategy()</code></li>
+     *     <li>cssFileURI - <code>new File("smartgraph.css").toURI()</code></li>
+     *     <li>automaticLayoutStrategy - <code>new ForceDirectedSpringGravityLayoutStrategy()</code></li>
+     * </ul>
+     *
+     * @param theGraph underlying graph
+     * @param properties custom properties
+     * @param placementStrategy placement strategy
+     * @param cssFile alternative css file, instead of default 'smartgraph.css'
+     * @param layoutStrategy  the automatic layout strategy to use
+     * @throws IllegalArgumentException if any of the arguments is <code>null</code>
+     */
+    public SmartGraphPanel(@NamedArg("graph") Graph<V, E> theGraph,
+                           @NamedArg("properties") SmartGraphProperties properties,
+                           @NamedArg("placementStrategy") SmartPlacementStrategy placementStrategy,
+                           @NamedArg("cssFileURI") URI cssFile,
+                           @NamedArg("automaticLayoutStrategy") ForceDirectedLayoutStrategy<V> layoutStrategy) {
+
+        Args.requireNotNull(theGraph, "theGraph");
+        Args.requireNotNull(properties, "properties");
+        Args.requireNotNull(placementStrategy, "placementStrategy");
+        Args.requireNotNull(cssFile, "cssFile");
+        Args.requireNotNull(layoutStrategy, "layoutStrategy");
+
+        this.theGraph = theGraph;
+        this.graphProperties = properties;
+        this.placementStrategy = placementStrategy;
+
+        this.edgesWithArrows = this.graphProperties.getUseEdgeArrow();
+
+        this.automaticLayoutStrategy = layoutStrategy;
+
+        this.vertexNodes = new HashMap<>();
+        this.edgeNodes = new HashMap<>();
+        this.connections = new HashMap<>();
+
+        // consumers initially are not set. This initialization is not necessary, but we make it explicit
+        // for the sake of readability
+        this.vertexClickConsumer = null;
+        this.edgeClickConsumer = null;
+
+        //set stylesheet and class
+        loadAndApplyStylesheet(cssFile);
+
+        initNodes();
+
+        enableDoubleClickListener();
+
+        //automatic layout initializations
+        timer = new AnimationTimer() {
+
+            @Override
+            public void handle(long now) {
+                runAutomaticLayout();
+            }
+        };
+
+        this.automaticLayoutProperty = new SimpleBooleanProperty(false);
+        this.automaticLayoutProperty.addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                timer.start();
+            } else {
+                timer.stop();
+            }
+        });
+    }
+
+    /**
+     * Constructs a visualization of the graph referenced by
      * <code>theGraph</code>, using default properties, default circular
      * placement of vertices, default automatic spring gravity layout strategy
      * and styling from smartgraph.css.
@@ -264,80 +339,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         );
     }
 
-    /**
-     * Constructs a visualization of the graph referenced by
-     * <code>theGraph</code>, using custom parameters.
-     * <br/>
-     * This is the only FXML-friendly constructor (there can only be one). If you need to instantiate the default
-     * parameters (besides <code>graph</code>), they are the following:
-     * <ul>
-     *     <li>properties - <code>new SmartGraphProperties()</code></li>
-     *     <li>placementStrategy - <code>new SmartCircularSortedPlacementStrategy()</code></li>
-     *     <li>cssFileURI - <code>new File("smartgraph.css").toURI()</code></li>
-     *     <li>automaticLayoutStrategy - <code>new ForceDirectedSpringGravityLayoutStrategy()</code></li>
-     * </ul>
-     *
-     * @param theGraph underlying graph
-     * @param properties custom properties
-     * @param placementStrategy placement strategy
-     * @param cssFile alternative css file, instead of default 'smartgraph.css'
-     * @param layoutStrategy  the automatic layout strategy to use
-     * @throws IllegalArgumentException if any of the arguments is <code>null</code>
-     */
-    public SmartGraphPanel(@NamedArg("graph") Graph<V, E> theGraph,
-                           @NamedArg("properties") SmartGraphProperties properties,
-                           @NamedArg("placementStrategy") SmartPlacementStrategy placementStrategy,
-                           @NamedArg("cssFileURI") URI cssFile,
-                           @NamedArg("automaticLayoutStrategy") ForceDirectedLayoutStrategy<V> layoutStrategy) {
 
-        Args.requireNotNull(theGraph, "theGraph");
-        Args.requireNotNull(properties, "properties");
-        Args.requireNotNull(placementStrategy, "placementStrategy");
-        Args.requireNotNull(cssFile, "cssFile");
-        Args.requireNotNull(layoutStrategy, "layoutStrategy");
-
-        this.theGraph = theGraph;
-        this.graphProperties = properties;
-        this.placementStrategy = placementStrategy;
-
-        this.edgesWithArrows = this.graphProperties.getUseEdgeArrow();
-
-        this.automaticLayoutStrategy = layoutStrategy;
-
-        this.vertexNodes = new HashMap<>();
-        this.edgeNodes = new HashMap<>();
-        this.connections = new HashMap<>();
-
-        // consumers initially are not set. This initialization is not necessary, but we make it explicit
-        // for the sake of readability
-        this.vertexClickConsumer = null;
-        this.edgeClickConsumer = null;
-
-        //set stylesheet and class
-        loadAndApplyStylesheet(cssFile);
-
-        initNodes();
-
-        enableDoubleClickListener();
-
-        //automatic layout initializations
-        timer = new AnimationTimer() {
-
-            @Override
-            public void handle(long now) {
-                runAutomaticLayout();
-            }
-        };
-
-        this.automaticLayoutProperty = new SimpleBooleanProperty(false);
-        this.automaticLayoutProperty.addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                timer.start();
-            } else {
-                timer.stop();
-            }
-        });
-    }
 
     private synchronized void runAutomaticLayout() {
         for (int i = 0; i < AUTOMATIC_LAYOUT_ITERATIONS; i++) {
