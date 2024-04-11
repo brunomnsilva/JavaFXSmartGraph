@@ -17,7 +17,7 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 
 - Can use different shapes to represent vertices;
 
-- The appearance of vertices and edges can are determined by a *properties* and a *css stylesheet* files;
+- The default appearance of vertices and edges are determined by a *properties* and a *css stylesheet* files;
 
 - Can use *annotations* and *providers* to change some properties at runtime, e.g., shape and size of vertices;
 
