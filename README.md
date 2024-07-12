@@ -328,7 +328,11 @@ graphView.getStylableVertex("A").setStyleClass("myVertex");
 
 You can submit a pull request. Pull requests should adhere to the existing naming and *Javadoc* conventions.
 
-:star: Also, if you use the library in your project, you can send me a message and I can showcase it in this page.
+## Projects that use this library
+
+- [Word Automata](https://github.com/lorenzodbr/word-automata) - *"... a graphical tool that allows you to create and simulate automata that recognize words. You can add states, transitions, and set the initial and final states. The tool will then allow you to simulate the automaton on a given word, showing you the path that the automaton takes."*
+
+:star: If you use the library in your project, you can send me a message and I can showcase it in this page.
 
 ## License
 
