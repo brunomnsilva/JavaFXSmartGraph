@@ -76,6 +76,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
     private SmartLabel attachedLabel;
+    private javafx.scene.shape.Rectangle attachedLabelRect;
 
     /* Shape proxy and related properties used to represent the underlying vertex.
     *  We will allow to change the shape at runtime, but other elements (e.g., lines/arrows)
@@ -402,11 +403,21 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     }
 
     @Override
-    public void attachLabel(SmartLabel label) {
+    public void attachLabel(SmartLabel label)
+    {
         this.attachedLabel = label;
 
-        label.xProperty().bind(centerXProperty().subtract(Bindings.divide( label.layoutWidthProperty(), 2.0)));
-        label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), label.layoutHeightProperty())));
+        label.xProperty().bind(centerXProperty().subtract(Bindings.divide(label.layoutWidthProperty(), 2.0)));
+        label.yProperty().bind(centerYProperty().add(Bindings.add(shapeProxy.radiusProperty(), label.layoutHeightProperty())));
+        //label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), LABEL_Y_OFFSET)));
+    }
+    public void attachLabelRect(javafx.scene.shape.Rectangle rect) {
+        this.attachedLabelRect = rect;
+
+        rect.xProperty().bind(centerXProperty().subtract(Bindings.divide( attachedLabel.layoutWidthProperty(), 2.0)));
+        rect.yProperty().bind(centerYProperty().add(Bindings.add(shapeProxy.radiusProperty(), Bindings.subtract(attachedLabel.layoutHeightProperty(),attachedLabel.baselineOffsetProperty()))));
+        rect.widthProperty().bind(attachedLabel.layoutWidthProperty());
+        rect.heightProperty().bind(attachedLabel.layoutHeightProperty());
         //label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), LABEL_Y_OFFSET)));
     }
 

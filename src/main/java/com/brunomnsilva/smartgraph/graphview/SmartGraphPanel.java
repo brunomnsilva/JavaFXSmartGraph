@@ -713,9 +713,14 @@ public class SmartGraphPanel<V, E> extends Pane {
             SmartLabel label = new SmartLabel(labelText);
             label.addStyleClass("vertex-label");
 
+            javafx.scene.shape.Rectangle rect=new javafx.scene.shape.Rectangle(0,0,100,100);
+            rect.getStyleClass().add("vertex-label-rect");
+
+            this.getChildren().add(rect);
             this.getChildren().add(label);
 
             v.attachLabel(label);
+            v.attachLabelRect(rect);
         }
     }
 
