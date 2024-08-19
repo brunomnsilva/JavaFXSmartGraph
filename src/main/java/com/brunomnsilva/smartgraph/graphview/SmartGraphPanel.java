@@ -652,6 +652,11 @@ public class SmartGraphPanel<V, E> extends Pane {
 
             addVertex(v);
         }
+        for (Vertex<V> vertex : vertexNodes.keySet()) {
+            SmartGraphVertexNode<V> v = vertexNodes.get(vertex);
+
+            addVertexLabels(v);
+        }
     }
 
     private SmartGraphVertexNode<V> createVertex(Vertex<V> v, double x, double y) {
@@ -693,18 +698,29 @@ public class SmartGraphPanel<V, E> extends Pane {
         this.getChildren().add(v);
 
         String labelText = getVertexLabelFor(v.getUnderlyingVertex().element());
-        
-        if (graphProperties.getUseVertexTooltip()) {            
+
+        if (graphProperties.getUseVertexTooltip()) {
             Tooltip t = new Tooltip(labelText);
             Tooltip.install(v, t);
         }
 
+    }
+    private void addVertexLabels(SmartGraphVertexNode<V> v) {
+
+        String labelText = getVertexLabelFor(v.getUnderlyingVertex().element());
+
         if (graphProperties.getUseVertexLabel()) {
             SmartLabel label = new SmartLabel(labelText);
-
             label.addStyleClass("vertex-label");
+
+            javafx.scene.shape.Rectangle rect=new javafx.scene.shape.Rectangle(0,0,100,100);
+            rect.getStyleClass().add("vertex-label-rect");
+
+            this.getChildren().add(rect);
             this.getChildren().add(label);
+
             v.attachLabel(label);
+            v.attachLabelRect(rect);
         }
     }
 
@@ -826,6 +842,9 @@ public class SmartGraphPanel<V, E> extends Pane {
         if (newVertices != null) {
             for (SmartGraphVertexNode<V> v : newVertices) {
                 addVertex(v);
+            }
+            for (SmartGraphVertexNode<V> v : newVertices) {
+                addVertexLabels(v);
             }
         }
 
