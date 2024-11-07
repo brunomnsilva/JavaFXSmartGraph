@@ -332,6 +332,8 @@ You can submit a pull request. Pull requests should adhere to the existing namin
 
 - [Word Automata](https://github.com/lorenzodbr/word-automata) - *"... a graphical tool that allows you to create and simulate automata that recognize words. You can add states, transitions, and set the initial and final states. The tool will then allow you to simulate the automaton on a given word, showing you the path that the automaton takes."*
 
+- [PathGraph](https://github.com/vittorioPiotti/PathGraph-JavaFX) - *"Path Graph is a library with all the tools necessary to create and work both path and walk graphs in a stable and simple way."*
+  
 :star: If you use the library in your project, you can send me a message and I can showcase it in this page.
 
 ## License
