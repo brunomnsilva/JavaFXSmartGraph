@@ -21,7 +21,7 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 
 - Can use *annotations* and *providers* to change some properties at runtime, e.g., shape and size of vertices;
 
-- The *styles* can be changed at *runtime* programmatically and based on click events. 
+- The *styles* can be changed at *runtime* programmatically and based on click events.
 
 ## Documentation
 
@@ -43,7 +43,7 @@ Example for Maven, where `x.y.z` is the library version, e.g., `2.0.0`:
 
 ```xml
 <dependency>
-    <groupId>com.brunomnsilva</groupId>
+<groupId>com.brunomnsilva</groupId>
     <artifactId>smartgraph</artifactId>
     <version>x.y.z</version>
 </dependency>
@@ -55,7 +55,7 @@ You can also find in the [releases section](https://github.com/brunomnsilva/Java
 
 #### Accelerated graphics
 
-Since the visualization is computation-intensive during automatic force-directed layout of vertices, you should make sure that the graphics card is used to offload much of the work. 
+Since the visualization is computation-intensive during automatic force-directed layout of vertices, you should make sure that the graphics card is used to offload much of the work.
 
 In windows the JVM machine should automatically take care of that, while in Linux you must configure it manually with the `-Dsun.java2d.opengl=True` flag.
 
@@ -177,7 +177,7 @@ Please note that we use the property values `edge.arrow = true` and `vertex.labe
 Given it's a small graph, we increased the `layout.repulsive-force = 25000`. You should use higher values for smaller graphs; inversely, use smaller values for larger graphs.
 
 > See Configuration and Styling section.
-> 
+>
 #### Sample Digraph circular sorted placement (static)
 
 ![digraph circular placement](assets/digraph_circle_placement.png)
@@ -194,9 +194,9 @@ When you make changes to the graph, you must update the visualization by calling
 // Any number of changes to the graph
 g.removeVertex("A");
 //...
-        
+
 // Update the visualization
-graphView.update();
+        graphView.update();
 ```
 
 this will add/remove the corresponding vertices and edges from the visualization. If a new vertex is connected to an existing one, it will be initially placed in the vicinity of the latter. Otherwise, if it is an *isolated* vertex it will be placed in the center of the plot.
@@ -259,7 +259,7 @@ layout.attraction-scale = 10
 
 ### SmartGraph CSS styling
 
-:warning: The `smartgraph.css` file must exist in you project folder. 
+:warning: The `smartgraph.css` file must exist in you project folder.
 For example, if all your vertices turn out black, this is because this file cannot be found.
 
 You can set the default CSS styles in the `smartgraph.css` file; see below.
@@ -331,6 +331,8 @@ You can submit a pull request. Pull requests should adhere to the existing namin
 ## Projects that use this library
 
 - [Word Automata](https://github.com/lorenzodbr/word-automata) - *"... a graphical tool that allows you to create and simulate automata that recognize words. You can add states, transitions, and set the initial and final states. The tool will then allow you to simulate the automaton on a given word, showing you the path that the automaton takes."*
+
+- [PathGraph](https://github.com/vittorioPiotti/PathGraph-JavaFX) - *"Path Graph is a library with all the tools necessary to create and work both path and walk graphs in a stable and simple way."*
 
 :star: If you use the library in your project, you can send me a message and I can showcase it in this page.
 
