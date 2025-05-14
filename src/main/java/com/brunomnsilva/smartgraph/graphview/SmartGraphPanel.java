@@ -661,7 +661,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         // Read shape radius from annotation or use default
         double shapeRadius = getVertexShapeRadiusFor(v.element());
 
-        return new SmartGraphVertexNode<>(v, x, y, shapeRadius, shapeType, graphProperties.getVertexAllowUserMove());
+        return new SmartGraphVertexNode<>(this, v, x, y, shapeRadius, shapeType, graphProperties.getVertexAllowUserMove());
     }
 
     private SmartGraphEdgeBase<E,V> createEdge(Edge<E, V> edge, SmartGraphVertexNode<V> graphVertexInbound, SmartGraphVertexNode<V> graphVertexOutbound) {
@@ -734,7 +734,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         List<SmartGraphVertexNode<V>> newVertices = null;
 
-        Bounds bounds = getPlotBounds();
+        Bounds bounds = getDisplayedVerticesBoundingBox();
         double mx = bounds.getMinX() + bounds.getWidth() / 2.0;
         double my = bounds.getMinY() + bounds.getHeight() / 2.0;
 
@@ -1015,13 +1015,39 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         return graphProperties.getVertexRadius();
     }
+
+    /*protected final List<SmartGraphEdgeBase> getConnectedEdgesFor(SmartGraphVertexNode<V> node) {
+        if(node == null) throw new IllegalArgumentException("node cannot be null."); // defensive
+
+        Vertex<V> underlyingVertex = node.getUnderlyingVertex();
+
+        // Get model's connected edges
+        List<Edge<E,V>> edges = new ArrayList<>();
+
+        edges.addAll( theGraph.incidentEdges(underlyingVertex) );
+
+        if(theGraph instanceof Digraph) {
+            edges.addAll( ((Digraph<V,E>)theGraph).outboundEdges(underlyingVertex) );
+        }
+
+        // Get the corresponding smart edges
+        List<SmartGraphEdgeBase> connected = new ArrayList<>();
+
+        for (Edge<E, V> edge : edges) {
+            connected.add ( edgeNodes.get(edge) );
+        }
+
+        return connected;
+    }*/
     
     /**
      * Computes the bounding box from all displayed vertices.
      *
      * @return bounding box
      */
-    private Bounds getPlotBounds() {
+    private Bounds getDisplayedVerticesBoundingBox() {
+        // TODO: include edges ?
+
         double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
                 maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
         
