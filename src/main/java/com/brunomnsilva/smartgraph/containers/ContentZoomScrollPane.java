@@ -64,18 +64,8 @@ public class ContentZoomScrollPane extends ScrollPane {
     // Content preferred bounds, if set.
     private PreferredSize contentPreferredSize;
 
-    /**
-     * Creates a new instance of ContentZoomScrollPane.
-     * <br/>
-     * The minimum scale factor is 1. So <code>maxScaleFactor</code> should be &gt; 1 and
-     * <code>deltaScaleFactor</code> should be a value such that <code>maxScaleFactor</code> is a multiple
-     * of it, so the scale is utilized fully.
-     *
-     * @param content pane to zoom and pan.
-     * @param maxScaleFactor maximum scale factor for zoom, e.g., 5x.
-     * @param deltaScaleFactor delta scaling factor applied when zooming with the mouse, e.g., steps of 0.25x.
-     */
-    public ContentZoomScrollPane(Pane content, double maxScaleFactor, double deltaScaleFactor) {
+    public ContentZoomScrollPane(Pane content, double maxScaleFactor, double deltaScaleFactor,
+                                 boolean enableZoom, boolean enablePanning, boolean enableScrollbars) {
         if (content == null)
             throw new IllegalArgumentException("Content cannot be null.");
         if (maxScaleFactor < 1)
@@ -96,9 +86,32 @@ public class ContentZoomScrollPane extends ScrollPane {
 
         this.scaleFactorProperty  = new ReadOnlyDoubleWrapper(minScaleFactor);
 
+        // Always set
         enableContentResize();
-        enableZoom();
-        enablePanning();
+
+        // Optional
+        if(enableZoom) {
+            enableZoom();
+        }
+        if(enablePanning) {
+            enablePanning();
+        }
+
+        enableScrollbars(enableScrollbars);
+    }
+    /**
+     * Creates a new instance of ContentZoomScrollPane.
+     * <br/>
+     * The minimum scale factor is 1. So <code>maxScaleFactor</code> should be &gt; 1 and
+     * <code>deltaScaleFactor</code> should be a value such that <code>maxScaleFactor</code> is a multiple
+     * of it, so the scale is utilized fully.
+     *
+     * @param content pane to zoom and pan.
+     * @param maxScaleFactor maximum scale factor for zoom, e.g., 5x.
+     * @param deltaScaleFactor delta scaling factor applied when zooming with the mouse, e.g., steps of 0.25x.
+     */
+    public ContentZoomScrollPane(Pane content, double maxScaleFactor, double deltaScaleFactor) {
+        this(content, maxScaleFactor, deltaScaleFactor, true, true, false);
     }
 
     /**
@@ -148,7 +161,6 @@ public class ContentZoomScrollPane extends ScrollPane {
     }
 
     private void enableContentResize() {
-
         // Get the content's preferred size values and, if set, respect them.
         // Otherwise, set the size of the content to match the size of the scrollpane's viewport.
 
@@ -173,6 +185,16 @@ public class ContentZoomScrollPane extends ScrollPane {
         setPannable(true);
     }
 
+    private void enableScrollbars(boolean enable) {
+        if(enable) {
+            setVbarPolicy(ScrollBarPolicy.ALWAYS);
+            setHbarPolicy(ScrollBarPolicy.ALWAYS);
+        } else {
+            setVbarPolicy(ScrollBarPolicy.NEVER);
+            setHbarPolicy(ScrollBarPolicy.NEVER);
+        }
+    }
+
     /*
      * Method to add zoom behavior to the ScrollPane
      */
@@ -185,9 +207,6 @@ public class ContentZoomScrollPane extends ScrollPane {
             }
             event.consume();
         });
-
-        setVbarPolicy(ScrollBarPolicy.NEVER);
-        setHbarPolicy(ScrollBarPolicy.NEVER);
     }
 
     /*
