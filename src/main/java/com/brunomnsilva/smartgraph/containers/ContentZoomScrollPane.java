@@ -33,6 +33,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+import javafx.scene.shape.Rectangle;
 
 /**
  * This class provides zooming and panning for any JavaFX Pane.
@@ -81,11 +82,12 @@ public class ContentZoomScrollPane extends ScrollPane {
      * @param enableZoom whether zooming is enabled via mouse scroll.
      * @param enablePanning whether panning is enabled via mouse drag.
      * @param enableScrollbars whether scrollbars are shown.
+     * @param enableClipping whether the panel clips overflows of its contents.
      * @throws IllegalArgumentException if {@code content} is {@code null}, {@code maxScaleFactor} < 1,
      *         or {@code deltaScaleFactor} ≤ 0.
      */
     public ContentZoomScrollPane(Pane content, double maxScaleFactor, double deltaScaleFactor,
-                                 boolean enableZoom, boolean enablePanning, boolean enableScrollbars) {
+                                 boolean enableZoom, boolean enablePanning, boolean enableScrollbars, boolean enableClipping) {
         if (content == null)
             throw new IllegalArgumentException("Content cannot be null.");
         if (maxScaleFactor < 1)
@@ -118,17 +120,22 @@ public class ContentZoomScrollPane extends ScrollPane {
         }
 
         enableScrollbars(enableScrollbars);
+
+        if(enableClipping) {
+            enableClipping();
+        }
     }
 
     /**
      * Creates a new {@code ContentZoomScrollPane} with zooming and panning enabled by default,
-     * and scrollbars disabled.
+     * scrollbars disabled and clipping enabled.
      * <p>
      * This is a convenience constructor that sets:
      * <ul>
      *   <li>{@code enableZoom = true}</li>
      *   <li>{@code enablePanning = true}</li>
      *   <li>{@code enableScrollbars = false}</li>
+     *   <li>{@code enableClipping = true}</li>
      * </ul>
      * The minimum scale factor is fixed at 1. The {@code maxScaleFactor} must be ≥ 1 and
      * {@code deltaScaleFactor} must be > 0. {@code maxScaleFactor} should ideally be a multiple
@@ -141,7 +148,7 @@ public class ContentZoomScrollPane extends ScrollPane {
      *         or {@code deltaScaleFactor} ≤ 0.
      */
     public ContentZoomScrollPane(Pane content, double maxScaleFactor, double deltaScaleFactor) {
-        this(content, maxScaleFactor, deltaScaleFactor, true, true, false);
+        this(content, maxScaleFactor, deltaScaleFactor, true, true, false, true);
     }
 
     /**
@@ -239,7 +246,12 @@ public class ContentZoomScrollPane extends ScrollPane {
         });
     }
 
-
+    private void enableClipping() {
+        Rectangle clipRect = new Rectangle();
+        clipRect.widthProperty().bind(this.content.widthProperty());
+        clipRect.heightProperty().bind(this.content.heightProperty());
+        this.content.setClip(clipRect);
+    }
 
     /*
      * Performs zooming in.
