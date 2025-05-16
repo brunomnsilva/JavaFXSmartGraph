@@ -56,13 +56,16 @@ public class ContentZoomScrollPane extends ScrollPane {
     /** Scroll delta to apply to scale factor */
     public static final double SCROLL_DELTA = 0.25;
 
-    // The pane content to be displayed, scaled and paned
+    /** The pane content to be displayed, scaled and paned */
     private final Pane content;
 
+    /** Current scaling factor. */
     private final DoubleProperty scaleFactorProperty;
+
+    /** Scaling factor interval and delta. */
     private final double minScaleFactor, maxScaleFactor, deltaScaleFactor;
 
-    // Content preferred bounds, if set.
+    /** Content preferred bounds, if set. */
     private PreferredSize contentPreferredSize;
 
     /**
@@ -222,6 +225,9 @@ public class ContentZoomScrollPane extends ScrollPane {
         setPannable(true);
     }
 
+    /*
+     * Resize the content pane if this panel is resized.
+     */
     private void enableScrollbars(boolean enable) {
         if(enable) {
             setVbarPolicy(ScrollBarPolicy.ALWAYS);
@@ -322,45 +328,6 @@ public class ContentZoomScrollPane extends ScrollPane {
             setVvalue(newScrollYPixels / newVerticalScrollExtent);
         }
     }
-
-    /*private void zoomContent(double pivotX, double pivotY, ZoomDirection direction) {
-        double previousScale = scaleFactorProperty.doubleValue();
-        double nextScale = previousScale + direction.getValue() * deltaScaleFactor;
-
-        double scaleFactor = nextScale / previousScale;
-
-        double scaleTotal = scaleFactorProperty.doubleValue() * scaleFactor;
-
-        if (scaleTotal >= minScaleFactor && scaleTotal <= maxScaleFactor) {
-
-            Bounds viewPort = getViewportBounds();
-            Bounds contentSize = content.getBoundsInParent();
-
-            // Convert mouse pivot points to content coordinates, even with scaling and panning.
-            Point2D zoomCenter =  content.sceneToLocal(pivotX, pivotY);
-
-            double centerPosX = (contentSize.getWidth() - viewPort.getWidth()) * getHvalue() + zoomCenter.getX();
-            double centerPosY = (contentSize.getHeight() - viewPort.getHeight()) * getVvalue() + zoomCenter.getY();
-
-            content.setScaleX(scaleTotal);
-            content.setScaleY(scaleTotal);
-
-            double newCenterX = centerPosX * scaleFactor;
-            double newCenterY = centerPosY * scaleFactor;
-
-            double h = (newCenterX - zoomCenter.getX()) / (contentSize.getWidth() * scaleFactor - viewPort.getWidth());
-            double v = (newCenterY - zoomCenter.getY()) / (contentSize.getHeight() * scaleFactor - viewPort.getHeight());
-
-            // Check values to avoid scrollbars stuck when the new computed scroll values are NaN or Infinity.
-            // It seems that only NaN leads to this problem, but let's be safe.
-            if(Double.isInfinite(h) || Double.isNaN(h) || Double.isInfinite(v) || Double.isNaN(v) ) return;
-
-            setHvalue(h);
-            setVvalue(v);
-
-            scaleFactorProperty.set(scaleTotal);
-        }
-    }*/
 
     /**
      * Enum type to specify the zoom direction.
