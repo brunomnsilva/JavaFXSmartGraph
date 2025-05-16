@@ -246,6 +246,9 @@ public class ContentZoomScrollPane extends ScrollPane {
         });
     }
 
+    /*
+     * Clips the content against any overflows.
+     */
     private void enableClipping() {
         Rectangle clipRect = new Rectangle();
         clipRect.widthProperty().bind(this.content.widthProperty());
@@ -271,6 +274,56 @@ public class ContentZoomScrollPane extends ScrollPane {
      * Performs the zoom (scaling) functionality.
      */
     private void zoomContent(double pivotX, double pivotY, ZoomDirection direction) {
+        double oldScale = scaleFactorProperty.doubleValue();
+        double targetScaleTotal = oldScale + direction.getValue() * deltaScaleFactor;
+
+        // Clamp target scale to min/max bounds
+        targetScaleTotal = Math.max(minScaleFactor, Math.min(maxScaleFactor, targetScaleTotal));
+
+        if (targetScaleTotal == oldScale) {
+            return; // No change in scale (already at min/max or delta is too small)
+        }
+
+        Bounds viewportBounds = getViewportBounds();
+        Bounds contentUnscaledBounds = content.getLayoutBounds(); // Use layout bounds for true unscaled size
+
+        // Convert pivot point from ScrollPane coordinates to content's local (unscaled) coordinates
+        Point2D pivotInScrollPane = new Point2D(pivotX, pivotY);
+        Point2D pivotInScene = this.localToScene(pivotInScrollPane);
+        Point2D pivotInContentLocal = content.sceneToLocal(pivotInScene);
+
+        // Apply scaling transform to the content
+        content.setScaleX(targetScaleTotal);
+        content.setScaleY(targetScaleTotal);
+        scaleFactorProperty.set(targetScaleTotal); // Update the scale property
+
+        // Calculate new scroll values to keep the pivot point stationary in the viewport
+        double newScaledContentWidth = contentUnscaledBounds.getWidth() * targetScaleTotal;
+        double newScaledContentHeight = contentUnscaledBounds.getHeight() * targetScaleTotal;
+
+        // Calculate the scroll extent (how much the content exceeds the viewport)
+        double newHorizontalScrollExtent = Math.max(0, newScaledContentWidth - viewportBounds.getWidth());
+        double newVerticalScrollExtent = Math.max(0, newScaledContentHeight - viewportBounds.getHeight());
+
+        // The desired position (in pixels) of the top-left of the viewport relative to the top-left of the scaled content
+        double newScrollXPixels = (pivotInContentLocal.getX() * targetScaleTotal) - pivotX;
+        double newScrollYPixels = (pivotInContentLocal.getY() * targetScaleTotal) - pivotY;
+
+        // Convert pixel scroll values to ScrollPane's HValue/VValue (0-1 range)
+        if (newHorizontalScrollExtent == 0) {
+            setHvalue(0); // Content fits or is smaller, so align to left.
+        } else {
+            setHvalue(newScrollXPixels / newHorizontalScrollExtent);
+        }
+
+        if (newVerticalScrollExtent == 0) {
+            setVvalue(0); // Content fits or is smaller, so align to top.
+        } else {
+            setVvalue(newScrollYPixels / newVerticalScrollExtent);
+        }
+    }
+
+    /*private void zoomContent(double pivotX, double pivotY, ZoomDirection direction) {
         double previousScale = scaleFactorProperty.doubleValue();
         double nextScale = previousScale + direction.getValue() * deltaScaleFactor;
 
@@ -307,7 +360,7 @@ public class ContentZoomScrollPane extends ScrollPane {
 
             scaleFactorProperty.set(scaleTotal);
         }
-    }
+    }*/
 
     /**
      * Enum type to specify the zoom direction.
