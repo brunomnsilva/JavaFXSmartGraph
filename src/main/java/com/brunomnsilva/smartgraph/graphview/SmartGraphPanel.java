@@ -635,12 +635,6 @@ public class SmartGraphPanel<V, E> extends Pane {
                 connections.put(edge, new Tuple<>(vertex, oppositeVertex));
                 addEdge(graphEdge, edge);
 
-                if (this.edgesWithArrows && theGraph instanceof Digraph) {
-                    SmartArrow arrow = new SmartArrow(this.graphProperties.getEdgeArrowSize());
-                    graphEdge.attachArrow(arrow);
-                    this.getChildren().add(arrow);
-                }
-
                 edgesToPlace.remove(edge);
             }
 
@@ -696,7 +690,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     private void addEdge(SmartGraphEdgeBase<E,V> e, Edge<E, V> edge) {
-        //edges to the back
+        // Edges to the back
         this.getChildren().add(0, (Node) e);
         edgeNodes.put(edge, e);
 
@@ -713,6 +707,13 @@ public class SmartGraphPanel<V, E> extends Pane {
             label.addStyleClass("edge-label");
             this.getChildren().add(label);
             e.attachLabel(label);
+        }
+
+        // Arrows to the back
+        if (this.edgesWithArrows && theGraph instanceof Digraph) {
+            SmartArrow arrow = new SmartArrow(this.graphProperties.getEdgeArrowSize());
+            e.attachArrow(arrow);
+            this.getChildren().add(1, arrow);
         }
     }
 
@@ -798,12 +799,6 @@ public class SmartGraphPanel<V, E> extends Pane {
                 graphVertexIn.addAdjacentVertex(graphVertexOut);
 
                 SmartGraphEdgeBase<E,V> graphEdge = createEdge(edge, graphVertexIn, graphVertexOut);
-
-                if (this.edgesWithArrows && theGraph instanceof Digraph) {
-                    SmartArrow arrow = new SmartArrow(this.graphProperties.getEdgeArrowSize());
-                    graphEdge.attachArrow(arrow);
-                    this.getChildren().add(arrow);
-                }
 
                  /* Track edges */
                 connections.put(edge, new Tuple<>(u, v));
