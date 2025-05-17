@@ -1,0 +1,49 @@
+## Changelog
+
+- (2.1.0)
+  
+    - Improved edge and label rendering;
+      - Fix arrow misalignment on self-loops (issue \#40).
+      - Fix parallel edge spacing (issue \#40)
+      - Fix arrow "z-order" placement in some situations.
+      
+    - Improved `ContentZoomScrollPane` with clipping of any overflow.
+
+    - Bring vertex and label to front, while dragging.
+    
+- (2.0.0) 🎉 Minor fixes and stable version release.
+
+- (2.0.0-rc2) Several minor improvements, including:
+
+    - Example on how to use a background image for a vertex, see issue \#34.
+
+    - Styles applied to edges are propagated to their respective arrows, see issue \#31.
+
+- (2.0.0-rc1) Shapes, sizes, providers, annotations and minor improvements:
+
+    - Different shapes can be used to represent vertices, namely circles, stars and regular polygons (from triangles to dodecagons);
+        - The default shape can be specified with the `vertex.shape` property in `smartgraph.properties`
+        - Can be set/changed at runtime through a `SmartShapeTypeProvider` or `SmartShapeTypeSource` annotation.
+
+    - The radius of the shape (enclosing circle) used to represent a vertex can be set/changed at runtime through a `SmartRadiusProvider` or `SmartRadiusSource` annotation.
+
+    - Updated shapes and radii are only reflected in the visualization after calling `SmartGraphPanel.update()` or `SmartGraphPanel.updateAndWait()`.
+
+    - Improvements:
+        - When dragging nodes, they will be kept within the panel's bounds.
+        - The look of curved edges has been improved.
+
+- (1.1.0) Automatic layout is now performed through an instantiated *strategy*. There are two available (but the pattern allows for the user to devise others):
+
+    - `ForceDirectedSpringSystemLayoutStrategy`: this is the original implementation for the automatic placement, through a spring system;
+    - `ForceDirectedSpringGravityLayoutStrategy`: (**new**) this is a variant of the spring system implementation, but with a gravity pull towards the center of the panel. This is now the default strategy and has the advantage of not repelling isolated vertices and/or bipartite graphs to the edges of the panel.
+
+- (1.0.0) Package now available through [Maven Central](https://central.sonatype.com/namespace/com.brunomnsilva). The library seems stable, after dozens of college projects of my students have used it. Hence, the version was bumped to 1.0.0.
+
+- (0.9.4) You can now annotate a method with `@SmartLabelSource` within a model class to provide the displayed label for a vertex/edge; see the example at `com.brunomnsilva.smartgraph.example`. If no annotation is present, then the `toString()` method is used to obtain the label's text.
+
+- (0.9.4) You can manually alter a vertex position on the panel at anytime, through `SmartGraphPanel.setVertexPosition(Vertex<V> v)`; see the example at `com.brunomnsilva.smartgraph.example`.
+
+- (0.9.4) You can override specific default properties by using a *String* parameter to the `SmartGraphProperties` constructor; see the example at `com.brunomnsilva.smartgraph.example`. This is useful if you want to display visually different graphs within the same application.
+
+- (0.9.4) You can now style labels and arrows individually.
