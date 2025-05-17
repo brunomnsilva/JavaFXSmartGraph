@@ -27,11 +27,20 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 
 ### What's new?
 
-Although one full version number higher than the previous *stable* version (1.1.0), existing applications are expected to work with this library version without significant changes.
+- (2.1.0)
 
-:warning: The only exception is the necessary use of `SmartStylableNode.setStyleInline(...)` instead of `SmartStylableNode.setStyle(...)` to correctly apply inline styles to nodes (vertices and edges). Css classes are set the same way as before.
+    - Improved edge and label rendering;
+        - Fix arrow misalignment on self-loops (issue \#40).
+        - Fix parallel edge spacing (issue \#40)
+        - Fix arrow "z-order" placement in some situations.
+
+    - Improved `ContentZoomScrollPane` with clipping of any overflow.
+
+    - Bring vertex and label to front, while dragging.
 
 - (2.0.0) :tada: Minor fixes and **stable version** release.
+    - Although one full version number higher than the previous *stable* version (1.1.0), existing applications are expected to work with this library version without significant changes.
+    - :warning: The only exception is the necessary use of `SmartStylableNode.setStyleInline(...)` instead of `SmartStylableNode.setStyle(...)` to correctly apply inline styles to nodes (vertices and edges). Css classes are set the same way as before.
 
 See the [wiki](https://github.com/brunomnsilva/JavaFXSmartGraph/wiki) for the complete changelist.
 
