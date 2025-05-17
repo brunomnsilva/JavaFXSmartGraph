@@ -112,7 +112,9 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
         //TODO: improve this solution taking into account even indices, etc.
         randomAngleFactor = edgeIndex == 0 ? 0 : 1.0 / edgeIndex; //Math.random();
 
-        //update();
+        // Initial placement of control points for the curve
+        update();
+
         enableListeners();
 
         propagateHoverEffectToArrow();
