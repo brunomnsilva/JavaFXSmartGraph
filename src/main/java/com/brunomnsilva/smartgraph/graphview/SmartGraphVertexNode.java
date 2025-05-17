@@ -28,6 +28,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
@@ -85,10 +86,15 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     */
     private ShapeWithRadius<?> shapeProxy;
     private String shapeProxyName;
-    
+
+    private final SmartGraphPanel<T, ?> parent;
+
+    private Bounds boundingBox; // spans the shape and the (possibly attached) label.
+
     /**
      * Constructor which sets the instance attributes.
      *
+     * @param parent the panel where this node is placed
      * @param v the underlying vertex
      * @param x initial x position on the parent pane
      * @param y initial y position on the parent pane
@@ -98,7 +104,8 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
      * @throws IllegalArgumentException if <code>shapeType</code> is invalid or if <code>x</code> or <code>y</code> or
      * <code>radius</code> are negative.
      */
-    public SmartGraphVertexNode(Vertex<T> v, double x, double y, double radius, String shapeType, boolean allowMove) {
+    public SmartGraphVertexNode(SmartGraphPanel<T, ?> parent, Vertex<T> v, double x, double y, double radius, String shapeType, boolean allowMove) {
+        this.parent = parent;
         this.underlyingVertex = v;
         this.adjacentVertices = new HashSet<>();
 
@@ -126,6 +133,8 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         if (allowMove) {
             enableDrag();
         }
+
+        updateBoundingBox();
     }
 
     /**
@@ -209,6 +218,8 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     public void setRadius(double radius) {
         if (Double.compare(getRadius(), radius) != 0) {
             this.radius.set(radius);
+
+            updateBoundingBox();
         }
     }
 
@@ -407,7 +418,8 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
 
         label.xProperty().bind(centerXProperty().subtract(Bindings.divide( label.layoutWidthProperty(), 2.0)));
         label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), label.layoutHeightProperty())));
-        //label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), LABEL_Y_OFFSET)));
+
+        updateBoundingBox();
     }
 
     @Override
@@ -445,6 +457,9 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         return this.attachedLabel;
     }
 
+    private boolean hasLabel() {
+        return attachedLabel != null;
+    }
     /**
      * Make a node movable by dragging it around with the mouse primary button.
      */
@@ -458,6 +473,12 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
                 dragDelta.y = getCenterY() - mouseEvent.getY();
 
                 isDragging = true;
+
+                // Bring the node to the front, together with the label
+                if(hasLabel()) {
+                    getAttachedLabel().toFront();
+                }
+                toFront();
 
                 mouseEvent.consume();
             }
@@ -510,7 +531,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
      */
     private double boundVertexNodeXPositioning(double xCoord, double minCoordValue, double maxCoordValue) {
         // The shape and (possibly attached) label are centered, so its bounds are equals for each side
-        double lengthToSide = Math.max(getRadius(), (attachedLabel != null ? attachedLabel.layoutWidthProperty().get()/2 : 0));
+        double lengthToSide = this.boundingBox.getWidth() / 2;
 
         if (xCoord < minCoordValue + lengthToSide) {
             return minCoordValue + lengthToSide;
@@ -533,6 +554,19 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
             return maxCoordValue - lengthToBottom;
         } else {
             return yCoord;
+        }
+    }
+
+    /**
+     * Updates the bounding box that encloses this node (including its label).
+     */
+    private void updateBoundingBox() {
+        if(shapeProxy == null || shapeProxy.getShape() == null) return;
+
+        this.boundingBox = this.shapeProxy.getShape().getLayoutBounds();
+
+        if(hasLabel()) {
+            this.boundingBox = UtilitiesJavaFX.union(this.boundingBox, attachedLabel.getLayoutBounds());
         }
     }
 

@@ -38,6 +38,8 @@ package com.brunomnsilva.smartgraph.graphview;
  * @see SmartGraphPanel
  * 
  * @author brunomnsilva
+ *
+ * @implNote This interface is likely to be removed, since there is now only one SmartGraphEdgeBase implementation.
  */
 public interface SmartGraphEdgeBase<E, V> extends SmartGraphEdge<E, V>, SmartLabelledNode {
     
@@ -54,5 +56,22 @@ public interface SmartGraphEdgeBase<E, V> extends SmartGraphEdge<E, V>, SmartLab
      * @return      reference of the attached arrow; null if none.
      */
     SmartArrow getAttachedArrow();
-    
+
+    /**
+     * Returns the current multiplicity index of the edge.
+     * @return the current multiplicity index of the edge.
+     */
+    int getMultiplicityIndex();
+
+    /**
+     * Returns the inbound vertex of the edge.
+     * @return the inbound vertex of the edge.
+     */
+    SmartGraphVertexNode<V> getInbound();
+
+    /**
+     * Returns the outbound vertex of the edge.
+     * @return the outbound vertex of the edge.
+     */
+    SmartGraphVertexNode<V> getOutbound();
 }

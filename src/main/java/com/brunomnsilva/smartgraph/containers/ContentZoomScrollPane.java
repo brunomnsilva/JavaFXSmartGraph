@@ -33,6 +33,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
+import javafx.scene.shape.Rectangle;
 
 /**
  * This class provides zooming and panning for any JavaFX Pane.
@@ -55,27 +56,41 @@ public class ContentZoomScrollPane extends ScrollPane {
     /** Scroll delta to apply to scale factor */
     public static final double SCROLL_DELTA = 0.25;
 
-    // The pane content to be displayed, scaled and paned
+    /** The pane content to be displayed, scaled and paned */
     private final Pane content;
 
+    /** Current scaling factor. */
     private final DoubleProperty scaleFactorProperty;
+
+    /** Scaling factor interval and delta. */
     private final double minScaleFactor, maxScaleFactor, deltaScaleFactor;
 
-    // Content preferred bounds, if set.
+    /** Content preferred bounds, if set. */
     private PreferredSize contentPreferredSize;
 
     /**
-     * Creates a new instance of ContentZoomScrollPane.
-     * <br/>
-     * The minimum scale factor is 1. So <code>maxScaleFactor</code> should be &gt; 1 and
-     * <code>deltaScaleFactor</code> should be a value such that <code>maxScaleFactor</code> is a multiple
-     * of it, so the scale is utilized fully.
+     * Creates a new {@code ContentZoomScrollPane} with configurable zooming, panning, and scrollbars.
+     * <p>
+     * This constructor allows full control over the pane's interactive features.
+     * The content will be scaled using zooming gestures, panned with mouse drag (if enabled),
+     * and scrollbars can optionally be shown.
+     * <p>
+     * The minimum scale factor is fixed at 1. The {@code maxScaleFactor} must be ≥ 1 and
+     * {@code deltaScaleFactor} must be > 0. {@code maxScaleFactor} should ideally be a multiple
+     * of {@code deltaScaleFactor} for smoother zooming steps.
      *
-     * @param content pane to zoom and pan.
-     * @param maxScaleFactor maximum scale factor for zoom, e.g., 5x.
-     * @param deltaScaleFactor delta scaling factor applied when zooming with the mouse, e.g., steps of 0.25x.
+     * @param content the {@link Pane} to be displayed inside the scroll pane. Cannot be {@code null}.
+     * @param maxScaleFactor the maximum zoom level allowed (e.g., 5.0 for 500% zoom). Must be ≥ 1.
+     * @param deltaScaleFactor the zoom increment applied per zoom gesture (e.g., 0.25). Must be > 0.
+     * @param enableZoom whether zooming is enabled via mouse scroll.
+     * @param enablePanning whether panning is enabled via mouse drag.
+     * @param enableScrollbars whether scrollbars are shown.
+     * @param enableClipping whether the panel clips overflows of its contents.
+     * @throws IllegalArgumentException if {@code content} is {@code null}, {@code maxScaleFactor} < 1,
+     *         or {@code deltaScaleFactor} ≤ 0.
      */
-    public ContentZoomScrollPane(Pane content, double maxScaleFactor, double deltaScaleFactor) {
+    public ContentZoomScrollPane(Pane content, double maxScaleFactor, double deltaScaleFactor,
+                                 boolean enableZoom, boolean enablePanning, boolean enableScrollbars, boolean enableClipping) {
         if (content == null)
             throw new IllegalArgumentException("Content cannot be null.");
         if (maxScaleFactor < 1)
@@ -96,9 +111,47 @@ public class ContentZoomScrollPane extends ScrollPane {
 
         this.scaleFactorProperty  = new ReadOnlyDoubleWrapper(minScaleFactor);
 
+        // Always set
         enableContentResize();
-        enableZoom();
-        enablePanning();
+
+        // Optional
+        if(enableZoom) {
+            enableZoom();
+        }
+        if(enablePanning) {
+            enablePanning();
+        }
+
+        enableScrollbars(enableScrollbars);
+
+        if(enableClipping) {
+            enableClipping();
+        }
+    }
+
+    /**
+     * Creates a new {@code ContentZoomScrollPane} with zooming and panning enabled by default,
+     * scrollbars disabled and clipping enabled.
+     * <p>
+     * This is a convenience constructor that sets:
+     * <ul>
+     *   <li>{@code enableZoom = true}</li>
+     *   <li>{@code enablePanning = true}</li>
+     *   <li>{@code enableScrollbars = false}</li>
+     *   <li>{@code enableClipping = true}</li>
+     * </ul>
+     * The minimum scale factor is fixed at 1. The {@code maxScaleFactor} must be ≥ 1 and
+     * {@code deltaScaleFactor} must be > 0. {@code maxScaleFactor} should ideally be a multiple
+     * of {@code deltaScaleFactor} for smoother zooming steps.
+     *
+     * @param content the {@link Pane} to be displayed inside the scroll pane. Cannot be {@code null}.
+     * @param maxScaleFactor the maximum zoom level allowed (e.g., 5.0 for 500% zoom). Must be ≥ 1.
+     * @param deltaScaleFactor the zoom increment applied per zoom gesture (e.g., 0.25). Must be > 0.
+     * @throws IllegalArgumentException if {@code content} is {@code null}, {@code maxScaleFactor} < 1,
+     *         or {@code deltaScaleFactor} ≤ 0.
+     */
+    public ContentZoomScrollPane(Pane content, double maxScaleFactor, double deltaScaleFactor) {
+        this(content, maxScaleFactor, deltaScaleFactor, true, true, false, true);
     }
 
     /**
@@ -148,7 +201,6 @@ public class ContentZoomScrollPane extends ScrollPane {
     }
 
     private void enableContentResize() {
-
         // Get the content's preferred size values and, if set, respect them.
         // Otherwise, set the size of the content to match the size of the scrollpane's viewport.
 
@@ -174,6 +226,19 @@ public class ContentZoomScrollPane extends ScrollPane {
     }
 
     /*
+     * Resize the content pane if this panel is resized.
+     */
+    private void enableScrollbars(boolean enable) {
+        if(enable) {
+            setVbarPolicy(ScrollBarPolicy.ALWAYS);
+            setHbarPolicy(ScrollBarPolicy.ALWAYS);
+        } else {
+            setVbarPolicy(ScrollBarPolicy.NEVER);
+            setHbarPolicy(ScrollBarPolicy.NEVER);
+        }
+    }
+
+    /*
      * Method to add zoom behavior to the ScrollPane
      */
     private void enableZoom() {
@@ -185,9 +250,16 @@ public class ContentZoomScrollPane extends ScrollPane {
             }
             event.consume();
         });
+    }
 
-        setVbarPolicy(ScrollBarPolicy.NEVER);
-        setHbarPolicy(ScrollBarPolicy.NEVER);
+    /*
+     * Clips the content against any overflows.
+     */
+    private void enableClipping() {
+        Rectangle clipRect = new Rectangle();
+        clipRect.widthProperty().bind(this.content.widthProperty());
+        clipRect.heightProperty().bind(this.content.heightProperty());
+        this.content.setClip(clipRect);
     }
 
     /*
@@ -208,41 +280,52 @@ public class ContentZoomScrollPane extends ScrollPane {
      * Performs the zoom (scaling) functionality.
      */
     private void zoomContent(double pivotX, double pivotY, ZoomDirection direction) {
-        double previousScale = scaleFactorProperty.doubleValue();
-        double nextScale = previousScale + direction.getValue() * deltaScaleFactor;
+        double oldScale = scaleFactorProperty.doubleValue();
+        double targetScaleTotal = oldScale + direction.getValue() * deltaScaleFactor;
 
-        double scaleFactor = nextScale / previousScale;
+        // Clamp target scale to min/max bounds
+        targetScaleTotal = Math.max(minScaleFactor, Math.min(maxScaleFactor, targetScaleTotal));
 
-        double scaleTotal = scaleFactorProperty.doubleValue() * scaleFactor;
+        if (targetScaleTotal == oldScale) {
+            return; // No change in scale (already at min/max or delta is too small)
+        }
 
-        if (scaleTotal >= minScaleFactor && scaleTotal <= maxScaleFactor) {
+        Bounds viewportBounds = getViewportBounds();
+        Bounds contentUnscaledBounds = content.getLayoutBounds(); // Use layout bounds for true unscaled size
 
-            Bounds viewPort = getViewportBounds();
-            Bounds contentSize = content.getBoundsInParent();
+        // Convert pivot point from ScrollPane coordinates to content's local (unscaled) coordinates
+        Point2D pivotInScrollPane = new Point2D(pivotX, pivotY);
+        Point2D pivotInScene = this.localToScene(pivotInScrollPane);
+        Point2D pivotInContentLocal = content.sceneToLocal(pivotInScene);
 
-            // Convert mouse pivot points to content coordinates, even with scaling and panning.
-            Point2D zoomCenter =  content.sceneToLocal(pivotX, pivotY);
+        // Apply scaling transform to the content
+        content.setScaleX(targetScaleTotal);
+        content.setScaleY(targetScaleTotal);
+        scaleFactorProperty.set(targetScaleTotal); // Update the scale property
 
-            double centerPosX = (contentSize.getWidth() - viewPort.getWidth()) * getHvalue() + zoomCenter.getX();
-            double centerPosY = (contentSize.getHeight() - viewPort.getHeight()) * getVvalue() + zoomCenter.getY();
+        // Calculate new scroll values to keep the pivot point stationary in the viewport
+        double newScaledContentWidth = contentUnscaledBounds.getWidth() * targetScaleTotal;
+        double newScaledContentHeight = contentUnscaledBounds.getHeight() * targetScaleTotal;
 
-            content.setScaleX(scaleTotal);
-            content.setScaleY(scaleTotal);
+        // Calculate the scroll extent (how much the content exceeds the viewport)
+        double newHorizontalScrollExtent = Math.max(0, newScaledContentWidth - viewportBounds.getWidth());
+        double newVerticalScrollExtent = Math.max(0, newScaledContentHeight - viewportBounds.getHeight());
 
-            double newCenterX = centerPosX * scaleFactor;
-            double newCenterY = centerPosY * scaleFactor;
+        // The desired position (in pixels) of the top-left of the viewport relative to the top-left of the scaled content
+        double newScrollXPixels = (pivotInContentLocal.getX() * targetScaleTotal) - pivotX;
+        double newScrollYPixels = (pivotInContentLocal.getY() * targetScaleTotal) - pivotY;
 
-            double h = (newCenterX - zoomCenter.getX()) / (contentSize.getWidth() * scaleFactor - viewPort.getWidth());
-            double v = (newCenterY - zoomCenter.getY()) / (contentSize.getHeight() * scaleFactor - viewPort.getHeight());
+        // Convert pixel scroll values to ScrollPane's HValue/VValue (0-1 range)
+        if (newHorizontalScrollExtent == 0) {
+            setHvalue(0); // Content fits or is smaller, so align to left.
+        } else {
+            setHvalue(newScrollXPixels / newHorizontalScrollExtent);
+        }
 
-            // Check values to avoid scrollbars stuck when the new computed scroll values are NaN or Infinity.
-            // It seems that only NaN leads to this problem, but let's be safe.
-            if(Double.isInfinite(h) || Double.isNaN(h) || Double.isInfinite(v) || Double.isNaN(v) ) return;
-
-            setHvalue(h);
-            setVvalue(v);
-
-            scaleFactorProperty.set(scaleTotal);
+        if (newVerticalScrollExtent == 0) {
+            setVvalue(0); // Content fits or is smaller, so align to top.
+        } else {
+            setVvalue(newScrollYPixels / newVerticalScrollExtent);
         }
     }
 

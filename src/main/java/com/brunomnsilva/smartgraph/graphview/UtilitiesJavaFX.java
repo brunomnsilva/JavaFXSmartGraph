@@ -24,6 +24,8 @@
 
 package com.brunomnsilva.smartgraph.graphview;
 
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -80,5 +82,70 @@ public class UtilitiesJavaFX {
         }
 
         return node;
+    }
+
+
+    /**
+     * Combines the bounds of the specified JavaFX nodes into a single bounding box.
+     * This method calculates the minimum and maximum coordinates of all the nodes
+     * and returns a bounding box that encompasses all of them.
+     *
+     * @param nodes the JavaFX nodes whose bounds need to be combined
+     * @return the combined bounding box containing the bounds of all specified nodes,
+     *         or {@code null} if the input array is empty or {@code null}
+     */
+    public static Bounds combineBounds(Node... nodes) {
+        if (nodes == null || nodes.length == 0) {
+            return null;
+        }
+
+        double minX = Double.POSITIVE_INFINITY;
+        double minY = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
+
+        // Iterate through all nodes to find the combined bounds
+        for (Node node : nodes) {
+            Bounds nodeBounds = node.getLayoutBounds();
+            minX = Math.min(minX, nodeBounds.getMinX());
+            minY = Math.min(minY, nodeBounds.getMinY());
+            maxX = Math.max(maxX, nodeBounds.getMaxX());
+            maxY = Math.max(maxY, nodeBounds.getMaxY());
+        }
+
+        // Create a new Bounds object using the calculated minimum and maximum values
+        return new BoundingBox(minX, minY, 0, maxX - minX, maxY - minY, 0);
+    }
+
+    /**
+     * Computes the union of multiple {@link Bounds} objects, returning the smallest
+     * {@link BoundingBox} that fully contains all given bounds.
+     *
+     * <p>If the input array is {@code null} or empty, this method returns {@code null}.</p>
+     *
+     * @param bounds an array of {@link Bounds} objects to be merged
+     * @return a {@link BoundingBox} that represents the union of all input bounds,
+     *         or {@code null} if the input is {@code null} or empty
+     */
+    public static Bounds union(Bounds... bounds) {
+        if (bounds == null || bounds.length == 0) {
+            return null;
+        }
+
+        double minX = Double.POSITIVE_INFINITY;
+        double minY = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
+
+        // Iterate through all nodes to find the combined bounds
+        for (Bounds box : bounds) {
+            minX = Math.min(minX, box.getMinX());
+            minY = Math.min(minY, box.getMinY());
+            maxX = Math.max(maxX, box.getMaxX());
+            maxY = Math.max(maxY, box.getMaxY());
+        }
+
+        // Create a new Bounds object using the calculated minimum and maximum values
+        return new BoundingBox(minX, minY, 0, maxX - minX, maxY - minY, 0);
     }
 }
