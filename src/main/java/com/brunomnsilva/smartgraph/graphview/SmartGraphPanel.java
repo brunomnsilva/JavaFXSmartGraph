@@ -666,27 +666,14 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     private SmartGraphEdgeBase<E,V> createEdge(Edge<E, V> edge, SmartGraphVertexNode<V> graphVertexInbound, SmartGraphVertexNode<V> graphVertexOutbound) {
         /*
-        Even if edges are later removed, the corresponding index remains the same. Otherwise, we would have to
-        regenerate the appropriate edges.
+         Edges will be placed with 'multiplicityIndex' starting at 0 for a single edge between a pair of vertices. This represents a straight edge.
+         When more than an edge exists, the 'multiplicityIndex' will start at 1, forcing the edges to be curved.
          */
-        int edgeIndex = 0;
-        Integer counter = placedEdges.get(new Tuple<>(graphVertexInbound, graphVertexOutbound));
-        if (counter != null) {
-            edgeIndex = counter;
-        }
 
-        SmartGraphEdgeBase<E,V> graphEdge;
+        int maxIndex = getMaxMultiplicityIndexBetween(graphVertexInbound, graphVertexOutbound);
 
-        if (getTotalEdgesBetween(graphVertexInbound.getUnderlyingVertex(), graphVertexOutbound.getUnderlyingVertex()) > 1
-                || graphVertexInbound == graphVertexOutbound) {
-            graphEdge = new SmartGraphEdgeCurve<>(edge, graphVertexInbound, graphVertexOutbound, edgeIndex);
-        } else {
-            graphEdge = new SmartGraphEdgeLine<>(edge, graphVertexInbound, graphVertexOutbound);
-        }
+        return new SmartGraphEdgeNode<>(edge, graphVertexInbound, graphVertexOutbound, ++maxIndex);
 
-        placedEdges.put(new Tuple<>(graphVertexInbound, graphVertexOutbound), ++edgeIndex);
-
-        return graphEdge;
     }
 
     private void addVertex(SmartGraphVertexNode<V> v) {
@@ -743,6 +730,8 @@ public class SmartGraphPanel<V, E> extends Pane {
             newVertices = new LinkedList<>();
 
             for (Vertex<V> vertex : unplottedVertices) {
+                // TODO: maybe review this code/behavior later
+
                 //create node
                 //Place new nodes in the vicinity of existing adjacent ones;
                 //Place them in the middle of the plot, otherwise.
@@ -843,7 +832,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             //the adjacency is kept in parallel in an internal data structure
             Tuple<Vertex<V>> vertexTuple = connections.get(e);
 
-            if( getTotalEdgesBetween(vertexTuple.first, vertexTuple.second) == 0 ) {
+            if( getTotalEdgesBetweenInModel(vertexTuple.first, vertexTuple.second) == 0 ) {
                 SmartGraphVertexNode<V> v0 = vertexNodes.get(vertexTuple.first);
                 SmartGraphVertexNode<V> v1 = vertexNodes.get(vertexTuple.second);
 
@@ -1046,7 +1035,6 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @return bounding box
      */
     private Bounds getDisplayedVerticesBoundingBox() {
-        // TODO: include edges ?
 
         double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
                 maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
@@ -1084,7 +1072,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         vertexNodes.values().forEach((v) -> v.resetForces());
     }
 
-    private int getTotalEdgesBetween(Vertex<V> v, Vertex<V> u) {
+    private int getTotalEdgesBetweenInModel(Vertex<V> v, Vertex<V> u) {
         int count = 0;
         for (Edge<E, V> edge : theGraph.edges()) {
             if (edge.vertices()[0] == v && edge.vertices()[1] == u
@@ -1094,6 +1082,42 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
         return count;
     }
+
+    /*private int getTotalEdgesBetweenInPanel(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> u) {
+        Vertex<V> V = v.getUnderlyingVertex();
+        Vertex<V> U = u.getUnderlyingVertex();
+
+        int count = 0;
+        for (Map.Entry<Edge<E, V>, Tuple<Vertex<V>>> edgeTupleEntry : this.connections.entrySet()) {
+            //Edge<E, V> edge = edgeTupleEntry.getKey();
+            Tuple<Vertex<V>> tuple = edgeTupleEntry.getValue();
+
+            if ((tuple.first == V && tuple.second == U) || (tuple.first == U && tuple.second == V)) {
+                count++;
+            }
+        }
+
+        return count;
+    }*/
+
+    /*
+     * Finds the maximum multiplicity index for current edges between two vertices.
+     */
+    private int getMaxMultiplicityIndexBetween(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> u) {
+        int max = -1;
+        for (SmartGraphEdgeBase<E, V> edge : edgeNodes.values()) {
+            SmartGraphVertexNode<V> in = edge.getInbound();
+            SmartGraphVertexNode<V> out = edge.getOutbound();
+
+            if(in == v && out == u || in == u && out == v) {
+                int cur = edge.getMultiplicityIndex();
+                max = (cur > max) ? cur : max;
+            }
+        }
+
+        return max;
+    }
+
 
     private List<Edge<E, V>> listOfEdges() {
         return new LinkedList<>(theGraph.edges());
