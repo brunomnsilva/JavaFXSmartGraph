@@ -157,16 +157,16 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
             //TODO: take into account several "self-loops" with randomAngleFactor
             double midpointX1 = outbound.getCenterX() - inbound.getRadius() * LOOP_RADIUS_FACTOR;
             double midpointY1 = outbound.getCenterY() - inbound.getRadius() * LOOP_RADIUS_FACTOR;
-            
+
             double midpointX2 = outbound.getCenterX() + inbound.getRadius() * LOOP_RADIUS_FACTOR;
             double midpointY2 = outbound.getCenterY() - inbound.getRadius() * LOOP_RADIUS_FACTOR;
-            
+
             setControlX1(midpointX1);
             setControlY1(midpointY1);
             setControlX2(midpointX2);
             setControlY2(midpointY2);
             
-        } else {          
+        } else {
             /* Make a curved edge. The curvature is bounded and proportional to the distance;
                 higher curvature for closer vertices  */
 
@@ -227,8 +227,22 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
 
-        label.xProperty().bind(controlX1Property().add(controlX2Property()).divide(2).subtract(Bindings.divide(label.layoutWidthProperty(),2)));
-        label.yProperty().bind(controlY1Property().add(controlY2Property()).divide(2).add(Bindings.divide(label.layoutHeightProperty(), 2)));
+        // Place the label between the control points, offset by half the label dimensions
+        label.xProperty()
+                .bind(
+                        controlX1Property()
+                            .add(controlX2Property())
+                            .divide(2)
+                            .subtract(Bindings.divide(label.layoutWidthProperty(),2))
+                );
+
+        label.yProperty()
+                .bind(
+                        controlY1Property()
+                                .add(controlY2Property())
+                                .divide(2)
+                                .add(Bindings.divide(label.layoutHeightProperty(), 2))
+                );
     }
 
     @Override
@@ -245,26 +259,39 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     public void attachArrow(SmartArrow arrow) {
         this.attachedArrow = arrow;
 
-        /* attach arrow to line's endpoint */
+        // Bind arrow's main position to the curve's endpoint (inbound vertex center)
         arrow.translateXProperty().bind(endXProperty());
         arrow.translateYProperty().bind(endYProperty());
 
-        /* rotate arrow around itself based on this line's angle */
+        // Create and configure the rotation transform for the arrow */
         Rotate rotation = new Rotate();
-        rotation.pivotXProperty().bind(translateXProperty());
-        rotation.pivotYProperty().bind(translateYProperty());
+
+        // Set the pivot point for the rotation IN THE ARROW'S LOCAL COORDINATE SYSTEM.
+        // SmartArrow is designed with its tip at its local (0,0).
+        rotation.setPivotX(0);
+        rotation.setPivotY(0);
+
+        // Bind the rotation angle to the tangent of the curve at its endpoint.
+        // The tangent is determined by the vector from ControlPoint2 to the EndPoint.
         rotation.angleProperty().bind(UtilitiesBindings.toDegrees(
                 UtilitiesBindings.atan2(endYProperty().subtract(controlY2Property()),
                         endXProperty().subtract(controlX2Property()))
         ));
 
+        // Add transforms to the arrow. Order matters. */
+        // 1. Apply the rotation.
         arrow.getTransforms().add(rotation);
 
-        /* add translation transform to put the arrow touching the circle's bounds */
-        Translate t = new Translate(0, 0);
-        t.xProperty().bind( inbound.radiusProperty().negate() );
-        
-        arrow.getTransforms().add(t);
+        /* 2. Apply a translation to "pull back" the arrow so its tip touches
+              the inbound vertex's boundary instead of its center.
+              This translation occurs along the arrow's (now rotated) local X-axis.
+              With SmartArrow's geometry points along its positive X-axis from tail to tip,
+              a negative X translation moves it backward.
+         */
+        Translate pullbackTranslation = new Translate(); //(0,0)
+        pullbackTranslation.xProperty().bind(inbound.radiusProperty().negate());
+
+        arrow.getTransforms().add(pullbackTranslation);
     }
 
     @Override
