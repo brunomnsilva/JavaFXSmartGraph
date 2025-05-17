@@ -474,6 +474,12 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
 
                 isDragging = true;
 
+                // Bring the node to the front, together with the label
+                if(hasLabel()) {
+                    getAttachedLabel().toFront();
+                }
+                toFront();
+
                 mouseEvent.consume();
             }
         });
