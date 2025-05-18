@@ -52,7 +52,7 @@ import javafx.scene.transform.Translate;
  *
  * @author brunomnsilva
  */
-public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEdgeBase<E, V> {
+public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEdge<E, V>, SmartLabelledNode {
 
     // For self-loops
     public static final int LOOP_RADIUS_FACTOR = 4;
@@ -140,12 +140,18 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
         propagateHoverEffectToArrow();
     }
 
-    @Override
+    /**
+     * Returns the current multiplicity index of the edge.
+     * @return the current multiplicity index of the edge.
+     */
     public int getMultiplicityIndex() {
         return multiplicityIndex;
     }
 
-    @Override
+    /**
+     * Sets the multiplicity index of the edge. This impacts the curve of the edge.
+     * @param multiplicityIndex the new multiplicity index.
+     */
     public void setMultiplicityIndex(int multiplicityIndex) {
         Args.requireNonNegative(multiplicityIndex, "multiplicityIndex");
 
@@ -156,12 +162,12 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
     }
 
     @Override
-    public SmartGraphVertexNode<V> getInbound() {
+    public SmartGraphVertex<V> getInbound() {
         return inbound;
     }
 
     @Override
-    public SmartGraphVertexNode<V> getOutbound() {
+    public SmartGraphVertex<V> getOutbound() {
         return outbound;
     }
 
@@ -406,7 +412,11 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
         return underlyingEdge;
     }
 
-    @Override
+    /**
+     * Attaches a {@link SmartArrow} to this edge, binding its position/rotation.
+     *
+     * @param arrow     arrow to attach
+     */
     public void attachArrow(SmartArrow arrow) {
         this.attachedArrow = arrow;
 
@@ -437,7 +447,11 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
         arrow.getTransforms().add(pullbackTranslation);
     }
 
-    @Override
+    /**
+     * Returns the attached {@link SmartArrow}, if any.
+     *
+     * @return      reference of the attached arrow; null if none.
+     */
     public SmartArrow getAttachedArrow() {
         return this.attachedArrow;
     }

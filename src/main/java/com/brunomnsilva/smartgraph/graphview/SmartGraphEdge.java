@@ -50,7 +50,19 @@ public interface SmartGraphEdge<E, V> extends SmartStylableNode {
      * @see SmartGraphPanel
      */
     Edge<E, V> getUnderlyingEdge();
-    
+
+    /**
+     * Returns the inbound vertex of the edge.
+     * @return the inbound vertex of the edge.
+     */
+    SmartGraphVertex<V> getInbound();
+
+    /**
+     * Returns the outbound vertex of the edge.
+     * @return the outbound vertex of the edge.
+     */
+    SmartGraphVertex<V> getOutbound();
+
     /**
      * Returns the attached arrow of the edge, for styling purposes.
      * <br/>
