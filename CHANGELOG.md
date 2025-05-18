@@ -1,5 +1,10 @@
 ## Changelog
 
+- (2.2.0) Notable changes:
+
+    - ⚠️ Bump minimum JDK to 11 and define library as a Java Module;
+    - ...
+
 - (2.1.0) Notable changes:
   
     - Improved edge and label rendering;
