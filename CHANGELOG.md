@@ -1,15 +1,18 @@
 ## Changelog
 
-- (2.1.0)
+- (2.1.0) Notable changes:
   
     - Improved edge and label rendering;
-      - Fix arrow misalignment on self-loops (issue \#40).
-      - Fix parallel edge spacing (issue \#40)
-      - Fix arrow "z-order" placement in some situations.
-      
+        - Fix arrow "z-order" placement in some situations.
+        - Fix arrow misalignment on self-loops (issue \#40).
+        - Fix parallel edge spacing (issue \#40).      
+        - Parallel edge spacing, including self-loops, is kept as compact as possible when inserting/removing, without loosing visual reference.
+    
+    - Fix visibility of methods necessary to create custom placement strategies.
+  
     - Improved `ContentZoomScrollPane` with clipping of any overflow.
 
-    - Bring vertex and label to front, while dragging.
+      - Bring vertex and label to front, while dragging.
     
 - (2.0.0) 🎉 Minor fixes and stable version release.
 
