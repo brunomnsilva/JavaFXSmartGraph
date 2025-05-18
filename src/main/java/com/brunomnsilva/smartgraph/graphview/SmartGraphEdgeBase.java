@@ -63,6 +63,8 @@ public interface SmartGraphEdgeBase<E, V> extends SmartGraphEdge<E, V>, SmartLab
      */
     int getMultiplicityIndex();
 
+    void setMultiplicityIndex(int multiplicityIndex);
+
     /**
      * Returns the inbound vertex of the edge.
      * @return the inbound vertex of the edge.

@@ -92,7 +92,6 @@ public class SmartGraphPanel<V, E> extends Pane {
     private final Map<Vertex<V>, SmartGraphVertexNode<V>> vertexNodes;
     private final Map<Edge<E, V>, SmartGraphEdgeBase<E, V>> edgeNodes;
     private final Map<Edge<E,V>, Tuple<Vertex<V>>> connections;
-    private final Map<Tuple<SmartGraphVertexNode<V>>, Integer> placedEdges = new HashMap<>();
     private boolean initialized = false;
     private final boolean edgesWithArrows;
     
@@ -166,7 +165,10 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         this.vertexNodes = new HashMap<>();
         this.edgeNodes = new HashMap<>();
-        this.connections = new HashMap<>();
+
+        // We will explore the insertion order of edges for decreasing the multiplicity of edges between the same
+        // pair of vertices, when others are removed
+        this.connections = new LinkedHashMap<>();
 
         // consumers initially are not set. This initialization is not necessary, but we make it explicit
         // for the sake of readability
@@ -662,12 +664,16 @@ public class SmartGraphPanel<V, E> extends Pane {
         /*
          Edges will be placed with 'multiplicityIndex' starting at 0 for a single edge between a pair of vertices. This represents a straight edge.
          When more than an edge exists, the 'multiplicityIndex' will start at 1, forcing the edges to be curved.
+
+         Newer edges have higher multiplicity indices.
+
+         Note that, indirectly, multiplicity indices will be "recycled", since they are updated (decremented) when edges are removed.
+         This is performed in 'updateParallelEdgesOf(edge)'.
          */
 
         int maxIndex = getMaxMultiplicityIndexBetween(graphVertexInbound, graphVertexOutbound);
 
         return new SmartGraphEdgeNode<>(edge, graphVertexInbound, graphVertexOutbound, ++maxIndex);
-
     }
 
     private void addVertex(SmartGraphVertexNode<V> v) {
@@ -836,6 +842,9 @@ public class SmartGraphPanel<V, E> extends Pane {
             }
 
             connections.remove(e);
+
+            // Update the multiplicity of the edges between the removed edge connecting vertices
+            updateParallelEdgesOf(edgeToRemove);
         }
 
         //remove vertices (graphical elements) that were removed from the underlying graph
@@ -859,6 +868,45 @@ public class SmartGraphPanel<V, E> extends Pane {
         if (attachedLabel != null) {
             getChildren().remove(attachedLabel);
         }
+    }
+
+    /*
+     * Update the multiplicity of the parallel edges of 'e'.
+     * This is called from removeNodes(), after an edge is removed. Hence, 'e'
+     * will be a removed edge. We want to update the multiplicities of the remaining
+     * edges that still subsist after this one is removed.
+     *
+     * This work
+     */
+    private void updateParallelEdgesOf(SmartGraphEdgeBase<E,V> e) {
+
+        SmartGraphVertexNode<V> v = e.getInbound();
+        SmartGraphVertexNode<V> w = e.getOutbound();
+
+        // 'getEdgesBetween' returns a collection of ages, ordered by their "age".
+        List<SmartGraphEdgeBase<E, V>> parallelEdges = getEdgesBetween(v, w);
+
+        int numEdges = parallelEdges.size();
+        if(numEdges > 0) {
+
+            // Oldest edge will always have multiplicity 0 (straight line)
+            parallelEdges.get(0).setMultiplicityIndex(0);
+
+            // The remaining edges will have their multiplicities as close to 0 has possible,
+            // while maintaining their parity (same side of the line axis)
+            int current = 1;
+            for (int i = 1; i < numEdges; i++) {
+                int parity = parallelEdges.get(i).getMultiplicityIndex() % 2;
+
+                while (current % 2 != parity) {
+                    current++;
+                }
+
+                parallelEdges.get(i).setMultiplicityIndex(current);
+                current++; // Move to the next possible value
+            }
+        }
+
     }
 
     private void removeVertex(SmartGraphVertexNode<V> v) {
@@ -1078,25 +1126,39 @@ public class SmartGraphPanel<V, E> extends Pane {
         return count;
     }
 
-    /*private int getTotalEdgesBetweenInPanel(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> u) {
+    /**
+     * Returns the edges between 'v' and 'u', by "age", starting with the "oldest".
+     * This is achieved because we use a LinkedHashMap for the 'connections' collection.
+     * The order of 'u' and 'v' is irrelevant.
+     *
+     * @param v first vertex
+     * @param u second vertex
+     * @return an ordered (by age) list of edges that exist between 'u' and 'v'
+     */
+    private List<SmartGraphEdgeBase<E, V>> getEdgesBetween(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> u) {
         Vertex<V> V = v.getUnderlyingVertex();
         Vertex<V> U = u.getUnderlyingVertex();
 
-        int count = 0;
+        List<SmartGraphEdgeBase<E, V>> parallelEdges = new ArrayList<>();
+
         for (Map.Entry<Edge<E, V>, Tuple<Vertex<V>>> edgeTupleEntry : this.connections.entrySet()) {
-            //Edge<E, V> edge = edgeTupleEntry.getKey();
+            Edge<E, V> edge = edgeTupleEntry.getKey();
             Tuple<Vertex<V>> tuple = edgeTupleEntry.getValue();
 
             if ((tuple.first == V && tuple.second == U) || (tuple.first == U && tuple.second == V)) {
-                count++;
+                parallelEdges.add( edgeNodes.get(edge) );
             }
         }
 
-        return count;
-    }*/
+        return parallelEdges;
+    }
 
-    /*
-     * Finds the maximum multiplicity index for current edges between two vertices.
+    /**
+     * Finds the maximum multiplicity index for current edges between two vertices 'v' and 'u'.
+     * The order of 'v' and 'u' is irrelevant.
+     * @param v first vertex
+     * @param u second vertex
+     * @return the maximum multiplicity index for current edges between two vertices 'v' and 'u'
      */
     private int getMaxMultiplicityIndexBetween(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> u) {
         int max = -1;

@@ -146,6 +146,15 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
     }
 
     @Override
+    public void setMultiplicityIndex(int multiplicityIndex) {
+        Args.requireNonNegative(multiplicityIndex, "multiplicityIndex");
+
+        this.multiplicityIndex = multiplicityIndex;
+
+        update();
+    }
+
+    @Override
     public SmartGraphVertexNode<V> getInbound() {
         return inbound;
     }
