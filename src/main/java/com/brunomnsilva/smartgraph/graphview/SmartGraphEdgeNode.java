@@ -133,7 +133,7 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
         this.endXProperty().bind(inbound.centerXProperty());
         this.endYProperty().bind(inbound.centerYProperty());
 
-        // Initial placement of control points for the curve/line
+        // Initial placement of control points for the curve/line.
         update();
 
         enableListeners();
@@ -151,6 +151,7 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
 
         this.multiplicityIndex = multiplicityIndex;
 
+        // Changing the multiplicity will change the curve of the edge, so update the control points.
         update();
     }
 
@@ -435,27 +436,6 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
 
         arrow.getTransforms().add(pullbackTranslation);
     }
-
-    /*public void attachArrow(SmartArrow arrow) {
-        this.attachedArrow = arrow;
-
-        arrow.translateXProperty().bind(endXProperty());
-        arrow.translateYProperty().bind(endYProperty());
-
-        Rotate rotation = new Rotate();
-        rotation.setPivotX(0); // Arrow tip is at its local (0,0)
-        rotation.setPivotY(0);
-        rotation.angleProperty().bind(UtilitiesBindings.toDegrees(
-                UtilitiesBindings.atan2(endYProperty().subtract(controlY2Property()),
-                        endXProperty().subtract(controlX2Property()))
-        ));
-
-        arrow.getTransforms().add(rotation);
-
-        Translate pullbackTranslation = new Translate();
-        pullbackTranslation.xProperty().bind(inbound.radiusProperty().negate());
-        arrow.getTransforms().add(pullbackTranslation);
-    }*/
 
     @Override
     public SmartArrow getAttachedArrow() {
