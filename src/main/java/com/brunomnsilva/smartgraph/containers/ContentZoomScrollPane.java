@@ -75,19 +75,19 @@ public class ContentZoomScrollPane extends ScrollPane {
      * The content will be scaled using zooming gestures, panned with mouse drag (if enabled),
      * and scrollbars can optionally be shown.
      * <p>
-     * The minimum scale factor is fixed at 1. The {@code maxScaleFactor} must be ≥ 1 and
-     * {@code deltaScaleFactor} must be > 0. {@code maxScaleFactor} should ideally be a multiple
+     * The minimum scale factor is fixed at 1. The {@code maxScaleFactor} must be &ge; 1 and
+     * {@code deltaScaleFactor} must be &gt; 0. {@code maxScaleFactor} should ideally be a multiple
      * of {@code deltaScaleFactor} for smoother zooming steps.
      *
      * @param content the {@link Pane} to be displayed inside the scroll pane. Cannot be {@code null}.
-     * @param maxScaleFactor the maximum zoom level allowed (e.g., 5.0 for 500% zoom). Must be ≥ 1.
-     * @param deltaScaleFactor the zoom increment applied per zoom gesture (e.g., 0.25). Must be > 0.
+     * @param maxScaleFactor the maximum zoom level allowed (e.g., 5.0 for 500% zoom). Must be &ge; 1.
+     * @param deltaScaleFactor the zoom increment applied per zoom gesture (e.g., 0.25). Must be &gt; 0.
      * @param enableZoom whether zooming is enabled via mouse scroll.
      * @param enablePanning whether panning is enabled via mouse drag.
      * @param enableScrollbars whether scrollbars are shown.
      * @param enableClipping whether the panel clips overflows of its contents.
-     * @throws IllegalArgumentException if {@code content} is {@code null}, {@code maxScaleFactor} < 1,
-     *         or {@code deltaScaleFactor} ≤ 0.
+     * @throws IllegalArgumentException if {@code content} is {@code null}, {@code maxScaleFactor} &lt; 1,
+     *         or {@code deltaScaleFactor} &le; 0.
      */
     public ContentZoomScrollPane(Pane content, double maxScaleFactor, double deltaScaleFactor,
                                  boolean enableZoom, boolean enablePanning, boolean enableScrollbars, boolean enableClipping) {
@@ -140,15 +140,15 @@ public class ContentZoomScrollPane extends ScrollPane {
      *   <li>{@code enableScrollbars = false}</li>
      *   <li>{@code enableClipping = true}</li>
      * </ul>
-     * The minimum scale factor is fixed at 1. The {@code maxScaleFactor} must be ≥ 1 and
-     * {@code deltaScaleFactor} must be > 0. {@code maxScaleFactor} should ideally be a multiple
+     * The minimum scale factor is fixed at 1. The {@code maxScaleFactor} must be &ge; 1 and
+     * {@code deltaScaleFactor} must be &gt; 0. {@code maxScaleFactor} should ideally be a multiple
      * of {@code deltaScaleFactor} for smoother zooming steps.
      *
      * @param content the {@link Pane} to be displayed inside the scroll pane. Cannot be {@code null}.
-     * @param maxScaleFactor the maximum zoom level allowed (e.g., 5.0 for 500% zoom). Must be ≥ 1.
-     * @param deltaScaleFactor the zoom increment applied per zoom gesture (e.g., 0.25). Must be > 0.
-     * @throws IllegalArgumentException if {@code content} is {@code null}, {@code maxScaleFactor} < 1,
-     *         or {@code deltaScaleFactor} ≤ 0.
+     * @param maxScaleFactor the maximum zoom level allowed (e.g., 5.0 for 500% zoom). Must be &ge; 1.
+     * @param deltaScaleFactor the zoom increment applied per zoom gesture (e.g., 0.25). Must be &gt; 0.
+     * @throws IllegalArgumentException if {@code content} is {@code null}, {@code maxScaleFactor} &lt; 1,
+     *         or {@code deltaScaleFactor} &le; 0.
      */
     public ContentZoomScrollPane(Pane content, double maxScaleFactor, double deltaScaleFactor) {
         this(content, maxScaleFactor, deltaScaleFactor, true, true, false, true);
