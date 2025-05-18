@@ -93,7 +93,7 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
     /** Reference to the attached arrow, if any  */
     private SmartArrow attachedArrow = null;
 
-    /* Styling proxy */
+    /** Proxy used for node styling */
     private final SmartStyleProxy styleProxy;
 
     /**

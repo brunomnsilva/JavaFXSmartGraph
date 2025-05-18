@@ -37,10 +37,13 @@ import javafx.scene.text.Text;
  * @author brunomnsilva
  */
 public class SmartLabel extends Text implements SmartStylableNode {
-    
+    /** Proxy used for node styling */
     private final SmartStyleProxy styleProxy;
 
+    /** The width used for layout calculations. */
     private final DoubleProperty layoutWidth;
+
+    /** The height used for layout calculations. */
     private final DoubleProperty layoutHeight;
 
 

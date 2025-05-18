@@ -56,40 +56,59 @@ import java.util.Set;
  */
 public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T>, SmartLabelledNode {
 
+    /** The underlying vertex in the graph model represented by this visual node. */
     private final Vertex<T> underlyingVertex;
 
+    /** Whether this node is currently being dragged by the user. */
     private boolean isDragging;
 
+    /** Whether this node can be moved (e.g., by user interaction or layout). */
     private boolean allowMove;
 
-    /* Critical for performance, so we don't rely on the efficiency of the Graph.areAdjacent method */
+    /** Adjacent visual vertex nodes, cached for performance. */
     private final Set<SmartGraphVertexNode<T>> adjacentVertices;
 
-    /*
-    Automatic layout functionality members
-     */
+    /** Force vector used in automatic layout calculations. */
     private final PointVector forceVector = new PointVector(0, 0);
+
+    /** Updated position during automatic layout steps. */
     private final PointVector updatedPosition = new PointVector(0, 0);
+
+    /** X coordinate of the node's center. */
     private final DoubleProperty centerX;
+
+    /** Y coordinate of the node's center. */
     private final DoubleProperty centerY;
+
+    /** Radius of the node's visual representation. */
     private final DoubleProperty radius;
 
-    /* Styling proxy */
+
+    /** Proxy used for node styling */
     private final SmartStyleProxy styleProxy;
+
+    /** Reference to the attached label, if any  */
     private SmartLabel attachedLabel;
 
-    /* Shape proxy and related properties used to represent the underlying vertex.
+    /*
+    *  Shape proxy and related properties used to represent the underlying vertex.
     *  We will allow to change the shape at runtime, but other elements (e.g., lines/arrows)
     *  when created will bind to the vertex's location and radius values.
     *  Hence, we need separate properties here to be bound; later we'll bind and unbind these
     *  to the concrete shape being used.
     */
+
+    /** Shape proxy used to represent the visual appearance of the vertex. */
     private ShapeWithRadius<?> shapeProxy;
+
+    /** Name of the shape currently being used as a proxy. */
     private String shapeProxyName;
 
+    /** Reference to the parent panel managing this node. */
     private final SmartGraphPanel<T, ?> parent;
 
-    private Bounds boundingBox; // spans the shape and the (possibly attached) label.
+    /** Bounding box covering the shape and its optional label. */
+    private Bounds boundingBox;
 
     /**
      * Constructor which sets the instance attributes.
