@@ -1168,7 +1168,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
             if(in == v && out == u || in == u && out == v) {
                 int cur = edge.getMultiplicityIndex();
-                max = (cur > max) ? cur : max;
+                max = Math.max(cur, max);
             }
         }
 
