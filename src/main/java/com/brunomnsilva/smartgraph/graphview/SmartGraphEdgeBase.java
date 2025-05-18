@@ -63,6 +63,10 @@ public interface SmartGraphEdgeBase<E, V> extends SmartGraphEdge<E, V>, SmartLab
      */
     int getMultiplicityIndex();
 
+    /**
+     * Sets the multiplicity index of the edge. This impacts the curve of the edge.
+     * @param multiplicityIndex the new multiplicity index.
+     */
     void setMultiplicityIndex(int multiplicityIndex);
 
     /**
