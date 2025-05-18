@@ -315,6 +315,7 @@ public class DigraphEdgeList<V, E> implements Digraph<V, E> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public Vertex<V>[] vertices() {
             Vertex<V>[] vertices = new Vertex[2];
             vertices[0] = vertexOutbound;
