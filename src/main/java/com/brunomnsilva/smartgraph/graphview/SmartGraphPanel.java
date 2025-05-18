@@ -34,7 +34,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Tooltip;
@@ -77,6 +76,11 @@ import static com.brunomnsilva.smartgraph.graphview.UtilitiesJavaFX.pick;
  * @author brunomnsilva
  */
 public class SmartGraphPanel<V, E> extends Pane {
+    /*
+    CONSTANTS
+     */
+    public static final int VERTEX_SPAWN_PADDING = 50;
+    public static final int VERTEX_SPAWN_RANDOM_MULTIPLER = 10;
 
     /* 
     CONFIGURATION PROPERTIES
@@ -792,42 +796,134 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @return an instance of SmartGraphVertexNode
      */
     private SmartGraphVertexNode<V> spawnVertex(Vertex<V> vertex) {
-        Bounds bounds = getDisplayedVerticesBoundingBox();
-        double mx = bounds.getMinX() + bounds.getWidth() / 2.0;
-        double my = bounds.getMinY() + bounds.getHeight() / 2.0;
+        Bounds graphBounds = getDisplayedVerticesBoundingBox();
+        //double fallbackX = graphBounds.getMinX() + graphBounds.getWidth() / 2.0;
+        //double fallBackY = graphBounds.getMinY() + graphBounds.getHeight() / 2.0;
 
-        //Place new nodes in the vicinity of existing adjacent ones;
-        //Place them in the middle of the plot, otherwise.
-        double x, y;
+        // top-left corner of the bounding box
+        double fallbackX = graphBounds.getMinX();
+        double fallBackY = graphBounds.getMinY();
+
+        double x =  fallbackX, y = fallBackY;
         Collection<Edge<E, V>> incidentEdges = theGraph.incidentEdges(vertex);
-        if (incidentEdges.isEmpty()) {
-            /* not (yet) connected, put in the middle of the plot */
-            x = mx;
-            y = my;
-        } else {
-            Edge<E, V> firstEdge = incidentEdges.iterator().next();
-            Vertex<V> opposite = theGraph.opposite(vertex, firstEdge);
-            SmartGraphVertexNode<V> existing = vertexNodes.get(opposite);
 
-            if(existing == null) {
-                        /*
-                        Updates may be coming too fast, and we can get out of sync.
-                        The opposite vertex exists in the (di)graph, but we have not yet
-                        created it for the panel. Therefore, its position is unknown,
-                        so place the vertex representation in the middle.
-                        */
-                x = mx;
-                y = my;
-            } else {
-                Point2D p = UtilitiesPoint2D.rotate(existing.getPosition().add(50.0, 50.0),
-                        existing.getPosition(), Math.random() * 360);
+        /* If not (yet?) connected, it may be an isolated vertex or the user is calling
+         * update() before connecting it with an edge; impossible to predict.
+         * Put the vertex outside the bounds of the current graph, trying to minimize
+         * consequences of the automatic (spring) layout system.
+         * TODO: Should produce some documentation warning the user to avoid this usage.
+         */
 
-                x = clamp(p.getX(), 0, getWidth());
-                y = clamp(p.getY(), 0, getHeight());
+        int neighorCount = 0;
+        if(!incidentEdges.isEmpty()) {
+            /*
+             * Compute centroid of neighbor positions. This will be more effective if the new vertex has
+             * several neighbors. In a more frequent situation (e.g. one neighbor), this will place the
+             * new vertex over the single neighbor. We'll improve this position afterwards.
+             */
+            double sumX = 0, sumY = 0;
+
+            for (Edge<E, V> edge : incidentEdges) {
+                Vertex<V> vNeighbor = theGraph.opposite(vertex, edge);
+                if(vertex == vNeighbor) continue; // self-loop
+
+                SmartGraphVertexNode<V> neighbor = vertexNodes.get(vNeighbor);
+
+                if(neighbor != null) {
+                    sumX += neighbor.getPositionCenterX();
+                    sumY += neighbor.getPositionCenterY();
+                    neighorCount++;
+                }
+            }
+
+            /*
+             * Updates may be coming too fast, and we can get out of sync.
+             * The opposite vertex exists in the (di)graph, but we have not yet
+             * created it for the panel. Therefore, its position is unknown,
+             * so place the vertex outside the bounds of the current graph.
+             * This will yield neighborCount == 0, hence we maintain the fallback positioning
+             */
+
+            if(neighorCount > 0) {
+                x = sumX / neighorCount;
+                y = sumY / neighorCount;
             }
         }
 
-        return createVertex(vertex, x, y);
+        // 2. Check if initial placement proposal is free
+        if(isPositionFreeForVertexSpawn(vertex, x, y)) {
+            return createVertex(vertex, x, y);
+        }
+
+        // 3. If not, spiral search outward around centroid
+        double spawnRadius = getVertexShapeRadiusFor(vertex.element());
+        int angularSteps = 16;
+        double stepRadius = 2 * spawnRadius + VERTEX_SPAWN_PADDING;
+
+        for (int ring = 1; ring <= 10; ring++) {
+            double r = ring * stepRadius;
+            for (int i = 0; i < angularSteps; i++) {
+                double angle = 2 * Math.PI * i / angularSteps;
+                double newX = x + r * Math.cos(angle);
+                double newY = y + r * Math.sin(angle);
+
+                // Quit if we overflow for some reason
+                if(newX < 0 || newY < 0 || !Double.isFinite(newX) || !Double.isFinite(newY)) {
+                    break;
+                }
+
+                if (isPositionFreeForVertexSpawn(vertex, newX, newY)) {
+                    return createVertex(vertex, newX, newY);
+                }
+            }
+        }
+
+        // 4. We're desperate: random scatter
+        int tries = 20;
+        while (tries > 0) {
+            double newX = x + (Math.random() - 0.5) * VERTEX_SPAWN_RANDOM_MULTIPLER * stepRadius;
+            double newY = y + (Math.random() - 0.5) * VERTEX_SPAWN_RANDOM_MULTIPLER * stepRadius;
+
+            // Quit if we overflow for some reason
+            if(newX < 0 || newY < 0 || !Double.isFinite(newX) || !Double.isFinite(newY)) {
+                break;
+            }
+
+            if (isPositionFreeForVertexSpawn(vertex, newX, newY)) {
+                return createVertex(vertex, newX, newY);
+            }
+            tries--;
+        }
+
+        // Force initial proposal, could not find any better placement. The graph is packed!
+        // Offset the position by some amount
+        return createVertex(vertex, x + (Math.random() - 0.5) * spawnRadius, y + (Math.random() - 0.5) * spawnRadius);
+    }
+
+    /**
+     * Check if a position is not occupied by any vertex.
+     *
+     * @param vertex the element that the spawn vertex will contain. Used internally to derive the future vertex radius.
+     * @param x x-coordinate to check
+     * @param y y-coordinate to check
+     * @return true if available; false, otherwise
+     */
+    private boolean isPositionFreeForVertexSpawn(Vertex<V> vertex, double x, double y) {
+
+
+        double spawnRadius = getVertexShapeRadiusFor(vertex.element());
+        Bounds panelBounds = this.getLayoutBounds();
+
+        for (SmartGraphVertexNode<V> v : vertexNodes.values()) {
+            double dx = v.getPositionCenterX() - x;
+            double dy = v.getPositionCenterY() - y;
+            double minDistance = spawnRadius + v.getRadius() + VERTEX_SPAWN_PADDING;
+
+            if (Math.hypot(dx, dy) < minDistance || !panelBounds.contains(x, y)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void removeNodes() {
