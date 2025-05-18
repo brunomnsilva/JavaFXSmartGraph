@@ -434,7 +434,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * Returns a collection of the smart vertices that represent the underlying model vertices.
      * @return a collection of the smart vertices
      */
-    protected final Collection<SmartGraphVertex<V>> getSmartVertices() {
+    public final Collection<SmartGraphVertex<V>> getSmartVertices() {
         return new ArrayList<>(this.vertexNodes.values());
     }
 
@@ -442,7 +442,7 @@ public class SmartGraphPanel<V, E> extends Pane {
      * Returns a collection of the smart edges that represent the underlying model edges.
      * @return a collection of the smart edges
      */
-    protected final Collection<SmartGraphEdge<E, V>> getSmartEdges() {
+    public final Collection<SmartGraphEdge<E, V>> getSmartEdges() {
         return new ArrayList<>(this.edgeNodes.values());
     }
 
