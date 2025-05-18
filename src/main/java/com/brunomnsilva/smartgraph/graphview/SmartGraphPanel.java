@@ -696,7 +696,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     private void addEdge(SmartGraphEdgeNode<E,V> e, Edge<E, V> edge) {
-        // Edges to the back
+        // Keep the following z-order (edge, arrow, label)
+
         this.getChildren().add(0, e);
         edgeNodes.put(edge, e);
 
@@ -711,7 +712,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             SmartLabel label = new SmartLabel(labelText);
 
             label.addStyleClass("edge-label");
-            this.getChildren().add(label);
+            this.getChildren().add(1, label);
             e.attachLabel(label);
         }
 
@@ -728,50 +729,14 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         List<SmartGraphVertexNode<V>> newVertices = null;
 
-        Bounds bounds = getDisplayedVerticesBoundingBox();
-        double mx = bounds.getMinX() + bounds.getWidth() / 2.0;
-        double my = bounds.getMinY() + bounds.getHeight() / 2.0;
-
         if (!unplottedVertices.isEmpty()) {
 
             newVertices = new LinkedList<>();
 
             for (Vertex<V> vertex : unplottedVertices) {
                 // TODO: maybe review this code/behavior later
-
-                //create node
-                //Place new nodes in the vicinity of existing adjacent ones;
-                //Place them in the middle of the plot, otherwise.
-                double x, y;
-                Collection<Edge<E, V>> incidentEdges = theGraph.incidentEdges(vertex);
-                if (incidentEdges.isEmpty()) {
-                    /* not (yet) connected, put in the middle of the plot */
-                    x = mx;
-                    y = my;
-                } else {
-                    Edge<E, V> firstEdge = incidentEdges.iterator().next();
-                    Vertex<V> opposite = theGraph.opposite(vertex, firstEdge);
-                    SmartGraphVertexNode<V> existing = vertexNodes.get(opposite);
-                    
-                    if(existing == null) {
-                        /* 
-                        Updates may be coming too fast, and we can get out of sync.
-                        The opposite vertex exists in the (di)graph, but we have not yet
-                        created it for the panel. Therefore, its position is unknown,
-                        so place the vertex representation in the middle.
-                        */                        
-                        x = mx;
-                        y = my;
-                    } else {
-                        Point2D p = UtilitiesPoint2D.rotate(existing.getPosition().add(50.0, 50.0),
-                                existing.getPosition(), Math.random() * 360);
-
-                        x = clamp(p.getX(), 0, getWidth());
-                        y = clamp(p.getY(), 0, getHeight());
-                    }
-                }
-
-                SmartGraphVertexNode<V> newVertex = createVertex(vertex, x, y);
+                //SmartGraphVertexNode<V> newVertex = createVertex(vertex, x, y);
+                SmartGraphVertexNode<V> newVertex = spawnVertex(vertex);
 
                 //track new nodes
                 newVertices.add(newVertex);
@@ -819,6 +784,50 @@ public class SmartGraphPanel<V, E> extends Pane {
             }
         }
 
+    }
+
+    /**
+     * Find an optimal position for the spawning of a new vertex.
+     * @param vertex the underlying vertex
+     * @return an instance of SmartGraphVertexNode
+     */
+    private SmartGraphVertexNode<V> spawnVertex(Vertex<V> vertex) {
+        Bounds bounds = getDisplayedVerticesBoundingBox();
+        double mx = bounds.getMinX() + bounds.getWidth() / 2.0;
+        double my = bounds.getMinY() + bounds.getHeight() / 2.0;
+
+        //Place new nodes in the vicinity of existing adjacent ones;
+        //Place them in the middle of the plot, otherwise.
+        double x, y;
+        Collection<Edge<E, V>> incidentEdges = theGraph.incidentEdges(vertex);
+        if (incidentEdges.isEmpty()) {
+            /* not (yet) connected, put in the middle of the plot */
+            x = mx;
+            y = my;
+        } else {
+            Edge<E, V> firstEdge = incidentEdges.iterator().next();
+            Vertex<V> opposite = theGraph.opposite(vertex, firstEdge);
+            SmartGraphVertexNode<V> existing = vertexNodes.get(opposite);
+
+            if(existing == null) {
+                        /*
+                        Updates may be coming too fast, and we can get out of sync.
+                        The opposite vertex exists in the (di)graph, but we have not yet
+                        created it for the panel. Therefore, its position is unknown,
+                        so place the vertex representation in the middle.
+                        */
+                x = mx;
+                y = my;
+            } else {
+                Point2D p = UtilitiesPoint2D.rotate(existing.getPosition().add(50.0, 50.0),
+                        existing.getPosition(), Math.random() * 360);
+
+                x = clamp(p.getX(), 0, getWidth());
+                y = clamp(p.getY(), 0, getHeight());
+            }
+        }
+
+        return createVertex(vertex, x, y);
     }
 
     private void removeNodes() {
