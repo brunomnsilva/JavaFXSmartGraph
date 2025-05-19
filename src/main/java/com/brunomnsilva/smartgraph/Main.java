@@ -81,6 +81,16 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
+
+        // Programmatically define the shape of a vertex. Uncomment to test
+        /*graphView.setVertexShapeTypeProvider(new SmartShapeTypeProvider<String>() {
+            @Override
+            public String valueFor(String vertexElement) {
+                if(vertexElement.equalsIgnoreCase("V03")) return "triangle";
+                return "circle";
+            }
+        });*/
+
         /*
         IMPORTANT: Must call init() after scene is displayed, so we can have width and height values
         to initially place the vertices according to the placement strategy.
@@ -130,10 +140,10 @@ public class Main extends Application {
         /* 
         Uncomment lines to test adding of new elements
          */
-        //continuously_test_adding_elements(g, graphView);
-        //stage.setOnCloseRequest(event -> {
-        //    running = false;
-        //});
+        /*continuously_test_adding_elements(g, graphView);
+        stage.setOnCloseRequest(event -> {
+            running = false;
+        });*/
     }
 
     /**
@@ -248,11 +258,11 @@ public class Main extends Application {
                     //underlying graph before styling a node immediately after.
                     graphView.updateAndWait();
                     
-                    //color new vertices
-                    SmartStylableNode stylableVertex = graphView.getStylableVertex(vertexId);
-                    if(stylableVertex != null) {
-                        stylableVertex.setStyleInline("-fx-fill: orange;");
-                    }
+                    //color new vertices, uncomment
+                    //SmartStylableNode stylableVertex = graphView.getStylableVertex(vertexId);
+                    //if(stylableVertex != null) {
+                    //    stylableVertex.setStyleInline("-fx-fill: orange;");
+                    //}
                 } else {
                     Vertex<String> existing1 = get_random_vertex(g);
                     Vertex<String> existing2 = get_random_vertex(g);

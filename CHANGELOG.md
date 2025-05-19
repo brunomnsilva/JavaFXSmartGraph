@@ -7,7 +7,7 @@
     - Propagation of hover events to labels and arrows (can be styled);
     - 🎉 Improve edge readability (issue #43) by changing the label underlying representation to a StackPane. Labels now accept CSS styles for Pane (background) and Text (the label itself).
     - ⚠️ Fixed a regression that affected the movement of vertices.
-    - ...
+    - Other small fixes and improvements.
   
 - (2.1.0) Notable changes:
   

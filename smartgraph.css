@@ -33,6 +33,13 @@ This should help you understand which styles you can apply.
 
 .vertex-label {
     -fx-font: bold 8pt "sans-serif";
+    -fx-padding: 5px;
+}
+
+.vertex-label:hover {
+    -fx-background-color: white;
+    -fx-background-radius: 5;
+    -fx-border-color: black;
 }
 
 .edge {
@@ -50,6 +57,17 @@ This should help you understand which styles you can apply.
 
 .edge-label {
     -fx-font: normal 5pt "sans-serif";
+    -fx-fill: white;
+    -fx-background-color: red;
+    -fx-background-radius: 0;
+    -fx-border-color: black;
+    -fx-padding: 2px;
+}
+
+.edge-label:hover {
+    -fx-font: bold 5pt "sans-serif";
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
 }
 
 /* Since version 2.0.0-rc2 this style is cumulatively applied to arrows, after the "edge" class.

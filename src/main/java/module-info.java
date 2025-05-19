@@ -11,4 +11,5 @@ module com.brunomnsilva.smartgraph {
     exports com.brunomnsilva.smartgraph.containers;
     exports com.brunomnsilva.smartgraph.graph;
     exports com.brunomnsilva.smartgraph.graphview;
+    exports com.brunomnsilva.smartgraph.example;
 }
