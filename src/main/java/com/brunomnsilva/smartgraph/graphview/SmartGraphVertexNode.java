@@ -28,7 +28,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
@@ -56,7 +55,7 @@ import java.util.Set;
  */
 public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T>, SmartLabelledNode {
 
-    public static final int ATTACHED_LABEL_OFFSET = 5;
+    public static final int ATTACHED_LABEL_VERTICAL_OFFSET = 5;
 
     /** The underlying vertex in the graph model represented by this visual node. */
     private final Vertex<T> underlyingVertex;
@@ -109,9 +108,6 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     /** Reference to the parent panel managing this node. */
     private final SmartGraphPanel<T, ?> parent;
 
-    /** Bounding box covering the shape and its optional label. */
-    private Bounds boundingBox;
-
     /**
      * Constructor which sets the instance attributes.
      *
@@ -155,7 +151,6 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
             enableDrag();
         }
 
-        updateBoundingBox();
         propagateHoverEffectToAttachments();
     }
 
@@ -240,8 +235,6 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     public void setRadius(double radius) {
         if (Double.compare(getRadius(), radius) != 0) {
             this.radius.set(radius);
-
-            updateBoundingBox();
         }
     }
 
@@ -442,9 +435,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         label.xProperty().bind(centerXProperty().subtract(Bindings.divide( label.layoutWidthProperty(), 2.0)));
 
         // Put below the vertex, by the specified offset
-        label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), ATTACHED_LABEL_OFFSET)));
-
-        updateBoundingBox();
+        label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), ATTACHED_LABEL_VERTICAL_OFFSET)));
     }
 
     @Override
@@ -485,6 +476,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     private boolean hasLabel() {
         return attachedLabel != null;
     }
+
     /**
      * Make a node movable by dragging it around with the mouse primary button.
      */
@@ -556,7 +548,9 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
      */
     private double boundVertexNodeXPositioning(double xCoord, double minCoordValue, double maxCoordValue) {
         // The shape and (possibly attached) label are centered, so its bounds are equals for each side
-        double lengthToSide = this.boundingBox.getWidth() / 2;
+        double lengthToSide = Math.max(
+                getRadius(),
+                (attachedLabel != null ? attachedLabel.layoutWidthProperty().get()/2 : 0));
 
         if (xCoord < minCoordValue + lengthToSide) {
             return minCoordValue + lengthToSide;
@@ -571,7 +565,8 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         // The length to the top from the center point is the radius of the surrogate shape
         // The length to the bottom from the center point is the radius of the surrogate shape, plus the label offset and height
         double lengthToTop = getRadius();
-        double lengthToBottom = getRadius() + (attachedLabel != null ? attachedLabel.layoutHeightProperty().get() : 0);
+        double lengthToBottom = getRadius() +
+                (attachedLabel != null ? ATTACHED_LABEL_VERTICAL_OFFSET + attachedLabel.layoutHeightProperty().get() : 0);
 
         if (yCoord < minCoordValue + lengthToTop) {
             return minCoordValue + lengthToTop;
@@ -579,19 +574,6 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
             return maxCoordValue - lengthToBottom;
         } else {
             return yCoord;
-        }
-    }
-
-    /**
-     * Updates the bounding box that encloses this node (including its label).
-     */
-    private void updateBoundingBox() {
-        if(shapeProxy == null || shapeProxy.getShape() == null) return;
-
-        this.boundingBox = this.shapeProxy.getShape().getLayoutBounds();
-
-        if(hasLabel()) {
-            this.boundingBox = UtilitiesJavaFX.union(this.boundingBox, attachedLabel.getLayoutBounds());
         }
     }
 
