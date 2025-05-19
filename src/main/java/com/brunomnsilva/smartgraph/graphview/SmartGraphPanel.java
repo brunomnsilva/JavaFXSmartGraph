@@ -424,6 +424,10 @@ public class SmartGraphPanel<V, E> extends Pane {
             timer.start();
         }
 
+        // If vertex/label shape/radius/etc. providers are set before the call to init(),
+        // we must update before the first layout of the panel.
+        updateNodes();
+
         this.initialized = true;
     }
 
