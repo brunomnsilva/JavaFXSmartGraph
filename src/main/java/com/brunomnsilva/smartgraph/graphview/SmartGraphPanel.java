@@ -40,7 +40,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -985,7 +984,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             getChildren().remove(attachedArrow);
         }
 
-        Text attachedLabel = e.getAttachedLabel();
+        Pane attachedLabel = e.getAttachedLabel();
         if (attachedLabel != null) {
             getChildren().remove(attachedLabel);
         }
@@ -1036,7 +1035,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private void removeVertex(SmartGraphVertexNode<V> v) {
         getChildren().remove(v);
 
-        Text attachedLabel = v.getAttachedLabel();
+        Pane attachedLabel = v.getAttachedLabel();
         if (attachedLabel != null) {
             getChildren().remove(attachedLabel);
         }
@@ -1054,7 +1053,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 SmartLabel label = vertexNode.getAttachedLabel();
                 if(label != null) {
                     String text = getVertexLabelFor(v.element());
-                    label.setText_( text );
+                    label.setText( text );
                 }
 
                 double radius = getVertexShapeRadiusFor(v.element());
@@ -1072,7 +1071,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                 SmartLabel label = edgeNode.getAttachedLabel();
                 if (label != null) {
                     String text = getEdgeLabelFor(e.element());
-                    label.setText_( text );
+                    label.setText( text );
                 }
             }
         });
