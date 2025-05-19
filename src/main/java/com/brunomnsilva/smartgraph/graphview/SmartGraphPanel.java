@@ -77,54 +77,76 @@ import static com.brunomnsilva.smartgraph.graphview.UtilitiesJavaFX.pick;
  */
 public class SmartGraphPanel<V, E> extends Pane {
     /*
-    CONSTANTS
+     * CONSTANTS
      */
+
+    /** Padding (in pixels) around a new vertex spawn position. */
     public static final int VERTEX_SPAWN_PADDING = 50;
+    /** Multiplier used for introducing randomness when spawning a vertex. */
     public static final int VERTEX_SPAWN_RANDOM_MULTIPLER = 10;
 
-    /* 
-    CONFIGURATION PROPERTIES
+    /*
+     * CONFIGURATION PROPERTIES
      */
-    private final SmartGraphProperties graphProperties;
 
+    /** Configuration properties for customizing the graph behavior and appearance. */
+    private final SmartGraphProperties graphProperties;
+    /** Default CSS file used to style the graph. */
     private static final String DEFAULT_CSS_FILE = "smartgraph.css";
+
     /*
-    INTERNAL DATA STRUCTURE
+     * INTERNAL DATA STRUCTURE
      */
+
+    /** The internal graph data structure representing vertices and edges. */
     private final Graph<V, E> theGraph;
+    /** Strategy used to determine the initial placement of graph elements. */
     private final SmartPlacementStrategy placementStrategy;
+    /** Mapping between logical vertices and their corresponding visual nodes. */
     private final Map<Vertex<V>, SmartGraphVertexNode<V>> vertexNodes;
+    /** Mapping between logical edges and their corresponding visual nodes. */
     private final Map<Edge<E, V>, SmartGraphEdgeNode<E, V>> edgeNodes;
-    private final Map<Edge<E,V>, Tuple<Vertex<V>>> connections;
+    /** Mapping between edges and the pair of vertices they connect. */
+    private final Map<Edge<E, V>, Tuple<Vertex<V>>> connections;
+    /** Flag indicating whether the graph visualization has been initialized. */
     private boolean initialized = false;
+    /** Flag indicating whether edges should be rendered with arrows. */
     private final boolean edgesWithArrows;
-    
+
     /*
-    INTERACTION WITH VERTICES AND EDGES
+     * INTERACTION WITH VERTICES AND EDGES
      */
+
+    /** Function to be executed when a vertex is clicked. */
     private Consumer<SmartGraphVertex<V>> vertexClickConsumer;
+    /** Function to be executed when an edge is clicked. */
     private Consumer<SmartGraphEdge<E, V>> edgeClickConsumer;
 
     /*
-    OPTIONAL PROVIDERS FOR LABELS, RADII AND SHAPE TYPES OF NODES.
-    THESE HAVE PRIORITY OVER ANY MODEL ANNOTATIONS (E.G., SmartLabelSource)
+     * OPTIONAL PROVIDERS FOR LABELS, RADII AND SHAPE TYPES OF NODES.
+     * THESE HAVE PRIORITY OVER ANY MODEL ANNOTATIONS (E.G., SmartLabelSource)
      */
+
+    /** Provides custom labels for vertices, overriding annotation-based sources. */
     private SmartLabelProvider<V> vertexLabelProvider;
+    /** Provides custom labels for edges, overriding annotation-based sources. */
     private SmartLabelProvider<E> edgeLabelProvider;
+    /** Provides custom radii for vertices, overriding annotation-based sources. */
     private SmartRadiusProvider<V> vertexRadiusProvider;
+    /** Provides custom shape types for vertices, overriding annotation-based sources. */
     private SmartShapeTypeProvider<V> vertexShapeTypeProvider;
 
     /*
-    AUTOMATIC LAYOUT RELATED ATTRIBUTES
+     * AUTOMATIC LAYOUT RELATED ATTRIBUTES
      */
 
-    /**
-     * Property to toggle the automatic layout of nodes.
-     */
+    /** Property to toggle the automatic layout of nodes. */
     public final BooleanProperty automaticLayoutProperty;
+    /** Timer used to drive the automatic layout updates. */
     private final AnimationTimer timer;
+    /** Strategy used for automatic layout of graph nodes. */
     private ForceDirectedLayoutStrategy<V> automaticLayoutStrategy;
-    //This value was obtained experimentally
+    /** Number of iterations per frame for the automatic layout algorithm. */
     private static final int AUTOMATIC_LAYOUT_ITERATIONS = 20;
 
     /**
@@ -345,8 +367,18 @@ public class SmartGraphPanel<V, E> extends Pane {
         );
     }
 
-
-
+    /**
+     * Executes a single animation step of the automatic layout algorithm.
+     * <br/>
+     * This method performs a fixed number of layout iterations where:
+     * <ul>
+     *     <li>All force vectors are reset.</li>
+     *     <li>Attractive and repulsive forces are computed between nodes.</li>
+     *     <li>These forces are accumulated and updated.</li>
+     *     <li>Final positions are then updated accordingly.</li>
+     * </ul>
+     * This method is synchronized to ensure thread safety during layout updates.
+     */
     private synchronized void runAutomaticLayout() {
         for (int i = 0; i < AUTOMATIC_LAYOUT_ITERATIONS; i++) {
             resetForces();
@@ -398,7 +430,6 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     /**
      * Returns the property used to toggle the automatic layout of vertices.
-     * 
      * @return  automatic layout property
      */
     public BooleanProperty automaticLayoutProperty() {
@@ -407,8 +438,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     
     /**
      * Toggle the automatic layout of vertices.
-     * 
-     * @param value     true if enabling; false, otherwise
+     * @param value true if enabling; false, otherwise
      */
     public void setAutomaticLayout(boolean value) {
         automaticLayoutProperty.set(value);
@@ -426,8 +456,8 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     /**
      * Returns the reference of underlying model depicted by this panel.
-     * <br/> The concrete type of the returned instance may be a {@link Graph} or {@link Digraph}.
-     *
+     * <br/>
+     * The concrete type of the returned instance may be a {@link Graph} or {@link Digraph}.
      * @return the underlying model
      */
     public Graph<V, E> getModel() {
@@ -518,93 +548,28 @@ public class SmartGraphPanel<V, E> extends Pane {
         
     }
 
+    /**
+     * Updates the visual representation of the graph to match the underlying data model.
+     * <p>
+     * This includes removing obsolete nodes, inserting new ones, and updating existing nodes
+     * to reflect any changes. Synchronized to ensure thread safety during view updates.
+     */
     private synchronized void updateViewModel() {
         removeNodes();
         insertNodes();
         updateNodes();
     }
 
-    /*
-    INTERACTION WITH VERTICES AND EDGES
-     */
     /**
-     * Sets the action that should be performed when a vertex is double-clicked.
-     *
-     * @param action action to be performed
+     * Initializes the graphical nodes for all vertices and edges in the graph.
+     * <br/>
+     * For each vertex in the graph, creates a corresponding visual node and registers it.
+     * Then, iterates over all edges to create and connect their visual representations, avoiding duplicates.
+     * Finally, adds all vertex nodes to the view, ensuring they are placed above edge representations.
      */
-    public void setVertexDoubleClickAction(Consumer<SmartGraphVertex<V>> action) {
-        this.vertexClickConsumer = action;
-    }
-
-    /**
-     * Sets the action that should be performed when an edge is double-clicked.
-     *
-     * @param action action to be performed
-     */
-    public void setEdgeDoubleClickAction(Consumer<SmartGraphEdge<E, V>> action) {
-        this.edgeClickConsumer = action;
-    }
-
-    /* PROVIDERS */
-
-    /**
-     * Sets the vertex label provider for this SmartGraphPanel.
-     * <br/>
-     * The label provider has priority over any other method of obtaining the same values, such as annotations.
-     * <br/>
-     * To remove the provider, call this method with a <code>null</code> argument.
-     *
-     * @param labelProvider the label provider to set
-     */
-    public void setVertexLabelProvider(SmartLabelProvider<V> labelProvider) {
-        this.vertexLabelProvider = labelProvider;
-    }
-
-    /**
-     * Sets the edge label provider for this SmartGraphPanel.
-     * <br/>
-     * The label provider has priority over any other method of obtaining the same values, such as annotations.
-     * <br/>
-     * To remove the provider, call this method with a <code>null</code> argument.
-     *
-     * @param labelProvider the label provider to set
-     */
-    public void setEdgeLabelProvider(SmartLabelProvider<E> labelProvider) {
-        this.edgeLabelProvider = labelProvider;
-    }
-
-    /**
-     * Sets the radius provider for this SmartGraphPanel.
-     * <br/>
-     * The radius provider has priority over any other method of obtaining the same values, such as annotations.
-     * <br/>
-     * To remove the provider, call this method with a <code>null</code> argument.
-     *
-     * @param vertexRadiusProvider the radius provider to set
-     */
-    public void setVertexRadiusProvider(SmartRadiusProvider<V> vertexRadiusProvider) {
-        this.vertexRadiusProvider = vertexRadiusProvider;
-    }
-
-    /**
-     * Sets the shape type provider for this SmartGraphPanel.
-     * <br/>
-     * The shape type provider has priority over any other method of obtaining the same values, such as annotations.
-     * <br/>
-     * To remove the provider, call this method with a <code>null</code> argument.
-     *
-     * @param vertexShapeTypeProvider the shape type provider to set
-     */
-    public void setVertexShapeTypeProvider(SmartShapeTypeProvider<V> vertexShapeTypeProvider) {
-        this.vertexShapeTypeProvider = vertexShapeTypeProvider;
-    }
-
-    /*
-        NODES CREATION/UPDATES
-         */
     private void initNodes() {
 
-        /* create vertex graphical representations */
+        /* Create vertex graphical representations. */
         for (Vertex<V> vertex : listOfVertices()) {
 
             SmartGraphVertexNode<V> vertexAnchor = createVertex(vertex, 0, 0);
@@ -612,8 +577,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             vertexNodes.put(vertex, vertexAnchor);
         }
 
-        /* create edges graphical representations between existing vertices */
-        //this is used to guarantee that no duplicate edges are ever inserted
+        /* Create graphical representations of edges between existing vertices. */
         List<Edge<E, V>> edgesToPlace = listOfEdges();
 
         for (Vertex<V> vertex : vertexNodes.keySet()) {
@@ -622,7 +586,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
             for (Edge<E, V> edge : incidentEdges) {
 
-                //if already plotted, ignore edge.
+                // If already plotted, ignore edge.
                 if (!edgesToPlace.contains(edge)) {
                     continue;
                 }
@@ -637,7 +601,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
                 SmartGraphEdgeNode<E,V> graphEdge = createEdge(edge, graphVertexIn, graphVertexOppositeOut);
 
-                /* Track Edges already placed */
+                // Track already placed edges
                 connections.put(edge, new Tuple<>(vertex, oppositeVertex));
                 addEdge(graphEdge, edge);
 
@@ -646,7 +610,9 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         }
 
-        /* place vertices above lines */
+        /*
+         * Vertices are added after to maintain a z-order of (edges -> vertices)
+         */
         for (Vertex<V> vertex : vertexNodes.keySet()) {
             SmartGraphVertexNode<V> v = vertexNodes.get(vertex);
 
@@ -654,6 +620,14 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
+    /**
+     * Creates a visual representation of the given vertex at the specified (x, y) coordinates.
+     *
+     * @param v the vertex to create a visual node for
+     * @param x the x-coordinate for the vertex placement
+     * @param y the y-coordinate for the vertex placement
+     * @return the newly created {@code SmartGraphVertexNode} representing the vertex
+     */
     private SmartGraphVertexNode<V> createVertex(Vertex<V> v, double x, double y) {
         // Read shape type from annotation or use default (circle)
         String shapeType = getVertexShapeTypeFor(v.element());
@@ -664,22 +638,31 @@ public class SmartGraphPanel<V, E> extends Pane {
         return new SmartGraphVertexNode<>(this, v, x, y, shapeRadius, shapeType, graphProperties.getVertexAllowUserMove());
     }
 
+    /**
+     * Creates a visual representation of the given edge between two specified vertex nodes, assigning a multiplicity index
+     * to manage parallel edges. The index determines the curvature of the edge: straight for index 0 and curved for higher values.
+     * <br/>
+     * The multiplicity index is incremented based on the current maximum index between the given vertices, ensuring proper spacing
+     * between multiple edges. This index is later recycled when edges are removed.
+     *
+     * @param edge the edge to be represented
+     * @param graphVertexInbound the inbound (source) vertex node
+     * @param graphVertexOutbound the outbound (destination) vertex node
+     * @return a newly created {@code SmartGraphEdgeNode} representing the edge
+     */
     private SmartGraphEdgeNode<E,V> createEdge(Edge<E, V> edge, SmartGraphVertexNode<V> graphVertexInbound, SmartGraphVertexNode<V> graphVertexOutbound) {
-        /*
-         Edges will be placed with 'multiplicityIndex' starting at 0 for a single edge between a pair of vertices. This represents a straight edge.
-         When more than an edge exists, the 'multiplicityIndex' will start at 1, forcing the edges to be curved.
-
-         Newer edges have higher multiplicity indices.
-
-         Note that, indirectly, multiplicity indices will be "recycled", since they are updated (decremented) when edges are removed.
-         This is performed in 'updateParallelEdgesOf(edge)'.
-         */
-
         int maxIndex = getMaxMultiplicityIndexBetween(graphVertexInbound, graphVertexOutbound);
-
         return new SmartGraphEdgeNode<>(edge, graphVertexInbound, graphVertexOutbound, ++maxIndex);
     }
 
+    /**
+     * Adds a vertex node to the graph pane, along with its optional tooltip and label, based on the current graph properties.
+     * <br/>
+     * If tooltips are enabled, a tooltip is created with the vertex label text and installed on the vertex node.
+     * If labels are enabled, a {@code SmartLabel} is created, styled, and attached to the vertex node.
+     *
+     * @param v the {@code SmartGraphVertexNode} to be added to the graph pane
+     */
     private void addVertex(SmartGraphVertexNode<V> v) {
         this.getChildren().add(v);
 
@@ -699,6 +682,17 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
+    /**
+     * Adds an edge node to the graph pane, along with its optional tooltip, label, and directional arrow if applicable.
+     * <p>
+     * The edge node is inserted at the back of the children list to maintain visual z-ordering (edge, arrow, label).
+     * If tooltips are enabled, a tooltip is created and installed on the edge node.
+     * If labels are enabled, a {@code SmartLabel} is created, styled, and attached to the edge node.
+     * If the graph is directed and edge arrows are enabled, a {@code SmartArrow} is created, attached, and placed behind the label.
+     *
+     * @param e the {@code SmartGraphEdgeNode} to be added to the graph pane
+     * @param edge the model {@code Edge} associated with the graphical edge node
+     */
     private void addEdge(SmartGraphEdgeNode<E,V> e, Edge<E, V> edge) {
         // Keep the following z-order (edge, arrow, label)
 
@@ -728,6 +722,17 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
+    /**
+     * Inserts new vertices and edges into the graph visualization.
+     * <br/>
+     * For each unplotted vertex, a new graphical vertex node is spawned, tracked, and added to the vertex mapping.
+     * For each unplotted edge, it connects the corresponding vertex nodes if both exist, creates a graphical edge node,
+     * tracks the connection, and adds the edge to the visualization.
+     * <br/>
+     * Finally, all newly spawned vertices are added to the pane.
+     * If vertices or edges are missing from the mapping during updates (possibly due to rapid changes), the method skips
+     * adding those edges to avoid inconsistency and waits for subsequent updates.
+     */
     private void insertNodes() {
         Collection<Vertex<V>> unplottedVertices = unplottedVertices();
 
@@ -738,8 +743,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             newVertices = new LinkedList<>();
 
             for (Vertex<V> vertex : unplottedVertices) {
-                // TODO: maybe review this code/behavior later
-                //SmartGraphVertexNode<V> newVertex = createVertex(vertex, x, y);
+
                 SmartGraphVertexNode<V> newVertex = spawnVertex(vertex);
 
                 //track new nodes
@@ -901,7 +905,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     /**
-     * Check if a position is not occupied by any vertex.
+     * Check if a position is not occupied by any vertex and if it's inside the layout bounds.
      *
      * @param vertex the element that the spawn vertex will contain. Used internally to derive the future vertex radius.
      * @param x x-coordinate to check
@@ -909,7 +913,6 @@ public class SmartGraphPanel<V, E> extends Pane {
      * @return true if available; false, otherwise
      */
     private boolean isPositionFreeForVertexSpawn(Vertex<V> vertex, double x, double y) {
-
 
         double spawnRadius = getVertexShapeRadiusFor(vertex.element());
         Bounds panelBounds = this.getLayoutBounds();
@@ -926,8 +929,17 @@ public class SmartGraphPanel<V, E> extends Pane {
         return true;
     }
 
+    /**
+     * Removes vertices and edges that are no longer present in the underlying graph model.
+     * <br/>
+     * For each removed edge, it removes the graphical edge node from the pane and internal mappings,
+     * updates the adjacency of its connected vertices if no other edges remain between them,
+     * and updates edge multiplicities accordingly.
+     * <br/>
+     * For each removed vertex, it removes the graphical vertex node from the pane and internal mappings.
+     */
     private void removeNodes() {
-         //remove edges (graphical elements) that were removed from the underlying graph
+
         Collection<Edge<E, V>> removedEdges = removedEdges();
         for (Edge<E, V> e : removedEdges) {
             SmartGraphEdgeNode<E,V> edgeToRemove = edgeNodes.get(e);
@@ -938,10 +950,10 @@ public class SmartGraphPanel<V, E> extends Pane {
             //the adjacency is kept in parallel in an internal data structure
             Tuple<Vertex<V>> vertexTuple = connections.get(e);
 
-            if( getTotalEdgesBetweenInModel(vertexTuple.first, vertexTuple.second) == 0 ) {
-                SmartGraphVertexNode<V> v0 = vertexNodes.get(vertexTuple.first);
-                SmartGraphVertexNode<V> v1 = vertexNodes.get(vertexTuple.second);
+            SmartGraphVertexNode<V> v0 = vertexNodes.get(vertexTuple.first);
+            SmartGraphVertexNode<V> v1 = vertexNodes.get(vertexTuple.second);
 
+            if( getTotalEdgesBetweenInModel(vertexTuple.first, vertexTuple.second) == 0 ) {
                 v0.removeAdjacentVertex(v1);
                 v1.removeAdjacentVertex(v0);
             }
@@ -949,10 +961,9 @@ public class SmartGraphPanel<V, E> extends Pane {
             connections.remove(e);
 
             // Update the multiplicity of the edges between the removed edge connecting vertices
-            updateParallelEdgesOf(edgeToRemove);
+            updateEdgeMultiplicityBetween(v0, v1);
         }
 
-        //remove vertices (graphical elements) that were removed from the underlying graph
         Collection<Vertex<V>> removedVertices = removedVertices();
         for (Vertex<V> removedVertex : removedVertices) {
             SmartGraphVertexNode<V> removed = vertexNodes.remove(removedVertex);
@@ -961,6 +972,11 @@ public class SmartGraphPanel<V, E> extends Pane {
                 
     }
 
+    /**
+     * Removes the specified edge graphical node and its associated arrow and label from the pane.
+     *
+     * @param e the SmartGraphEdgeNode to be removed from the view
+     */
     private void removeEdge(SmartGraphEdgeNode<E,V> e) {
         getChildren().remove(e);
 
@@ -975,20 +991,18 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
     }
 
-    /*
-     * Update the multiplicity of the parallel edges of 'e'.
-     * This is called from removeNodes(), after an edge is removed. Hence, 'e'
-     * will be a removed edge. We want to update the multiplicities of the remaining
-     * edges that still subsist after this one is removed.
+    /**
+     * Updates the multiplicity indices of parallel edges between two vertex nodes to ensure proper visual separation.
+     * The oldest edge gets a multiplicity index of 0 (straight line), and subsequent edges are assigned
+     * indices that maintain parity and minimize overlap by alternating sides of the line axis.
      *
-     * This work
+     * @param v the first vertex node
+     * @param w the second vertex node
      */
-    private void updateParallelEdgesOf(SmartGraphEdgeNode<E,V> e) {
+    private void updateEdgeMultiplicityBetween(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> w) {
+        if(v == null || w == null) return;
 
-        SmartGraphVertexNode<V> v = (SmartGraphVertexNode<V>)e.getInbound();
-        SmartGraphVertexNode<V> w = (SmartGraphVertexNode<V>)e.getOutbound();
-
-        // 'getEdgesBetween' returns a collection of ages, ordered by their "age".
+        // 'getEdgesBetween' returns a collection of edges, ordered by their "age".
         List<SmartGraphEdgeNode<E, V>> parallelEdges = getEdgesBetween(v, w);
 
         int numEdges = parallelEdges.size();
@@ -1014,6 +1028,11 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     }
 
+    /**
+     * Removes the specified vertex node and its attached label from the pane.
+     *
+     * @param v the vertex node to be removed
+     */
     private void removeVertex(SmartGraphVertexNode<V> v) {
         getChildren().remove(v);
 
@@ -1024,7 +1043,9 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     /**
-     * Updates node's labels
+     * Updates graphical properties of all existing vertex and edge nodes.
+     * For each vertex, updates the attached label text, radius, and shape type.
+     * For each edge, updates the attached label text.
      */
     private void updateNodes() {
         theGraph.vertices().forEach((v) -> {
@@ -1056,7 +1077,23 @@ public class SmartGraphPanel<V, E> extends Pane {
             }
         });
     }
-    
+
+    /**
+     * Returns the label string to display for the given vertex element.
+     * <br/>
+     * Priority order:
+     * <ol>
+     *   <li>If the vertex element is null, returns the string "&lt;NULL&gt;".</li>
+     *   <li>If a vertexLabelProvider is set, delegates to it.</li>
+     *   <li>Otherwise, reflects on the vertex element's methods to find one annotated
+     *       with {@link SmartLabelSource}, invokes it, and returns its string value.</li>
+     *   <li>If reflection fails or no annotated method is found, returns
+     *       {@code vertexElement.toString()}.</li>
+     * </ol>
+     *
+     * @param vertexElement the vertex element for which to get the label
+     * @return the label string for the vertex element
+     */
     protected final String getVertexLabelFor(V vertexElement) {
 
         if(vertexElement == null) return "<NULL>";
@@ -1081,6 +1118,22 @@ public class SmartGraphPanel<V, E> extends Pane {
         return vertexElement.toString();
     }
 
+    /**
+     * Returns the label string to display for the given edge element.
+     * <br/>
+     * Priority order:
+     * <ol>
+     *   <li>If the edge element is null, returns the string "&lt;NULL&gt;".</li>
+     *   <li>If an edgeLabelProvider is set, delegates to it.</li>
+     *   <li>Otherwise, reflects on the edge element's methods to find one annotated
+     *       with {@link SmartLabelSource}, invokes it, and returns its string value.</li>
+     *   <li>If reflection fails or no annotated method is found, returns
+     *       {@code edgeElement.toString()}.</li>
+     * </ol>
+     *
+     * @param edgeElement the edge element for which to get the label
+     * @return the label string for the edge element
+     */
     protected final String getEdgeLabelFor(E edgeElement) {
 
         if(edgeElement == null) return "<NULL>";
@@ -1105,6 +1158,21 @@ public class SmartGraphPanel<V, E> extends Pane {
         return edgeElement.toString();
     }
 
+    /**
+     * Returns the shape type string to use for the given vertex element.
+     * <br/>
+     * Priority order:
+     * <ol>
+     *   <li>If the vertex element is null, returns the default shape from configuration.</li>
+     *   <li>If a vertexShapeTypeProvider is set, delegates to it.</li>
+     *   <li>Otherwise, reflects on the vertex element's methods to find one annotated
+     *       with {@link SmartShapeTypeSource}, invokes it, and returns its string value.</li>
+     *   <li>If reflection fails or no annotated method is found, returns the default shape from configuration.</li>
+     * </ol>
+     *
+     * @param vertexElement the vertex element for which to get the shape type
+     * @return the shape type string for the vertex element
+     */
     protected final String getVertexShapeTypeFor(V vertexElement) {
 
         if(vertexElement == null) return graphProperties.getVertexShape();
@@ -1129,6 +1197,21 @@ public class SmartGraphPanel<V, E> extends Pane {
         return graphProperties.getVertexShape();
     }
 
+    /**
+     * Returns the radius size for the graphical representation of the given vertex element.
+     * <br/>
+     * Priority order:
+     * <ol>
+     *   <li>If the vertex element is null, returns the default radius from configuration.</li>
+     *   <li>If a vertexRadiusProvider is set, delegates to it.</li>
+     *   <li>Otherwise, reflects on the vertex element's methods to find one annotated
+     *       with {@link SmartRadiusSource}, invokes it, parses its return value as a double, and returns it.</li>
+     *   <li>If reflection fails or no annotated method is found, returns the default radius from configuration.</li>
+     * </ol>
+     *
+     * @param vertexElement the vertex element for which to get the radius
+     * @return the radius size to use for the vertex's graphical shape
+     */
     protected final double getVertexShapeRadiusFor(V vertexElement) {
 
         if(vertexElement == null) return graphProperties.getVertexRadius();
@@ -1153,34 +1236,15 @@ public class SmartGraphPanel<V, E> extends Pane {
         return graphProperties.getVertexRadius();
     }
 
-    /*protected final List<SmartGraphEdgeNode> getConnectedEdgesFor(SmartGraphVertexNode<V> node) {
-        if(node == null) throw new IllegalArgumentException("node cannot be null."); // defensive
-
-        Vertex<V> underlyingVertex = node.getUnderlyingVertex();
-
-        // Get model's connected edges
-        List<Edge<E,V>> edges = new ArrayList<>();
-
-        edges.addAll( theGraph.incidentEdges(underlyingVertex) );
-
-        if(theGraph instanceof Digraph) {
-            edges.addAll( ((Digraph<V,E>)theGraph).outboundEdges(underlyingVertex) );
-        }
-
-        // Get the corresponding smart edges
-        List<SmartGraphEdgeNode> connected = new ArrayList<>();
-
-        for (Edge<E, V> edge : edges) {
-            connected.add ( edgeNodes.get(edge) );
-        }
-
-        return connected;
-    }*/
-    
     /**
-     * Computes the bounding box from all displayed vertices.
+     * Calculates and returns the bounding box that tightly contains all displayed vertex nodes.
+     * <br/>
+     * The bounding box is computed based on the minimum and maximum center coordinates
+     * of all vertex nodes currently present.
+     * If no vertices are present, the bounding box defaults to cover the entire panel area.
      *
-     * @return bounding box
+     * @return a {@link Bounds} object representing the rectangular bounding area covering all displayed vertices,
+     *         or the entire panel bounds if no vertices exist.
      */
     private Bounds getDisplayedVerticesBoundingBox() {
 
@@ -1199,27 +1263,45 @@ public class SmartGraphPanel<V, E> extends Pane {
         return new BoundingBox(minX, minY, maxX - minX, maxY - minY);
     }
 
+    /**
+     * Computes the forces to be applied on each vertex node based on the current automatic layout strategy.
+     * The layout strategy determines vertex positions by simulating forces such as attraction and repulsion.
+     */
     private void computeForces() {
         // Delegate to current layout strategy
         automaticLayoutStrategy.computeForces(vertexNodes.values(), getWidth(), getHeight());
     }
 
-    private boolean areAdjacent(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> u) {
-        return v.isAdjacentTo(u);
-    }
-
+    /**
+     * Updates the delta (change in position) values for all vertex nodes after forces have been computed.
+     * This prepares vertex nodes for movement in the layout.
+     */
     private void updateForces() {
         vertexNodes.values().forEach((v) -> v.updateDelta());
     }
 
+    /**
+     * Applies the computed forces to move all vertex nodes accordingly in the layout.
+     */
     private void applyForces() {
         vertexNodes.values().forEach((v) -> v.moveFromForces());
     }
 
+    /**
+     * Resets all force values on the vertex nodes to prepare for the next computation cycle.
+     */
     private void resetForces() {
         vertexNodes.values().forEach((v) -> v.resetForces());
     }
 
+    /**
+     * Counts the total number of edges between two given vertices in the graph model,
+     * considering edges in both directions if the graph is undirected.
+     *
+     * @param v the first vertex
+     * @param u the second vertex
+     * @return the count of edges connecting the two vertices
+     */
     private int getTotalEdgesBetweenInModel(Vertex<V> v, Vertex<V> u) {
         int count = 0;
         for (Edge<E, V> edge : theGraph.edges()) {
@@ -1280,19 +1362,24 @@ public class SmartGraphPanel<V, E> extends Pane {
         return max;
     }
 
-
+    /**
+     * Returns a list of all edges in the graph.
+     * @return a LinkedList containing all edges
+     */
     private List<Edge<E, V>> listOfEdges() {
         return new LinkedList<>(theGraph.edges());
     }
 
-    private List<Vertex<V>> listOfVertices() {
+    /**
+     * Returns a list of all vertices in the graph.
+     * @return a LinkedList containing all vertices
+     */private List<Vertex<V>> listOfVertices() {
         return new LinkedList<>(theGraph.vertices());
     }
 
     /**
      * Computes the vertex collection of the underlying graph that are not
      * currently being displayed.
-     *
      * @return collection of vertices
      */
     private Collection<Vertex<V>> unplottedVertices() {
@@ -1410,6 +1497,87 @@ public class SmartGraphPanel<V, E> extends Pane {
             return node.getPositionCenterY();
         }
         return Double.NaN;
+    }
+
+    /**
+     * Checks whether two vertex nodes are adjacent (i.e., directly connected by an edge).
+     *
+     * @param v the first vertex node
+     * @param u the second vertex node
+     * @return true if the vertices are adjacent; false otherwise
+     */
+    private boolean areAdjacent(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> u) {
+        return v.isAdjacentTo(u);
+    }
+
+    /**
+     * Sets the action that should be performed when a vertex is double-clicked.
+     *
+     * @param action action to be performed
+     */
+    public void setVertexDoubleClickAction(Consumer<SmartGraphVertex<V>> action) {
+        this.vertexClickConsumer = action;
+    }
+
+    /**
+     * Sets the action that should be performed when an edge is double-clicked.
+     *
+     * @param action action to be performed
+     */
+    public void setEdgeDoubleClickAction(Consumer<SmartGraphEdge<E, V>> action) {
+        this.edgeClickConsumer = action;
+    }
+
+    /**
+     * Sets the vertex label provider for this SmartGraphPanel.
+     * <br/>
+     * The label provider has priority over any other method of obtaining the same values, such as annotations.
+     * <br/>
+     * To remove the provider, call this method with a <code>null</code> argument.
+     *
+     * @param labelProvider the label provider to set
+     */
+    public void setVertexLabelProvider(SmartLabelProvider<V> labelProvider) {
+        this.vertexLabelProvider = labelProvider;
+    }
+
+    /**
+     * Sets the edge label provider for this SmartGraphPanel.
+     * <br/>
+     * The label provider has priority over any other method of obtaining the same values, such as annotations.
+     * <br/>
+     * To remove the provider, call this method with a <code>null</code> argument.
+     *
+     * @param labelProvider the label provider to set
+     */
+    public void setEdgeLabelProvider(SmartLabelProvider<E> labelProvider) {
+        this.edgeLabelProvider = labelProvider;
+    }
+
+    /**
+     * Sets the radius provider for this SmartGraphPanel.
+     * <br/>
+     * The radius provider has priority over any other method of obtaining the same values, such as annotations.
+     * <br/>
+     * To remove the provider, call this method with a <code>null</code> argument.
+     *
+     * @param vertexRadiusProvider the radius provider to set
+     */
+    public void setVertexRadiusProvider(SmartRadiusProvider<V> vertexRadiusProvider) {
+        this.vertexRadiusProvider = vertexRadiusProvider;
+    }
+
+    /**
+     * Sets the shape type provider for this SmartGraphPanel.
+     * <br/>
+     * The shape type provider has priority over any other method of obtaining the same values, such as annotations.
+     * <br/>
+     * To remove the provider, call this method with a <code>null</code> argument.
+     *
+     * @param vertexShapeTypeProvider the shape type provider to set
+     */
+    public void setVertexShapeTypeProvider(SmartShapeTypeProvider<V> vertexShapeTypeProvider) {
+        this.vertexShapeTypeProvider = vertexShapeTypeProvider;
     }
 
     /**
@@ -1532,19 +1700,6 @@ public class SmartGraphPanel<V, E> extends Pane {
                 }
             }
         });
-    }
-
-    private static double clamp(double value, double min, double max) {
-
-        if (Double.compare(value, min) < 0) {
-            return min;
-        }
-
-        if (Double.compare(value, max) > 0) {
-            return max;
-        }
-
-        return value;
     }
 
     /**
