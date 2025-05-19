@@ -151,6 +151,11 @@ public class UtilitiesJavaFX {
         return new BoundingBox(minX, minY, 0, maxX - minX, maxY - minY, 0);
     }
 
+    /**
+     * Simulates a mouse entered event on a JavaFX node.
+     *
+     * @param node The node to simulate the event on. If null, nothing happens.
+     */
     public static void triggerMouseEntered(Node node) {
         if(node == null) return;
 
@@ -160,6 +165,11 @@ public class UtilitiesJavaFX {
                 true, null));
     }
 
+    /**
+     * Simulates a mouse exited event on a JavaFX node.
+     *
+     * @param node The node to simulate the event on. If null, nothing happens.
+     */
     public static void triggerMouseExited(Node node) {
         if(node == null) return;
 
