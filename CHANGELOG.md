@@ -3,6 +3,8 @@
 - (2.2.0) Notable changes:
 
     - ⚠️ Bump minimum JDK to 11 and define library as a Java Module;
+    - Robust algorithm for vertex spawning;
+    - Propagation of hover events to labels and arrows (can be styled);
     - ...
 
 - (2.1.0) Notable changes:

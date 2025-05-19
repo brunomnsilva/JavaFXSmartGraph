@@ -26,8 +26,6 @@ package com.brunomnsilva.smartgraph.graphview;
 import com.brunomnsilva.smartgraph.graph.Edge;
 import javafx.beans.binding.DoubleBinding;
 import javafx.geometry.Point2D;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -137,7 +135,7 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
         update();
 
         enableListeners();
-        propagateHoverEffectToArrow();
+        propagateHoverEffectToAttachments();
     }
 
     /**
@@ -467,17 +465,25 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
     }
 
     // --- Event Handling ---
-    private void propagateHoverEffectToArrow() {
+    private void propagateHoverEffectToAttachments() {
         this.hoverProperty().addListener((observable, oldValue, newValue) -> {
-            if(attachedArrow != null && newValue) {
 
-                attachedArrow.fireEvent(new MouseEvent(MouseEvent.MOUSE_ENTERED, 0, 0, 0, 0, MouseButton.NONE, 0, true, true, true, true, true, true, true, true, true, true, null));
+            // Propagate to arrow
+            if(attachedArrow != null && newValue) {
+                UtilitiesJavaFX.triggerMouseEntered(attachedArrow);
 
             } else if(attachedArrow != null) { //newValue is false, hover ended
+                UtilitiesJavaFX.triggerMouseExited(attachedArrow);
+            }
 
-                attachedArrow.fireEvent(new MouseEvent(MouseEvent.MOUSE_EXITED, 0, 0, 0, 0, MouseButton.NONE, 0, true, true, true, true, true, true, true, true, true, true, null));
+            // Propagate to label
+            if(attachedLabel != null && newValue) {
+                UtilitiesJavaFX.triggerMouseEntered(attachedLabel);
 
+            } else if(attachedLabel != null) { //newValue is false, hover ended
+                UtilitiesJavaFX.triggerMouseExited(attachedLabel);
             }
         });
     }
+
 }

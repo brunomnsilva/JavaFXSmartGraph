@@ -29,6 +29,8 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 
 import java.util.List;
 
@@ -148,4 +150,23 @@ public class UtilitiesJavaFX {
         // Create a new Bounds object using the calculated minimum and maximum values
         return new BoundingBox(minX, minY, 0, maxX - minX, maxY - minY, 0);
     }
+
+    public static void triggerMouseEntered(Node node) {
+        if(node == null) return;
+
+        node.fireEvent(new MouseEvent(MouseEvent.MOUSE_ENTERED, 0, 0, 0, 0,
+                MouseButton.NONE, 0, true, true, true, true,
+                true, true, true, true, true,
+                true, null));
+    }
+
+    public static void triggerMouseExited(Node node) {
+        if(node == null) return;
+
+        node.fireEvent(new MouseEvent(MouseEvent.MOUSE_EXITED, 0, 0, 0, 0,
+                MouseButton.NONE, 0, true, true, true, true,
+                true, true, true, true, true,
+                true, null));
+    }
+
 }

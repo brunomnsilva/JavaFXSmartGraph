@@ -154,6 +154,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         }
 
         updateBoundingBox();
+        propagateHoverEffectToAttachments();
     }
 
     /**
@@ -622,5 +623,18 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
             this.x = x;
             this.y = y;
         }
+    }
+
+    private void propagateHoverEffectToAttachments() {
+        this.hoverProperty().addListener((observable, oldValue, newValue) -> {
+
+            // Propagate to label
+            if(attachedLabel != null && newValue) {
+                UtilitiesJavaFX.triggerMouseEntered(attachedLabel);
+
+            } else if(attachedLabel != null) { //newValue is false, hover ended
+                UtilitiesJavaFX.triggerMouseExited(attachedLabel);
+            }
+        });
     }
 }
