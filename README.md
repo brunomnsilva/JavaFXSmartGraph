@@ -27,20 +27,14 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 
 ### What's new?
 
-- (2.1.0)
+- (2.2.0) Notable changes:
 
-    - Improved edge and label rendering;
-        - Fix arrow misalignment on self-loops (issue \#40).
-        - Fix parallel edge spacing (issue \#40)
-        - Fix arrow "z-order" placement in some situations.
-
-    - Improved `ContentZoomScrollPane` with clipping of any overflow.
-
-    - Bring vertex and label to front, while dragging.
-
-- (2.0.0) :tada: Minor fixes and **stable version** release.
-    - Although one full version number higher than the previous *stable* version (1.1.0), existing applications are expected to work with this library version without significant changes.
-    - :warning: The only exception is the necessary use of `SmartStylableNode.setStyleInline(...)` instead of `SmartStylableNode.setStyle(...)` to correctly apply inline styles to nodes (vertices and edges). Css classes are set the same way as before.
+    - ⚠️ Bump minimum JDK to 11 and define library as a Java Module;
+    - 👍 Robust algorithm for vertex spawning;
+    - Propagation of hover events to labels and arrows (can be styled);
+    - 🎉 Improve edge readability (issue #43) by changing the label underlying representation to a StackPane. Labels now accept CSS styles for Pane (background) and Text (the label itself).
+    - ⚠️ Fixed a regression that affected the movement of vertices.
+    - Other small fixes and improvements.
 
 See the [wiki](https://github.com/brunomnsilva/JavaFXSmartGraph/wiki) for the complete changelist.
 
@@ -48,7 +42,7 @@ See the [wiki](https://github.com/brunomnsilva/JavaFXSmartGraph/wiki) for the co
 
 Binaries and dependency information for Maven, Gradle and others can be found at [http://search.maven.org](https://central.sonatype.com/search?q=g%3Acom.brunomnsilva++a%3Asmartgraph&smo=true).
 
-Example for Maven, where `x.y.z` is the library version, e.g., `2.0.0`:
+Example for Maven, where `x.y.z` is the library version, e.g., `2.2.0`:
 
 ```xml
 <dependency>
