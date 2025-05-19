@@ -56,6 +56,8 @@ import java.util.Set;
  */
 public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T>, SmartLabelledNode {
 
+    public static final int ATTACHED_LABEL_OFFSET = 5;
+
     /** The underlying vertex in the graph model represented by this visual node. */
     private final Vertex<T> underlyingVertex;
 
@@ -418,7 +420,6 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
      * Moves the vertex position to the computed future position.
      * <p>
      * Moves are constrained within the parent pane dimensions.
-     *
      */
     public void moveFromForces() {
 
@@ -436,8 +437,12 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
 
+        // The label's (0,0) coordinate is the top-left corner.
+        // Center horizontally relative to the vertex
         label.xProperty().bind(centerXProperty().subtract(Bindings.divide( label.layoutWidthProperty(), 2.0)));
-        label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), label.layoutHeightProperty())));
+
+        // Put below the vertex, by the specified offset
+        label.yProperty().bind(centerYProperty().add(Bindings.add( shapeProxy.radiusProperty(), ATTACHED_LABEL_OFFSET)));
 
         updateBoundingBox();
     }
