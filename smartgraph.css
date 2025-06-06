@@ -89,6 +89,7 @@ This should help you understand which styles you can apply.
     -fx-stroke: green;
     -fx-stroke-type: inside; /* you should keep this if using arrows */
     -fx-fill: yellowgreen;
+    -fx-opacity: 0.5;
 }
 
 /* Custom edge class. The same above logic applies to edges.

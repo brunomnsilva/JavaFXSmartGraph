@@ -1,5 +1,9 @@
 ## Changelog
 
+- (2.3.0) Notable changes:
+    
+    - 👍 Edges only span the distance between vertex boundaries (instead of centers). This yields a nicer visualization when vertices are made transparent.
+
 - (2.2.0) Notable changes:
 
     - ⚠️ Bump minimum JDK to 11 and define library as a Java Module;
