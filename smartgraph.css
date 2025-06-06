@@ -5,13 +5,13 @@ For your customization, please see:
 https://openjfx.io/javadoc/19/javafx.graphics/javafx/scene/doc-files/cssref.html
 
 And know that:
-- The drawing area itself is of type Pane, which is an extension of Region;
+- The drawing area is a Pane, which is an extension of Region;
 - A vertex is of type Shape;
-- The edges are of type Line and CubicLine;
-- The labels are of type Text, and;
+- The edges are of type CubicLine (Shape);
+- The labels are of type Pane (background) + Text (accept both sets of properties);
 - The arrows are of type Path.
 
-This should help you understand which styles you can apply.
+This should help you understand which styles you can apply to each type of elements.
 */
 
 .graph {
