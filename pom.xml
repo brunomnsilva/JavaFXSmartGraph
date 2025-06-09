@@ -45,6 +45,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.brunomnsilva</groupId>
+            <artifactId>fluentfxcss</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
             <version>21.0.1</version>

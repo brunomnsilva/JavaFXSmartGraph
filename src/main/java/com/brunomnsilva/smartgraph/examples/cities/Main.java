@@ -24,6 +24,8 @@
 
 package com.brunomnsilva.smartgraph.examples.cities;
 
+import com.brunomnsilva.fluentfxcss.FluentFxCss;
+import com.brunomnsilva.fluentfxcss.definitions.ShapeStyleDefinition;
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graph.GraphEdgeList;
@@ -103,7 +105,18 @@ public class Main extends Application {
         * .addStyleClass(class). However, inline styles can be overwritten by using .setStyleInline(css);
         * also, when you use .setStyleClass(class), all previous styles will be discarded, including inline.
         */
-        graphView.getStylableVertex(tokyo).setStyleInline("-fx-fill: url(\"file:squares.jpg\");");
+
+        /* The possibility of setting a image pattern as a fill is undocumented on javafx reference.
+        * But it can be done programmatically with an ImagePattern. We exploit this with a custom property. */
+        ShapeStyleDefinition vTokyo = FluentFxCss.shapeStyle()
+                .customProperty("-fx-fill", "url(\"file:squares.jpg\")")
+                .build();
+
+        System.out.println(vTokyo);
+
+        graphView.getStylableVertex(tokyo).setStyleInline(vTokyo.toCssInline());
+
+        //graphView.getStylableVertex(tokyo).setStyleInline("-fx-fill: url(\"file:squares.jpg\");");
         //graphVertex.setStyleInline("-fx-fill: red;"); //this will overwrite the property later on
 
         graphView.setVertexDoubleClickAction(graphVertex -> {

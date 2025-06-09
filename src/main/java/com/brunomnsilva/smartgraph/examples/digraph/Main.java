@@ -23,6 +23,8 @@
  */
 package com.brunomnsilva.smartgraph.examples.digraph;
 
+import com.brunomnsilva.fluentfxcss.FluentFxCss;
+import com.brunomnsilva.fluentfxcss.definitions.ShapeStyleDefinition;
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
@@ -30,8 +32,11 @@ import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graphview.*;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+
 
 /**
  * Class that provides an example of using the library.
@@ -57,7 +62,13 @@ public class Main extends Application {
         This can be done at any time afterwards.
         */
         if (g.numVertices() > 0) {
-            graphView.getStylableVertex("A").setStyleInline("-fx-fill: gold; -fx-stroke: brown;");
+
+            ShapeStyleDefinition style = FluentFxCss.shapeStyle()
+                    .fill(Color.GOLD)
+                    .stroke(Color.BROWN)
+                    .build();
+
+            graphView.getStylableVertex("A").setStyleInline(style.toCssInline());
         }
 
 

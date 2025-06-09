@@ -7,6 +7,8 @@ module com.brunomnsilva.smartgraph {
     requires javafx.base;
     requires java.logging;
 
+    requires com.brunomnsilva.fluentfxcss;
+
     exports com.brunomnsilva.smartgraph.containers;
     exports com.brunomnsilva.smartgraph.graph;
     exports com.brunomnsilva.smartgraph.graphview;
