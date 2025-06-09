@@ -22,8 +22,9 @@ This should help you understand which styles you can apply to each type of eleme
 .vertex {
     -fx-stroke-width: 3;
     -fx-stroke: #61B5F1;
-    -fx-stroke-type: inside; /* you should keep this if using arrows */
+    -fx-stroke-type: inside; /* you should keep this if using arrows; it will keep the shape radius consistent. */
     -fx-fill: #B1DFF7;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 8, 0.2, 0, 4);
 }
 
 .vertex:hover { /* pseudo-classes also work */
@@ -34,11 +35,13 @@ This should help you understand which styles you can apply to each type of eleme
 .vertex-label {
     -fx-font: bold 8pt "sans-serif";
     -fx-padding: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 8, 0.2, 0, 4);
 }
 
 .vertex-label:hover {
     -fx-background-color: white;
     -fx-background-radius: 5;
+    -fx-border-radius: 5;
     -fx-border-color: black;
 }
 
