@@ -114,7 +114,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.brunomnsilva.smartgraph.Main</mainClass>
+                            <mainClass>com.brunomnsilva.smartgraph.examples.digraph.Main</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
@@ -124,10 +124,36 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <!-- Configuration for running with: mvn clean javafx:run@example -->
-                        <id>example</id>
+                        <!-- Configuration for running with: mvn clean javafx:run@cities -->
+                        <id>cities</id>
                         <configuration>
-                            <mainClass>com.brunomnsilva.smartgraph.example.ExampleMain</mainClass>
+                            <mainClass>com.brunomnsilva.smartgraph.examples.cities.Main</mainClass>
+                            <launcher>app</launcher>
+                            <jlinkZipName>app</jlinkZipName>
+                            <jlinkImageName>app</jlinkImageName>
+                            <noManPages>true</noManPages>
+                            <stripDebug>true</stripDebug>
+                            <noHeaderFiles>true</noHeaderFiles>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Configuration for running with: mvn clean javafx:run@dynamic -->
+                        <id>dynamic</id>
+                        <configuration>
+                            <mainClass>com.brunomnsilva.smartgraph.examples.dynamic.Main</mainClass>
+                            <launcher>app</launcher>
+                            <jlinkZipName>app</jlinkZipName>
+                            <jlinkImageName>app</jlinkImageName>
+                            <noManPages>true</noManPages>
+                            <stripDebug>true</stripDebug>
+                            <noHeaderFiles>true</noHeaderFiles>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Configuration for running with: mvn clean javafx:run@flowers -->
+                        <id>flowers</id>
+                        <configuration>
+                            <mainClass>com.brunomnsilva.smartgraph.examples.flowers.Main</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>

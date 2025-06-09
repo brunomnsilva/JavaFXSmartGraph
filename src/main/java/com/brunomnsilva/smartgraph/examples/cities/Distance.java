@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * JavaFXSmartGraph | Copyright 2023-2024  brunomnsilva@gmail.com
+ * JavaFXSmartGraph | Copyright 2023-2025  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.brunomnsilva.smartgraph.example;
+package com.brunomnsilva.smartgraph.examples.cities;
 
 import com.brunomnsilva.smartgraph.graphview.SmartLabelSource;
 

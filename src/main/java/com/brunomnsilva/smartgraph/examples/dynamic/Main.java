@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * JavaFXSmartGraph | Copyright 2019-2024  brunomnsilva@gmail.com
+ * JavaFXSmartGraph | Copyright 2019-2025  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.brunomnsilva.smartgraph;
+package com.brunomnsilva.smartgraph.examples.dynamic;
 
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
-import com.brunomnsilva.smartgraph.graph.*;
+import com.brunomnsilva.smartgraph.graph.Edge;
+import com.brunomnsilva.smartgraph.graph.Graph;
+import com.brunomnsilva.smartgraph.graph.GraphEdgeList;
+import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.*;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -47,31 +50,14 @@ public class Main extends Application {
     @Override
     public void start(Stage ignored) {
 
-        Graph<String, String> g = build_sample_digraph();
-        //Graph<String, String> g = build_flower_graph();
-        System.out.println(g);
+        Graph<String, String> g = build_sample_graph();
         
         SmartPlacementStrategy initialPlacement = new SmartCircularSortedPlacementStrategy();
-        //SmartPlacementStrategy initialPlacement = new SmartRandomPlacementStrategy();
-
         ForceDirectedLayoutStrategy<String> automaticPlacementStrategy = new ForceDirectedSpringGravityLayoutStrategy<>();
-        //ForceDirectedLayoutStrategy<String> automaticPlacementStrategy = new ForceDirectedSpringSystemLayoutStrategy<>();
 
         SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, initialPlacement, automaticPlacementStrategy);
+        graphView.setAutomaticLayout(true);
 
-        /*
-        After creating, you can change the styling of some element.
-        This can be done at any time afterwards.
-        */
-        if (g.numVertices() > 0) {
-            graphView.getStylableVertex("A").setStyleInline("-fx-fill: gold; -fx-stroke: brown;");
-        }
-
-        /*
-        Basic usage:            
-        Use SmartGraphDemoContainer if you want zoom capabilities and automatic layout toggling
-        */
-        //Scene scene = new Scene(graphView, 1024, 768);
         Scene scene = new Scene(new SmartGraphDemoContainer(graphView), 1024, 768);
 
         Stage stage = new Stage(StageStyle.DECORATED);
@@ -81,15 +67,21 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
+        // Programmatically define the radius of a vertex. In this case the vertex size will increase with its connectivity
+        graphView.setVertexRadiusProvider(vertexElement -> 10 + getIncidentEdgeCount(g, vertexElement) * 1.5);
 
-        // Programmatically define the shape of a vertex. Uncomment to test
-        /*graphView.setVertexShapeTypeProvider(new SmartShapeTypeProvider<String>() {
-            @Override
-            public String valueFor(String vertexElement) {
-                if(vertexElement.equalsIgnoreCase("V03")) return "triangle";
-                return "circle";
-            }
-        });*/
+        /* Double click will remove a vertex */
+        graphView.setVertexDoubleClickAction((SmartGraphVertex<String> graphVertex) -> {
+            g.removeVertex(graphVertex.getUnderlyingVertex());
+            graphView.update();
+        });
+
+        /* Double click will remove an edge */
+        graphView.setEdgeDoubleClickAction(graphEdge -> {
+            Edge<String, String> underlyingEdge = graphEdge.getUnderlyingEdge();
+            g.removeEdge(underlyingEdge);
+            graphView.update();
+        });
 
         /*
         IMPORTANT: Must call init() after scene is displayed, so we can have width and height values
@@ -97,53 +89,11 @@ public class Main extends Application {
         */
         graphView.init();
 
-        /*
-        Bellow you can see how to attach actions for when vertices and edges are double-clicked
-         */        
-        graphView.setVertexDoubleClickAction((SmartGraphVertex<String> graphVertex) -> {
-            System.out.println("Vertex contains element: " + graphVertex.getUnderlyingVertex().element());
-                      
-            //toggle different styling
-            if( !graphVertex.removeStyleClass("myVertex") ) {
-                /* for the golden vertex, this is necessary to clear the inline
-                css class. Otherwise, it has priority. Test and uncomment. */
-                //graphVertex.setStyle(null);
-                
-                graphVertex.addStyleClass("myVertex");
-            }
-            
-            //want fun? uncomment below with automatic layout
-            //g.removeVertex(graphVertex.getUnderlyingVertex());
-            //graphView.update();
-        });
+        continuously_test_adding_elements(g, graphView);
 
-        graphView.setEdgeDoubleClickAction(graphEdge -> {
-            System.out.println("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
-            //dynamically change the style when clicked; style propagated to the arrows
-            graphEdge.setStyleClass("myEdge");
-
-            // can apply different styling to the arrows programmatically.
-            // graphEdge.getStylableArrow().setStyleClass("arrow");
-            
-            //uncomment to see edges being removed after click
-            //Edge<String, String> underlyingEdge = graphEdge.getUnderlyingEdge();
-            //g.removeEdge(underlyingEdge);
-            //graphView.update();
-        });
-
-        /*
-        Should proceed with automatic layout or keep original placement?
-        If using SmartGraphDemoContainer you can toggle this in the UI 
-         */
-        //graphView.setAutomaticLayout(true);
-
-        /* 
-        Uncomment lines to test adding of new elements
-         */
-        /*continuously_test_adding_elements(g, graphView);
         stage.setOnCloseRequest(event -> {
             running = false;
-        });*/
+        });
     }
 
     /**
@@ -153,34 +103,7 @@ public class Main extends Application {
         launch(args);
     }
 
-    private Graph<String, String> build_sample_digraph() {
-
-        Digraph<String, String> g = new DigraphEdgeList<>();
-
-        g.insertVertex("A");
-        g.insertVertex("B");
-        g.insertVertex("C");
-        g.insertVertex("D");
-        g.insertVertex("E");
-        g.insertVertex("F");
-
-        g.insertEdge("A", "B", "AB");
-        g.insertEdge("B", "A", "AB2");
-        g.insertEdge("A", "C", "AC");
-        g.insertEdge("A", "D", "AD");
-        g.insertEdge("B", "C", "BC");
-        g.insertEdge("C", "D", "CD");
-        g.insertEdge("B", "E", "BE");
-        g.insertEdge("F", "D", "DF");
-        g.insertEdge("F", "D", "DF2");
-
-        //yep, its a loop!
-        g.insertEdge("A", "A", "Loop");
-
-        return g;
-    }
-
-    private Graph<String, String> build_flower_graph() {
+    private Graph<String, String> build_sample_graph() {
 
         Graph<String, String> g = new GraphEdgeList<>();
 
@@ -188,36 +111,14 @@ public class Main extends Application {
         g.insertVertex("B");
         g.insertVertex("C");
         g.insertVertex("D");
-        g.insertVertex("E");
-        g.insertVertex("F");
-        g.insertVertex("G");
 
-        g.insertEdge("A", "B", "1");
-        g.insertEdge("A", "C", "2");
-        g.insertEdge("A", "D", "3");
-        g.insertEdge("A", "E", "4");
-        g.insertEdge("A", "F", "5");
-        g.insertEdge("A", "G", "6");
 
-        g.insertVertex("H");
-        g.insertVertex("I");
-        g.insertVertex("J");
-        g.insertVertex("K");
-        g.insertVertex("L");
-        g.insertVertex("M");
-        g.insertVertex("N");
+        g.insertEdge("A", "B", "AB");
+        g.insertEdge("A", "C", "AC");
+        g.insertEdge("A", "D", "AD");
+        g.insertEdge("B", "C", "BC");
+        g.insertEdge("C", "D", "CD");
 
-        g.insertEdge("H", "I", "7");
-        g.insertEdge("H", "J", "8");
-        g.insertEdge("H", "K", "9");
-        g.insertEdge("H", "L", "10");
-        g.insertEdge("H", "M", "11");
-        g.insertEdge("H", "N", "12");
-
-        g.insertEdge("A", "H", "0");
-
-        //g.insertVertex("ISOLATED");
-        
         return g;
     }
 
@@ -245,8 +146,7 @@ public class Main extends Application {
                     Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 
-                //generate new vertex with 2/3 probability, else connect two
-                //existing
+                //generate new vertex with 2/3 probability, else connect two existing
                 String id = String.format("%02d", ++count);
                 if (random.nextInt(3) < 2) {
                     //add a new vertex connected to a random existing vertex
@@ -257,12 +157,7 @@ public class Main extends Application {
                     //this variant must be called to ensure the view has reflected the
                     //underlying graph before styling a node immediately after.
                     graphView.updateAndWait();
-                    
-                    //color new vertices, uncomment
-                    //SmartStylableNode stylableVertex = graphView.getStylableVertex(vertexId);
-                    //if(stylableVertex != null) {
-                    //    stylableVertex.setStyleInline("-fx-fill: orange;");
-                    //}
+
                 } else {
                     Vertex<String> existing1 = get_random_vertex(g);
                     Vertex<String> existing2 = get_random_vertex(g);
@@ -270,8 +165,6 @@ public class Main extends Application {
                     
                     graphView.update();
                 }
-
-                
             }
         };
 
@@ -291,5 +184,15 @@ public class Main extends Application {
             }
         }
         return existing;
+    }
+
+
+    private static int getIncidentEdgeCount(Graph<String, String> model, String vertexElement) {
+        for (Vertex<String> vertex : model.vertices()) {
+            if(vertex.element().equalsIgnoreCase(vertexElement)) {
+                return model.incidentEdges(vertex).size();
+            }
+        }
+        return 0;
     }
 }

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * JavaFXSmartGraph | Copyright 2023-2024  brunomnsilva@gmail.com
+ * JavaFXSmartGraph | Copyright 2023-2025  brunomnsilva@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.brunomnsilva.smartgraph.example;
+package com.brunomnsilva.smartgraph.examples.cities;
 
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
 import com.brunomnsilva.smartgraph.graph.Graph;
@@ -40,7 +40,7 @@ import javafx.stage.StageStyle;
  * Example program that depicts some world cities and their distances.
  * @author brunomnsilva
  */
-public class ExampleMain extends Application {
+public class Main extends Application {
 
     @Override
     public void start(Stage ignored) {
@@ -107,7 +107,11 @@ public class ExampleMain extends Application {
         //graphVertex.setStyleInline("-fx-fill: red;"); //this will overwrite the property later on
 
         graphView.setVertexDoubleClickAction(graphVertex -> {
-            graphVertex.setStyleClass("myVertex");
+            //toggle different styling
+            if( !graphVertex.removeStyleClass("myVertex") ) {
+                graphVertex.addStyleClass("myVertex");
+            }
+            // Use instead (to set it permanently): graphVertex.setStyleClass("myVertex");
         });
 
     }

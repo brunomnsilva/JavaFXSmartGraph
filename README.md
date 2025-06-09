@@ -103,6 +103,8 @@ graphView.setAutomaticLayout(true);
 
 Below are provided some graphs and the corresponding visualization, either using a static placement strategy or by the automatic force-directed layout algorithm.
 
+:bulb: You can check the `examples` package and the [wiki](https://github.com/brunomnsilva/JavaFXSmartGraph/wiki) for these and other advanced usages. 
+
 ### Sample Graph
 
 The following code creates a sample graph:
