@@ -286,6 +286,28 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     /**
      * Constructs a visualization of the graph referenced by
+     * <code>theGraph</code>, using custom properties and custom placement of
+     * vertices, default automatic spring gravity layout strategy
+     * and styling from smartgraph.css.
+     *
+     * @param theGraph underlying graph
+     * @param properties custom properties, null for default
+     * @param layoutStrategy the automatic layout strategy
+     * @throws IllegalArgumentException if any of the arguments is <code>null</code>
+     */
+    public SmartGraphPanel(Graph<V, E> theGraph, SmartGraphProperties properties,
+                           ForceDirectedLayoutStrategy<V> layoutStrategy) {
+
+        this(theGraph,
+                properties,
+                new SmartCircularSortedPlacementStrategy(),
+                new File(DEFAULT_CSS_FILE).toURI(),
+                layoutStrategy
+        );
+    }
+
+    /**
+     * Constructs a visualization of the graph referenced by
      * <code>theGraph</code>, using default properties and styling from smartgraph.css.
      *
      * @param theGraph underlying graph
@@ -379,12 +401,16 @@ public class SmartGraphPanel<V, E> extends Pane {
      * This method is synchronized to ensure thread safety during layout updates.
      */
     private synchronized void runAutomaticLayout() {
+        final double initialCooloff = 1.0;
+        final double finalCooloff = 0.1; // minimum cool-off factor
+        final double decayRate = Math.log(finalCooloff / initialCooloff) / AUTOMATIC_LAYOUT_ITERATIONS;
+
         for (int i = 0; i < AUTOMATIC_LAYOUT_ITERATIONS; i++) {
             resetForces();
             computeForces();
 
-            double cooloff = 1.0 - ((double) i / AUTOMATIC_LAYOUT_ITERATIONS); // starts at 1.0, decreases to ~0
-            cooloff = Math.max(0.05, cooloff); // prevent total freezing.
+            // Exponential decay: cooloff = initialCooloff * e^(decayRate * i)
+            double cooloff = initialCooloff * Math.exp(decayRate * i);
 
             updateForces(cooloff);
         }
