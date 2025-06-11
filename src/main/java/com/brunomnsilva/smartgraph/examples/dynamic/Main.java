@@ -51,11 +51,13 @@ public class Main extends Application {
     public void start(Stage ignored) {
 
         Graph<String, String> g = build_sample_graph();
-        
-        SmartPlacementStrategy initialPlacement = new SmartCircularSortedPlacementStrategy();
-        ForceDirectedLayoutStrategy<String> automaticPlacementStrategy = new ForceDirectedSpringGravityLayoutStrategy<>();
 
-        SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, initialPlacement, automaticPlacementStrategy);
+        String customProps = "edge.label = false" + "\n" + "vertex.label = false";
+        SmartGraphProperties properties = new SmartGraphProperties(customProps);
+
+        SmartPlacementStrategy initialPlacement = new SmartCircularSortedPlacementStrategy();
+
+        SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, properties, initialPlacement);
         graphView.setAutomaticLayout(true);
 
         Scene scene = new Scene(new SmartGraphDemoContainer(graphView), 1024, 768);
@@ -67,8 +69,9 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
+
         // Programmatically define the radius of a vertex. In this case the vertex size will increase with its connectivity
-        graphView.setVertexRadiusProvider(vertexElement -> 10 + getIncidentEdgeCount(g, vertexElement) * 1.5);
+        graphView.setVertexRadiusProvider(vertexElement -> properties.getVertexRadius() + getIncidentEdgeCount(g, vertexElement) * 1.5);
 
         /* Double click will remove a vertex */
         graphView.setVertexDoubleClickAction((SmartGraphVertex<String> graphVertex) -> {
@@ -127,14 +130,14 @@ public class Main extends Application {
     private void continuously_test_adding_elements(Graph<String, String> g, SmartGraphPanel<String, String> graphView) {
         //update graph
         running = true;
-        final long ITERATION_WAIT = 3000; //milliseconds
+        final long ITERATION_WAIT = 500; //milliseconds
 
         Runnable r;
         r = () -> {
             int count = 0;
             
             try {
-                Thread.sleep(5000);
+                Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
