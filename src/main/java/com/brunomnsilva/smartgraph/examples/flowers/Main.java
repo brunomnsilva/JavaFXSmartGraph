@@ -46,7 +46,7 @@ public class Main extends Application {
         System.out.println(g);
         
         SmartPlacementStrategy initialPlacement = new SmartCircularSortedPlacementStrategy();
-        ForceDirectedLayoutStrategy<String> automaticPlacementStrategy = new ForceDirectedSpringGravityLayoutStrategy<>();
+        ForceDirectedLayoutStrategy<String> automaticPlacementStrategy = new ForceDirectedSpringGravityLayoutStrategy<>(25, 8, 8, 0.9, 0.01);
 
         SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, initialPlacement, automaticPlacementStrategy);
         graphView.setAutomaticLayout(true); // Set automatic layout from the start

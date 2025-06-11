@@ -48,7 +48,7 @@ public class Main extends Application {
         Graph<String, String> g = build_sample_digraph();
         
         SmartPlacementStrategy initialPlacement = new SmartCircularSortedPlacementStrategy();
-        ForceDirectedLayoutStrategy<String> automaticPlacementStrategy = new ForceDirectedSpringGravityLayoutStrategy<>();
+        ForceDirectedLayoutStrategy<String> automaticPlacementStrategy = new ForceDirectedSpringGravityLayoutStrategy<>(25, 2, 20, 2, 0.01);
 
         SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, initialPlacement, automaticPlacementStrategy);
 

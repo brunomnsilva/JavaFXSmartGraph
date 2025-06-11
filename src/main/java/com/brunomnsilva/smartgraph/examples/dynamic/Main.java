@@ -28,7 +28,10 @@ import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graph.GraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Vertex;
-import com.brunomnsilva.smartgraph.graphview.*;
+import com.brunomnsilva.smartgraph.graphview.ForceDirectedSpringGravityLayoutStrategy;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphProperties;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -55,9 +58,8 @@ public class Main extends Application {
         String customProps = "edge.label = false" + "\n" + "vertex.label = false";
         SmartGraphProperties properties = new SmartGraphProperties(customProps);
 
-        SmartPlacementStrategy initialPlacement = new SmartCircularSortedPlacementStrategy();
-
-        SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, properties, initialPlacement);
+        ForceDirectedSpringGravityLayoutStrategy layoutStrategy = new ForceDirectedSpringGravityLayoutStrategy<>(50, 8, 10, 0.5, 0.01);
+        SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(g, properties, layoutStrategy);
         graphView.setAutomaticLayout(true);
 
         Scene scene = new Scene(new SmartGraphDemoContainer(graphView), 1024, 768);
