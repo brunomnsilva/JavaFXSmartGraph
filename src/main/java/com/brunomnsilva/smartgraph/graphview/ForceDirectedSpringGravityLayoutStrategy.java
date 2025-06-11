@@ -109,11 +109,13 @@ public class ForceDirectedSpringGravityLayoutStrategy<V> extends ForceDirectedSp
         double centerY = panelHeight / 2;
 
         for (SmartGraphVertexNode<V> v : nodeList) {
-            Point2D curPosition = v.getUpdatedPosition();
-            Point2D forceCenter = new Point2D(centerX - curPosition.getX(), centerY - curPosition.getY())
-                    .multiply(gravity);
+            double curPositionX = v.getUpdatedPosition().getX();
+            double curPositionY = v.getUpdatedPosition().getY();
 
-            v.addForceVector(forceCenter.getX(), forceCenter.getY());
+            double forceCenterX = (centerX - curPositionX) * gravity;
+            double forceCenterY = (centerY - curPositionY) * gravity;
+
+            v.addForceVector(forceCenterX, forceCenterY);
         }
     }
 }

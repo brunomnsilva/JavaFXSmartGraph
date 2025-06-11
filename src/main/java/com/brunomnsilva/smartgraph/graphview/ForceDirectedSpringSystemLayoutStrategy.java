@@ -98,27 +98,38 @@ public class ForceDirectedSpringSystemLayoutStrategy<V> extends ForceDirectedLay
         // This allows to freely move the graph to a particular region in the panel;
         // On the other hand, e.g., in a bipartite graph the two sub-graphs will repel each other to the edges of the panel
 
-        Point2D vPosition = v.getUpdatedPosition();
-        Point2D wPosition = w.getUpdatedPosition();
+        double vx = v.getUpdatedPosition().getX();
+        double vy = v.getUpdatedPosition().getY();
+        double wx = w.getUpdatedPosition().getX();
+        double wy = w.getUpdatedPosition().getY();
 
-        double distance = vPosition.distance(wPosition) - (v.getRadius() + w.getRadius());
-        distance = Math.max(distance, MIN_DISTANCE);
+        double dx = wx - vx;
+        double dy = wy - vy;
 
-        Point2D forceDirection = wPosition.subtract(vPosition).normalize();
+        double rawDistance = Math.hypot(dx, dy);
+        double distance = Math.max(rawDistance - (v.getRadius() + w.getRadius()), MIN_DISTANCE);
 
+        // Normalize direction only if distance > 0
+        double invLength = (rawDistance == 0) ? 0 : 1.0 / rawDistance;
+        double nx = dx * invLength;
+        double ny = dy * invLength;
+
+        // Attractive force
         double attractionFactor = 0;
         if (v.isAdjacentTo(w)) {
             attractionFactor = attractionForce * Math.log(distance / attractionScale);
         }
-        Point2D attraction = forceDirection.multiply(attractionFactor);
 
+        // Repelling force
         double repulsiveFactor = (distance < OVERLAP_THRESHOLD)
-                ? repulsiveForce * (OVERLAP_THRESHOLD - distance)    // Linear when overlapping
+                ? repulsiveForce * (OVERLAP_THRESHOLD - distance)
                 : repulsiveForce * A_THOUSAND / (distance * distance);
+        repulsiveFactor = Math.min(repulsiveFactor, MAX_REPULSIVE_FACTOR);
 
-        repulsiveFactor = Math.min(repulsiveFactor, MAX_REPULSIVE_FACTOR); // Cap
-        Point2D repulsion = forceDirection.multiply(-repulsiveFactor);
+        // Total force components
+        double fx = (attractionFactor - repulsiveFactor) * nx * acceleration;
+        double fy = (attractionFactor - repulsiveFactor) * ny * acceleration;
 
-        return attraction.add(repulsion).multiply(acceleration); // total force
+        return new Point2D(fx, fy);
     }
 }
