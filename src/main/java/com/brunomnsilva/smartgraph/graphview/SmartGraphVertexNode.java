@@ -402,11 +402,11 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     /**
      * Updates the future position according to the current internal force
      * vector.
-     *
+     * @param cooloff cool-off factor (a.k.a. temperature or damping). Value should be in [1, 0[.
      */
-    public void updateDelta() {
-        updatedPosition.x = updatedPosition.x /* + speed*/ + forceVector.x;
-        updatedPosition.y = updatedPosition.y + forceVector.y;
+    public void updateDelta(double cooloff) {
+        updatedPosition.x = updatedPosition.x + forceVector.x * cooloff;
+        updatedPosition.y = updatedPosition.y + forceVector.y * cooloff;
     }
 
     /**

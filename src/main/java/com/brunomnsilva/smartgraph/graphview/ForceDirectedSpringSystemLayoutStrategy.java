@@ -56,6 +56,10 @@ public class ForceDirectedSpringSystemLayoutStrategy<V> extends ForceDirectedLay
     /* just a scaling factor so all parameters are, at most, two-digit numbers. */
     private static final double A_THOUSAND = 1000;
 
+    private static final double MIN_DISTANCE = 1; // in pixels, between vertex boundaries
+    private static final double MAX_REPULSIVE_FACTOR = 50;
+    private static final double OVERLAP_THRESHOLD = 5; // in pixels
+
     /**
      * Constructs a new instance of ForceDirectedSpringGravityLayoutStrategy with default parameters, namely:
      * <br/>
@@ -81,7 +85,6 @@ public class ForceDirectedSpringSystemLayoutStrategy<V> extends ForceDirectedLay
         Args.requireGreaterThan(attractionForce, "attractionForce", 0);
         Args.requireGreaterThan(attractionScale, "attractionScale", 0);
         Args.requireGreaterThan(acceleration, "acceleration", 0);
-        Args.requireInRange(acceleration, "acceleration", 0, 1);
 
         this.repulsiveForce = repulsiveForce;
         this.attractionForce = attractionForce;
@@ -97,30 +100,25 @@ public class ForceDirectedSpringSystemLayoutStrategy<V> extends ForceDirectedLay
 
         Point2D vPosition = v.getUpdatedPosition();
         Point2D wPosition = w.getUpdatedPosition();
+
         double distance = vPosition.distance(wPosition) - (v.getRadius() + w.getRadius());
+        distance = Math.max(distance, MIN_DISTANCE);
+
         Point2D forceDirection = wPosition.subtract(vPosition).normalize();
 
-        if (distance < 1) {
-            distance = 1;
+        double attractionFactor = 0;
+        if (v.isAdjacentTo(w)) {
+            attractionFactor = attractionForce * Math.log(distance / attractionScale);
         }
+        Point2D attraction = forceDirection.multiply(attractionFactor);
 
-        // attractive force
-        Point2D attraction;
-        if(v.isAdjacentTo(w)) {
-            double attraction_factor = attractionForce * Math.log(distance / attractionScale);
-            attraction = forceDirection.multiply(attraction_factor);
-        } else {
-            attraction = new Point2D(0,0);
-        }
+        double repulsiveFactor = (distance < OVERLAP_THRESHOLD)
+                ? repulsiveForce * (OVERLAP_THRESHOLD - distance)    // Linear when overlapping
+                : repulsiveForce * A_THOUSAND / (distance * distance);
 
-        // repelling force
-        double repulsive_factor = repulsiveForce * A_THOUSAND / (distance * distance);
-        Point2D repulsion = forceDirection.multiply(-repulsive_factor);
+        repulsiveFactor = Math.min(repulsiveFactor, MAX_REPULSIVE_FACTOR); // Cap
+        Point2D repulsion = forceDirection.multiply(-repulsiveFactor);
 
-        // combine forces
-        Point2D totalForce = new Point2D(attraction.getX() + repulsion.getX(),
-                attraction.getY() + repulsion.getY());
-
-        return totalForce.multiply(acceleration);
+        return attraction.add(repulsion).multiply(acceleration); // total force
     }
 }

@@ -146,7 +146,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     /** Strategy used for automatic layout of graph nodes. */
     private ForceDirectedLayoutStrategy<V> automaticLayoutStrategy;
     /** Number of iterations per frame for the automatic layout algorithm. */
-    private static final int AUTOMATIC_LAYOUT_ITERATIONS = 20;
+    private static final int AUTOMATIC_LAYOUT_ITERATIONS = 5;
 
     /**
      * Constructs a visualization of the graph referenced by
@@ -382,7 +382,11 @@ public class SmartGraphPanel<V, E> extends Pane {
         for (int i = 0; i < AUTOMATIC_LAYOUT_ITERATIONS; i++) {
             resetForces();
             computeForces();
-            updateForces();
+
+            double cooloff = 1.0 - ((double) i / AUTOMATIC_LAYOUT_ITERATIONS); // starts at 1.0, decreases to ~0
+            cooloff = Math.max(0.05, cooloff); // prevent total freezing.
+
+            updateForces(cooloff);
         }
         applyForces();
     }    
@@ -1278,9 +1282,10 @@ public class SmartGraphPanel<V, E> extends Pane {
     /**
      * Updates the delta (change in position) values for all vertex nodes after forces have been computed.
      * This prepares vertex nodes for movement in the layout.
+     * @param cooloff cool-off factor (a.k.a. temperature or damping). Value should be in [1, 0[.
      */
-    private void updateForces() {
-        vertexNodes.values().forEach((v) -> v.updateDelta());
+    private void updateForces(double cooloff) {
+        vertexNodes.values().forEach((v) -> v.updateDelta(cooloff));
     }
 
     /**
