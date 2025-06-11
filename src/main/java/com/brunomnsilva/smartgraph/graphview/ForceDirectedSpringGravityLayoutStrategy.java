@@ -26,7 +26,9 @@ package com.brunomnsilva.smartgraph.graphview;
 
 import javafx.geometry.Point2D;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * An implementation of a spring system layout strategy with gravity towards the center.
@@ -88,13 +90,17 @@ public class ForceDirectedSpringGravityLayoutStrategy<V> extends ForceDirectedSp
 
     @Override
     public void computeForces(Collection<SmartGraphVertexNode<V>> nodes, double panelWidth, double panelHeight) {
-        // Attractive and repulsive forces
-        for (SmartGraphVertexNode<V> v : nodes) {
-            for (SmartGraphVertexNode<V> w : nodes) {
-                if(v == w) continue;
+        List<SmartGraphVertexNode<V>> nodeList = (nodes instanceof List) ? (List<SmartGraphVertexNode<V>>) nodes : new ArrayList<>(nodes);
+        int size = nodeList.size();
+
+        for (int i = 0; i < size; i++) {
+            SmartGraphVertexNode<V> v = nodeList.get(i);
+            for (int j = i + 1; j < size; j++) {
+                SmartGraphVertexNode<V> w = nodeList.get(j);
 
                 Point2D force = computeForceBetween(v, w, panelWidth, panelHeight);
                 v.addForceVector(force.getX(), force.getY());
+                w.addForceVector(-force.getX(), -force.getY()); // Newton’s third law
             }
         }
 
@@ -102,7 +108,7 @@ public class ForceDirectedSpringGravityLayoutStrategy<V> extends ForceDirectedSp
         double centerX = panelWidth / 2;
         double centerY = panelHeight / 2;
 
-        for (SmartGraphVertexNode<V> v : nodes) {
+        for (SmartGraphVertexNode<V> v : nodeList) {
             Point2D curPosition = v.getUpdatedPosition();
             Point2D forceCenter = new Point2D(centerX - curPosition.getX(), centerY - curPosition.getY())
                     .multiply(gravity);

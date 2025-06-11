@@ -26,7 +26,9 @@ package com.brunomnsilva.smartgraph.graphview;
 
 import javafx.geometry.Point2D;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A representation of a force directed layout "strategy" used during automatic layout of nodes in a {@link SmartGraphPanel}.
@@ -54,12 +56,17 @@ public abstract class ForceDirectedLayoutStrategy<V> {
      * @param panelHeight   the graph panel's height
      */
     public void computeForces(Collection<SmartGraphVertexNode<V>> nodes, double panelWidth, double panelHeight) {
-        for (SmartGraphVertexNode<V> v : nodes) {
-            for (SmartGraphVertexNode<V> w : nodes) {
-                if(v == w) continue;
+        List<SmartGraphVertexNode<V>> nodeList = (nodes instanceof List) ? (List<SmartGraphVertexNode<V>>) nodes : new ArrayList<>(nodes);
+        int size = nodeList.size();
+
+        for (int i = 0; i < size; i++) {
+            SmartGraphVertexNode<V> v = nodeList.get(i);
+            for (int j = i + 1; j < size; j++) {
+                SmartGraphVertexNode<V> w = nodeList.get(j);
 
                 Point2D force = computeForceBetween(v, w, panelWidth, panelHeight);
                 v.addForceVector(force.getX(), force.getY());
+                w.addForceVector(-force.getX(), -force.getY()); // Newton’s third law
             }
         }
     }
