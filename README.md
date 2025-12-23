@@ -228,6 +228,14 @@ graphView.setEdgeDoubleClickAction(graphEdge -> {
 
 These actions will be performed whenever you *double-click* a vertex and/or an edge.
 
+Other available actions are:
+- `setVertexSingleClickAction`
+- `setVertexRightClickAction`
+- `setEdgeSingleClickAction`
+- `setEdgeRightClickAction`
+- `setCanvasSingleClickAction`
+
+
 ## Configuration and Styling
 
 ### SmartGraph Properties
