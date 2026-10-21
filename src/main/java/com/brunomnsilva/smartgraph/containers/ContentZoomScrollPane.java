@@ -245,7 +245,7 @@ public class ContentZoomScrollPane extends ScrollPane {
         this.addEventFilter(ScrollEvent.ANY, event -> {
             if (event.getDeltaY() > 0) {
                 zoomIn(event);
-            } else {
+            } else if (event.getDeltaY() < 0){
                 zoomOut(event);
             }
             event.consume();
