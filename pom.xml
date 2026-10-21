@@ -42,6 +42,8 @@
         <!-- smartgraph is compiled against JavaFX 21 (LTS), whose runtime floor is JDK 17 -->
         <maven.compiler.release>17</maven.compiler.release>
         <javafx.version>21.0.13</javafx.version>
+        <!-- publish manually in the Central Portal; use -Dcentral.autoPublish=true for CI -->
+        <central.autoPublish>false</central.autoPublish>
     </properties>
 
     <dependencies>
@@ -92,17 +94,6 @@
         <developerConnection>scm:git:ssh://github.com:brunomnsilva/JavaFXSmartGraph.git</developerConnection>
         <url>https://github.com/brunomnsilva/JavaFXSmartGraph/tree/master</url>
     </scm>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <build>
         <plugins>
@@ -198,18 +189,17 @@
                 </executions>
             </plugin>
 
-            <!-- For Maven Central deployment -->
+            <!-- Publishes the release bundle to the Maven Central Portal -->
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.13</version>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.12.0</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                    <!-- Just in case the staging operations are slow. The default is 5min -->
-                    <stagingProgressTimeoutMinutes>30</stagingProgressTimeoutMinutes>
+                    <publishingServerId>central</publishingServerId>
+                    <deploymentName>${project.artifactId}-${project.version}</deploymentName>
+                    <autoPublish>${central.autoPublish}</autoPublish>
+                    <waitUntil>validated</waitUntil>
                 </configuration>
             </plugin>
 
@@ -242,7 +232,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.2.8</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -253,7 +243,6 @@
                         <!--  Values in settings.xml (local .m2 folder) -->
                         <configuration>
                             <keyname>${gpg.keyname}</keyname>
-                            <passphraseServerId>${gpg.keyname}</passphraseServerId>
                         </configuration>
                     </execution>
                 </executions>
