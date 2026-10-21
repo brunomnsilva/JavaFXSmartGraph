@@ -73,14 +73,14 @@
             <name>Bruno Silva</name>
             <email>brunomnsilva@gmail.com</email>
             <organization>brunomnsilva</organization>
-            <organizationUrl>http://www.brunomnsilva.com</organizationUrl>
+            <organizationUrl>https://www.brunomnsilva.com</organizationUrl>
         </developer>
     </developers>
 
     <scm>
         <connection>scm:git:git://github.com/brunomnsilva/JavaFXSmartGraph.git</connection>
         <developerConnection>scm:git:ssh://github.com:brunomnsilva/JavaFXSmartGraph.git</developerConnection>
-        <url>http://github.com/brunomnsilva/JavaFXSmartGraph/tree/master</url>
+        <url>https://github.com/brunomnsilva/JavaFXSmartGraph/tree/master</url>
     </scm>
 
     <distributionManagement>
