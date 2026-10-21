@@ -166,11 +166,25 @@ JavaFX used to be a transitive dependency. From 2.4.0 on, you must declare it yo
 
 You can also find in the [releases section](https://github.com/brunomnsilva/JavaFXSmartGraph/releases) the binaries, source code and documentation.
 
-#### Accelerated graphics
+#### Graphics acceleration
 
-Since the visualization is computation-intensive during automatic force-directed layout of vertices, you should make sure that the graphics card is used to offload much of the work. 
+Since the force-directed layout is computation-intensive, rendering should be offloaded to the GPU. JavaFX does this automatically through its own pipeline (Prism): D3D on Windows, OpenGL/ES2 on Linux and macOS, falling back to a software renderer when no usable GPU is available. The `sun.java2d.*` properties only affect Swing/AWT and have no effect on JavaFX.
 
-In windows the JVM machine should automatically take care of that, while in Linux you must configure it manually with the `-Dsun.java2d.opengl=True` flag.
+To check which pipeline is in use:
+
+```
+-Dprism.verbose=true
+```
+
+To force a specific pipeline, e.g. for troubleshooting, virtual machines or remote desktops:
+
+```
+-Dprism.order=es2   # hardware (Linux/macOS)
+-Dprism.order=d3d   # hardware (Windows)
+-Dprism.order=sw    # software
+```
+
+If JavaFX falls back to software on Linux, check the graphics driver (Mesa/OpenGL) rather than setting Java2D properties; `prism.verbose` reports the reason.
 
 ### Basic usage
 
