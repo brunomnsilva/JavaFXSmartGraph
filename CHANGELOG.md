@@ -1,5 +1,11 @@
 ## Changelog
 
+- (2.4.0) Notable changes:
+    - Fix a latent scroll bug in `ContentZoomScrollPane` under certain scroll events sequences.
+    - ⚠️ JavaFX is now an `optional` dependency (provided by the application): the consuming application must declare the JavaFX modules it uses, so smartgraph no longer imposes a JavaFX version;
+      - Minimum runtime is now documented as JDK 17 (JavaFX 21 requires it); the library is compiled against JavaFX 21 (LTS);
+      - Build aligned with the actual requirements: `maven.compiler.release` instead of `source`/`target`, centralized `javafx.version` property, and an enforcer rule for JDK 17+.
+
 - (2.3.0) Notable changes:
     
     - 👍 Edges only span the distance between vertex boundaries (instead of centers). This yields a nicer visualization when vertices are made transparent.

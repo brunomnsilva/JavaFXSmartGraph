@@ -27,34 +27,140 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 
 ### What's new?
 
-- (2.3.0) Notable changes:
+- (2.4.0) Notable changes:
 
-  - 👍 Edges only span the distance between vertex boundaries (instead of centers). This yields a nicer visualization when vertices are made transparent.
+    - Fix a latent scroll bug in `ContentZoomScrollPane` under certain scroll events sequences.
+    - ⚠️JavaFX is now an `optional` dependency: your application must provide and declare the JavaFX modules it uses. smartgraph no longer forces a JavaFX version on consumers;
+      - Minimum runtime is now documented as JDK 17, since JavaFX 21 requires it; the library is compiled against JavaFX 21 (LTS);
+      - Added a `javafx.version` Maven property and aligned the build with the actual JavaFX/JDK requirements.
 
-- (2.2.0) Notable changes:
-
-    - ⚠️ Bump minimum JDK to 11 and define library as a Java Module;
-    - 👍 Robust algorithm for vertex spawning;
-    - Propagation of hover events to labels and arrows (can be styled);
-    - 🎉 Improve edge readability (issue #43) by changing the label underlying representation to a StackPane. Labels now accept CSS styles for Pane (background) and Text (the label itself).
-    - ⚠️ Fixed a regression that affected the movement of vertices.
-    - Other small fixes and improvements.
-
-See the [wiki](https://github.com/brunomnsilva/JavaFXSmartGraph/wiki) for the complete changelist.
+See the [CHANGELOG.md](CHANGELOG.md) for the complete changelist.
 
 ### Using the library
 
 Binaries and dependency information for Maven, Gradle and others can be found at [http://search.maven.org](https://central.sonatype.com/search?q=g%3Acom.brunomnsilva++a%3Asmartgraph&smo=true).
 
-Example for Maven, where `x.y.z` is the library version, e.g., `2.2.0`:
+#### Requirements
+
+- **JDK 17 or later.** smartgraph is compiled against JavaFX 21 (LTS), and JavaFX 21 requires JDK 17+.
+- **JavaFX 21 or later, provided by your application.** JavaFX dependencies are declared as `optional` on purpose: they are not transitive, so smartgraph does not force a JavaFX version on your project. Add the JavaFX modules you use (`javafx-controls` brings `javafx-graphics` and `javafx-base`).
+
+#### What does the declared JavaFX version mean?
+
+The JavaFX version in smartgraph's POM is the **minimum compile baseline**, not a runtime restriction. smartgraph is compiled only against JavaFX 21 APIs, so the same jar runs on JavaFX 21 and on newer releases. The JDK you need is determined by the JavaFX version your application uses, not by smartgraph:
+
+| JavaFX | Minimum JDK |
+|--------|-------------|
+| 21 (LTS) | 17 |
+| 22 | 17 |
+| 23 | 21 |
+| 24 | 22 |
+| 25 | 23 |
+| 26 | 24 (JDK 25 is fine) |
+
+:warning: When upgrading JavaFX, keep **all** `javafx-*` modules on the same version. Maven resolves each module independently and can end up mixing, for example, `javafx-controls:26` with `javafx-graphics:21`. OpenJFX publishes no BOM, so declare the modules explicitly or pin them in `<dependencyManagement>`. Gradle picks the highest version automatically, so this mainly affects Maven.
+
+#### Running on JDK 24 or later
+
+JDK 24 introduced [JEP 472](https://openjdk.org/jeps/472), which restricts JNI calls such as `System::load`. JavaFX loads its native libraries this way, so JDK 24+ prints a warning like:
+
+```
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by com.sun.glass.utils.NativeLibLoader in module javafx.graphics
+WARNING: Use --enable-native-access=javafx.graphics to avoid a warning for callers in this module
+```
+
+Grant native access to JavaFX with the VM option:
+
+```
+--enable-native-access=javafx.graphics
+```
+
+Use `--enable-native-access=ALL-UNNAMED` instead if JavaFX is on the classpath rather than the module path. The warning is harmless today (JDK 24/25 use `warn` by default), but a future JDK will deny the call unless the flag is present.
+
+- **Maven (`javafx-maven-plugin`):**
 
 ```xml
-<dependency>
-    <groupId>com.brunomnsilva</groupId>
-    <artifactId>smartgraph</artifactId>
-    <version>x.y.z</version>
-</dependency>
+<configuration>
+    <options>
+        <option>--enable-native-access=javafx.graphics</option>
+    </options>
+</configuration>
 ```
+
+- **Gradle:** `run { jvmArgs '--enable-native-access=javafx.graphics' }`, or `applicationDefaultJvmArgs` when using the `application` plugin.
+- **IDE:** add the option to the run configuration's VM options.
+
+#### Maven
+
+Example for Maven, where `x.y.z` is the library version, e.g., `2.4.0`:
+
+```xml
+<properties>
+    <javafx.version>21.0.13</javafx.version>
+</properties>
+
+<dependencies>
+    <dependency>
+        <groupId>com.brunomnsilva</groupId>
+        <artifactId>smartgraph</artifactId>
+        <version>x.y.z</version>
+    </dependency>
+
+    <!-- JavaFX is not bundled by smartgraph: add it yourself -->
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-controls</artifactId>
+        <version>${javafx.version}</version>
+    </dependency>
+</dependencies>
+```
+
+To pin every JavaFX module to the same version (recommended when using a JavaFX version newer than the one smartgraph was compiled against):
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+#### Gradle
+
+```groovy
+implementation 'com.brunomnsilva:smartgraph:x.y.z'
+implementation 'org.openjfx:javafx-controls:21.0.13'
+```
+
+#### Java modules (JPMS)
+
+The library's module name is `com.brunomnsilva.smartgraph`. In a modular application:
+
+```java
+module my.app {
+    requires com.brunomnsilva.smartgraph;
+    requires javafx.controls;
+}
+```
+
+#### Migrating from 2.3.x
+
+JavaFX used to be a transitive dependency. From 2.4.0 on, you must declare it yourself; if you see `package javafx.* does not exist` after upgrading, add the JavaFX dependency shown above. The effective minimum JDK was already 17 (JavaFX 21 requires it), even though earlier documentation mentioned 11.
 
 :warning: Please note that the files `smartgraph.css` and `smartgraph.properties` **must be added manually** to your project.
 
