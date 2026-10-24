@@ -77,6 +77,8 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
     private SmartLabel attachedLabel = null;
     private SmartArrow attachedArrow = null;
     private final SmartStyleProxy styleProxy;
+    /** Coordinates the hover state between this edge and its label/arrow. */
+    private final HoverGroup hoverGroup = new HoverGroup(this);
     private Translate arrowVisualOffsetTransform = new Translate();
 
     public SmartGraphEdgeNode(Edge<E, V> edge, SmartGraphVertexNode<V> inbound, SmartGraphVertexNode<V> outbound) {
@@ -96,7 +98,6 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
 
         updateCurveGeometry();
         enableListeners();
-        propagateHoverEffectToAttachments();
     }
 
     public int getMultiplicityIndex() {
@@ -320,6 +321,7 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
         label.setOwner(this);
+        hoverGroup.add(label);
         DoubleBinding midCurveXBinding = new DoubleBinding() {
             { super.bind(startXProperty(), controlX1Property(), controlX2Property(), endXProperty(), label.layoutWidthProperty()); }
             @Override protected double computeValue() {
@@ -354,6 +356,7 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
     public void attachArrow(SmartArrow arrow) {
         this.attachedArrow = arrow;
         arrow.setOwner(this);
+        hoverGroup.add(arrow);
 
         arrow.translateXProperty().bind(endXProperty());
         arrow.translateYProperty().bind(endYProperty());
@@ -392,16 +395,4 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
         return this.attachedLabel;
     }
 
-    private void propagateHoverEffectToAttachments() {
-        this.hoverProperty().addListener((observable, oldValue, newValue) -> {
-            if(attachedArrow != null) {
-                if(newValue) UtilitiesJavaFX.triggerMouseEntered(attachedArrow);
-                else UtilitiesJavaFX.triggerMouseExited(attachedArrow);
-            }
-            if(attachedLabel != null) {
-                if(newValue) UtilitiesJavaFX.triggerMouseEntered(attachedLabel);
-                else UtilitiesJavaFX.triggerMouseExited(attachedLabel);
-            }
-        });
-    }
 }

@@ -34,6 +34,7 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
     - `SmartGraphClickEvent` provides the clicked element, mouse button, click count and
       panel-local click position;
     - Clicks on vertex labels, edge labels and arrows are routed to their owning element;
+    - Hover effects now propagate in both directions between graph elements and their labels/arrows;
     - `setVertexDoubleClickAction` and `setEdgeDoubleClickAction` are deprecated and will be
       removed in 3.0.0; use the event handlers and `SmartGraphClickEvent.isDoubleClick()`.
 

@@ -91,6 +91,9 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     /** Reference to the attached label, if any  */
     private SmartLabel attachedLabel;
 
+    /** Coordinates the hover state between this vertex and its label. */
+    private final HoverGroup hoverGroup = new HoverGroup(this);
+
     /*
     *  Shape proxy and related properties used to represent the underlying vertex.
     *  We will allow to change the shape at runtime, but other elements (e.g., lines/arrows)
@@ -150,8 +153,6 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         if (allowMove) {
             enableDrag();
         }
-
-        propagateHoverEffectToAttachments();
     }
 
     /**
@@ -430,6 +431,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
         label.setOwner(this);
+        hoverGroup.add(label);
 
         // The label's (0,0) coordinate is the top-left corner.
         // Center horizontally relative to the vertex
@@ -609,16 +611,4 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         }
     }
 
-    private void propagateHoverEffectToAttachments() {
-        this.hoverProperty().addListener((observable, oldValue, newValue) -> {
-
-            // Propagate to label
-            if(attachedLabel != null && newValue) {
-                UtilitiesJavaFX.triggerMouseEntered(attachedLabel);
-
-            } else if(attachedLabel != null) { //newValue is false, hover ended
-                UtilitiesJavaFX.triggerMouseExited(attachedLabel);
-            }
-        });
-    }
 }
