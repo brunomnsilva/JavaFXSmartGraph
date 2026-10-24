@@ -27,6 +27,16 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 
 ### What's new?
 
+- (2.5.0) Notable changes:
+
+    - New event-based click API for vertices, edges and the canvas through
+      `setVertexClickHandler`, `setEdgeClickHandler` and `setCanvasClickHandler`;
+    - `SmartGraphClickEvent` provides the clicked element, mouse button, click count and
+      panel-local click position;
+    - Clicks on vertex labels, edge labels and arrows are routed to their owning element;
+    - `setVertexDoubleClickAction` and `setEdgeDoubleClickAction` are deprecated and will be
+      removed in 3.0.0; use the event handlers and `SmartGraphClickEvent.isDoubleClick()`.
+
 - (2.4.0) Notable changes:
 
     - Fix a latent scroll bug in `ContentZoomScrollPane` under certain scroll events sequences.
@@ -330,23 +340,51 @@ graphView.update();
 
 this will add/remove the corresponding vertices and edges from the visualization. If a new vertex is connected to an existing one, it will be initially placed in the vicinity of the latter. Otherwise, if it is an *isolated* vertex it will be placed in the center of the plot.
 
-### Responding to click events on vertices and/or edges
+### Responding to interaction events on vertices, edges and the canvas
 
-You can attach actions with:
+Register a handler for each element type to observe mouse interaction:
 
 ```java
-graphView.setVertexDoubleClickAction(graphVertex -> {
-    System.out.println("Vertex contains element: " + graphVertex.getUnderlyingVertex().element());
+graphView.setVertexClickHandler(event -> {
+    if (event.isPrimaryButton() && event.isDoubleClick()) {
+        System.out.println("Vertex contains element: "
+                + event.getVertex().getUnderlyingVertex().element());
+    }
 });
 
-graphView.setEdgeDoubleClickAction(graphEdge -> {
-    System.out.println("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
-    //dynamically change the style, can also be done for a vertex
-    graphEdge.setStyleInline("-fx-stroke: black; -fx-stroke-width: 2;");
+graphView.setEdgeClickHandler(event -> {
+    if (event.isSecondaryButton()) {
+        System.out.println("Edge contains element: "
+                + event.getEdge().getUnderlyingEdge().element());
+    }
+});
+
+graphView.setCanvasClickHandler(event -> {
+    System.out.println("Canvas clicked at " + event.getPoint());
 });
 ```
 
-These actions will be performed whenever you *double-click* a vertex and/or an edge.
+The handlers receive a `SmartGraphClickEvent`, which provides:
+
+- the clicked `SmartGraphVertex` or `SmartGraphEdge` (or neither, for the canvas);
+- the original JavaFX `MouseEvent` via `getMouseEvent()`;
+- the click position in panel-local coordinates via `getPoint()`;
+- helpers such as `isSingleClick()`, `isDoubleClick()`, `isRightClick()`,
+  `isPrimaryButton()`, `isSecondaryButton()` and `isMiddleButton()`.
+
+Clicks on vertex labels, edge labels and arrows are routed to their owning vertex or edge.
+
+Click handlers receive the raw JavaFX click events. A double-click therefore produces a
+click-count-1 event followed by a click-count-2 event; the library does not merge them. This
+applies to the primary, middle and secondary buttons. Use `isDoubleClick()` or `getClickCount()`
+to ignore the first event when appropriate.
+
+The old `setVertexDoubleClickAction` and `setEdgeDoubleClickAction` methods are deprecated. Use
+the event handlers and `SmartGraphClickEvent#isDoubleClick()` instead.
+
+All handlers run on the JavaFX Application Thread. Each handler setter replaces the previously
+registered handler for that element type; passing `null` removes it. Coordinates passed to
+canvas handlers are in the panel's local coordinate space, independently of zoom and scroll.
 
 ## Configuration and Styling
 

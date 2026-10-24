@@ -36,6 +36,9 @@ public class SmartArrow extends Path implements SmartStylableNode {
     
     /* Styling proxy */
     private final SmartStyleProxy styleProxy;
+
+    /* The edge this arrow is attached to, if any. */
+    private SmartGraphEdge<?, ?> owner;
     
     /**
      * Default constructor.
@@ -74,6 +77,24 @@ public class SmartArrow extends Path implements SmartStylableNode {
     @Override
     public boolean removeStyleClass(String cssClass) {
         return styleProxy.removeStyleClass(cssClass);
+    }
+
+    /**
+     * Sets the edge this arrow belongs to.
+     *
+     * @param owner the owning edge, or {@code null}
+     */
+    void setOwner(SmartGraphEdge<?, ?> owner) {
+        this.owner = owner;
+    }
+
+    /**
+     * Returns the edge this arrow belongs to.
+     *
+     * @return the owning edge, or {@code null} if the arrow is standalone
+     */
+    SmartGraphEdge<?, ?> getOwner() {
+        return owner;
     }
     
 }

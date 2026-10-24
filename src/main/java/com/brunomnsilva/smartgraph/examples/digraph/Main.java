@@ -77,25 +77,35 @@ public class Main extends Application {
         graphView.init();
 
         /*
-        Bellow you can see how to attach actions for when vertices and edges are double-clicked
-         */        
-        graphView.setVertexDoubleClickAction((SmartGraphVertex<String> graphVertex) -> {
+        Below you can see how to react to double-clicks on vertices and edges through the
+        event-based click handlers.
+         */
+        graphView.setVertexClickHandler(event -> {
+            if (!event.isPrimaryButton() || !event.isDoubleClick()) {
+                return;
+            }
+
+            SmartGraphVertex<String> graphVertex = event.getVertex();
             System.out.println("Vertex contains element: " + graphVertex.getUnderlyingVertex().element());
-                      
+
             //toggle different styling
             if( !graphVertex.removeStyleClass("myVertex") ) {
                 /* for the golden vertex, this is necessary to clear the inline
                 css class. Otherwise, it has priority for included styles. Test and uncomment. */
                 //graphVertex.setStyleInline(null);
-                
+
                 graphVertex.addStyleClass("myVertex");
             }
         });
 
-        graphView.setEdgeDoubleClickAction(graphEdge -> {
-            System.out.println("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
+        graphView.setEdgeClickHandler(event -> {
+            if (!event.isPrimaryButton() || !event.isDoubleClick()) {
+                return;
+            }
+
+            System.out.println("Edge contains element: " + event.getEdge().getUnderlyingEdge().element());
             //dynamically change the style when clicked; style is propagated to the arrows
-            graphEdge.setStyleClass("myEdge");
+            event.getEdge().setStyleClass("myEdge");
         });
 
     }

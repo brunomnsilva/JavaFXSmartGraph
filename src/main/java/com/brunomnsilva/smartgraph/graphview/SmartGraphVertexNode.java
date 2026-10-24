@@ -429,6 +429,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
+        label.setOwner(this);
 
         // The label's (0,0) coordinate is the top-left corner.
         // Center horizontally relative to the vertex

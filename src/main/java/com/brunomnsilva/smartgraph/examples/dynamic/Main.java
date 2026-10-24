@@ -24,7 +24,6 @@
 package com.brunomnsilva.smartgraph.examples.dynamic;
 
 import com.brunomnsilva.smartgraph.containers.SmartGraphDemoContainer;
-import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graph.GraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Vertex;
@@ -73,17 +72,29 @@ public class Main extends Application {
         // Programmatically define the radius of a vertex. In this case the vertex size will increase with its connectivity
         graphView.setVertexRadiusProvider(vertexElement -> properties.getVertexRadius() + getIncidentEdgeCount(g, vertexElement) * 1.5);
 
-        /* Double click will remove a vertex */
-        graphView.setVertexDoubleClickAction((SmartGraphVertex<String> graphVertex) -> {
-            g.removeVertex(graphVertex.getUnderlyingVertex());
-            graphView.update();
+        /* Log every click event on a vertex, an edge or the canvas */
+        graphView.setVertexClickHandler(event -> {
+            System.out.println(event);
+
+            /* Double click will remove a vertex */
+            if (event.isPrimaryButton() && event.isDoubleClick()) {
+                g.removeVertex(event.getVertex().getUnderlyingVertex());
+                graphView.update();
+            }
         });
 
-        /* Double click will remove an edge */
-        graphView.setEdgeDoubleClickAction(graphEdge -> {
-            Edge<String, String> underlyingEdge = graphEdge.getUnderlyingEdge();
-            g.removeEdge(underlyingEdge);
-            graphView.update();
+        graphView.setEdgeClickHandler(event -> {
+            System.out.println(event);
+
+            /* Double click will remove an edge */
+            if (event.isPrimaryButton() && event.isDoubleClick()) {
+                g.removeEdge(event.getEdge().getUnderlyingEdge());
+                graphView.update();
+            }
+        });
+
+        graphView.setCanvasClickHandler(event -> {
+            System.out.println(event);
         });
 
         /*

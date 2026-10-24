@@ -30,6 +30,7 @@ import com.brunomnsilva.smartgraph.graph.GraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphVertex;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -94,7 +95,13 @@ public class Main extends Application {
         graphView.getStylableVertex(tokyo).setStyleInline("-fx-fill: url(\"file:squares.jpg\");");
         //graphVertex.setStyleInline("-fx-fill: red;"); //this will overwrite the property later on
 
-        graphView.setVertexDoubleClickAction(graphVertex -> {
+        graphView.setVertexClickHandler(event -> {
+            if (!event.isPrimaryButton() || !event.isDoubleClick()) {
+                return;
+            }
+
+            SmartGraphVertex<?> graphVertex = event.getVertex();
+
             //toggle different styling
             if( !graphVertex.removeStyleClass("myVertex") ) {
                 graphVertex.addStyleClass("myVertex");

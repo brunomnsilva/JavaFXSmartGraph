@@ -51,6 +51,9 @@ public class SmartLabel extends StackPane implements SmartStylableNode {
     /** The height used for layout calculations. */
     private final DoubleProperty layoutHeight;
 
+    /** The graph element this label is attached to, if any. */
+    private SmartLabelledNode owner;
+
 
     /**
      * Default constructor.
@@ -177,6 +180,24 @@ public class SmartLabel extends StackPane implements SmartStylableNode {
         boolean res1 =  paneStyleProxy.removeStyleClass(cssClass);
         boolean res2 = paneStyleProxy.removeStyleClass(cssClass);
         return (res1 || res2);
+    }
+
+    /**
+     * Sets the graph element this label belongs to.
+     *
+     * @param owner the owning vertex or edge, or {@code null}
+     */
+    void setOwner(SmartLabelledNode owner) {
+        this.owner = owner;
+    }
+
+    /**
+     * Returns the graph element this label belongs to.
+     *
+     * @return the owning vertex or edge, or {@code null} if the label is standalone
+     */
+    SmartLabelledNode getOwner() {
+        return owner;
     }
 
     private void enableBoundsListener() {

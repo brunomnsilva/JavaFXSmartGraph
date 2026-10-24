@@ -34,10 +34,10 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
@@ -113,13 +113,19 @@ public class SmartGraphPanel<V, E> extends Pane {
     private final boolean edgesWithArrows;
 
     /*
-     * INTERACTION WITH VERTICES AND EDGES
+     * INTERACTION WITH VERTICES, EDGES AND THE CANVAS
      */
+    /** Handler invoked for every click on a vertex (or its label). */
+    private Consumer<SmartGraphClickEvent<V, E>> vertexClickHandler;
+    /** Handler invoked for every click on an edge (or its label/arrow). */
+    private Consumer<SmartGraphClickEvent<V, E>> edgeClickHandler;
+    /** Handler invoked for every click on the empty canvas. */
+    private Consumer<SmartGraphClickEvent<V, E>> canvasClickHandler;
 
-    /** Function to be executed when a vertex is clicked. */
-    private Consumer<SmartGraphVertex<V>> vertexClickConsumer;
-    /** Function to be executed when an edge is clicked. */
-    private Consumer<SmartGraphEdge<E, V>> edgeClickConsumer;
+    /** Legacy action executed when a vertex is double-clicked. */
+    private Consumer<SmartGraphVertex<V>> vertexDoubleClickConsumer;
+    /** Legacy action executed when an edge is double-clicked. */
+    private Consumer<SmartGraphEdge<E, V>> edgeDoubleClickConsumer;
 
     /*
      * OPTIONAL PROVIDERS FOR LABELS, RADII AND SHAPE TYPES OF NODES.
@@ -195,17 +201,21 @@ public class SmartGraphPanel<V, E> extends Pane {
         // pair of vertices, when others are removed
         this.connections = new LinkedHashMap<>();
 
-        // consumers initially are not set. This initialization is not necessary, but we make it explicit
-        // for the sake of readability
-        this.vertexClickConsumer = null;
-        this.edgeClickConsumer = null;
+        // handlers/consumers initially are not set. This initialization is not necessary, but we make it
+        // explicit for the sake of readability
+        this.vertexClickHandler = null;
+        this.edgeClickHandler = null;
+        this.canvasClickHandler = null;
+
+        this.vertexDoubleClickConsumer = null;
+        this.edgeDoubleClickConsumer = null;
 
         //set stylesheet and class
         loadAndApplyStylesheet(cssFile);
 
         initNodes();
 
-        enableDoubleClickListener();
+        enableClickListener();
 
         //automatic layout initializations
         timer = new AnimationTimer() {
@@ -1514,21 +1524,90 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     /**
-     * Sets the action that should be performed when a vertex is double-clicked.
+     * Sets the handler invoked for every mouse click on a vertex or its label.
+     * <p>
+     * The handler receives the original {@link MouseEvent}, the clicked vertex and the click position
+     * in the panel's local coordinate space. It is invoked for every mouse button and click count,
+     * including middle-clicks and the individual events that compose a double-click.
+     * <p>
+     * Calling this method again replaces the previously registered handler. Pass {@code null}
+     * to remove the handler.
+     * <p>
+     * Handlers are invoked on the JavaFX Application Thread.
      *
-     * @param action action to be performed
+     * @param handler handler to be invoked, or {@code null} to remove it
      */
-    public void setVertexDoubleClickAction(Consumer<SmartGraphVertex<V>> action) {
-        this.vertexClickConsumer = action;
+    public void setVertexClickHandler(Consumer<SmartGraphClickEvent<V, E>> handler) {
+        this.vertexClickHandler = handler;
     }
 
     /**
-     * Sets the action that should be performed when an edge is double-clicked.
+     * Sets the handler invoked for every mouse click on an edge, including its label and arrow.
+     * <p>
+     * The handler receives the original {@link MouseEvent}, the clicked edge and the click position
+     * in the panel's local coordinate space. It is invoked for every mouse button and click count,
+     * including middle-clicks and the individual events that compose a double-click.
+     * <p>
+     * Calling this method again replaces the previously registered handler. Pass {@code null}
+     * to remove the handler.
+     * <p>
+     * Handlers are invoked on the JavaFX Application Thread.
      *
-     * @param action action to be performed
+     * @param handler handler to be invoked, or {@code null} to remove it
      */
+    public void setEdgeClickHandler(Consumer<SmartGraphClickEvent<V, E>> handler) {
+        this.edgeClickHandler = handler;
+    }
+
+    /**
+     * Sets the handler invoked for every mouse click on the empty canvas, i.e. not on a vertex,
+     * edge, label or arrow.
+     * <p>
+     * The handler receives the original {@link MouseEvent}, no vertex nor edge, and the click
+     * position in the panel's local coordinate space. It is invoked for every mouse button and
+     * click count, including middle-clicks and the individual events that compose a double-click.
+     * <p>
+     * Calling this method again replaces the previously registered handler. Pass {@code null}
+     * to remove the handler.
+     * <p>
+     * Handlers are invoked on the JavaFX Application Thread.
+     *
+     * @param handler handler to be invoked, or {@code null} to remove it
+     */
+    public void setCanvasClickHandler(Consumer<SmartGraphClickEvent<V, E>> handler) {
+        this.canvasClickHandler = handler;
+    }
+
+    /**
+     * Sets the action performed when a vertex is double-clicked with the primary button.
+     * <p>
+     * Clicks on the vertex label are also routed to the vertex. Calling this method again
+     * replaces the previously registered action. Pass {@code null} to remove the action.
+     *
+     * @param action action to be performed, or {@code null} to remove it
+     * @deprecated Use {@link #setVertexClickHandler} and check
+     *             {@link SmartGraphClickEvent#isDoubleClick()} instead. Scheduled for removal in
+     *             3.0.0.
+     */
+    @Deprecated(since = "2.5.0", forRemoval = true)
+    public void setVertexDoubleClickAction(Consumer<SmartGraphVertex<V>> action) {
+        this.vertexDoubleClickConsumer = action;
+    }
+
+    /**
+     * Sets the action performed when an edge is double-clicked with the primary button.
+     * <p>
+     * Clicks on the edge label and arrow are also routed to the edge. Calling this method again
+     * replaces the previously registered action. Pass {@code null} to remove the action.
+     *
+     * @param action action to be performed, or {@code null} to remove it
+     * @deprecated Use {@link #setEdgeClickHandler} and check
+     *             {@link SmartGraphClickEvent#isDoubleClick()} instead. Scheduled for removal in
+     *             3.0.0.
+     */
+    @Deprecated(since = "2.5.0", forRemoval = true)
     public void setEdgeDoubleClickAction(Consumer<SmartGraphEdge<E, V>> action) {
-        this.edgeClickConsumer = action;
+        this.edgeDoubleClickConsumer = action;
     }
 
     /**
@@ -1673,36 +1752,151 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     /**
-     * Enables the double click action on this pane.
-     * <br/>
-     * This method identifies the node that was clicked and, if any, calls the
-     * appropriate consumer, i.e., vertex or edge consumers.
+     * Enables click handling on this pane.
+     * <p>
+     * The click target is resolved from the picked node. Labels and arrows are routed to their
+     * owning vertex or edge, so they behave as if the graph element itself was clicked.
      */
-    @SuppressWarnings("unchecked")
-    private void enableDoubleClickListener() {
-        setOnMouseClicked((MouseEvent mouseEvent) -> {
-            if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                if (mouseEvent.getClickCount() == 2) {
+    private void enableClickListener() {
+        addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
+    }
 
-                    Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
-                    if (node == null) {
-                        return;
-                    }
+    /**
+     * Checks whether any click handler or legacy double-click action is registered.
+     *
+     * @return true if a click needs to be dispatched
+     */
+    private boolean hasClickHandlers() {
+        return vertexClickHandler != null
+                || edgeClickHandler != null
+                || canvasClickHandler != null
+                || vertexDoubleClickConsumer != null
+                || edgeDoubleClickConsumer != null;
+    }
 
-                    if (node instanceof SmartGraphVertex) {
-                        SmartGraphVertex<V> v = (SmartGraphVertex<V>) node;
-                        if(vertexClickConsumer != null) { // Only if the consumer is set
-                            vertexClickConsumer.accept(v);
-                        }
-                    } else if (node instanceof SmartGraphEdge) {
-                        SmartGraphEdge<E,V> e = (SmartGraphEdge<E,V>) node;
-                        if(edgeClickConsumer != null) { // Only if the consumer is set
-                            edgeClickConsumer.accept(e);
-                        }
-                    }
+    /**
+     * Handles a {@link MouseEvent#MOUSE_CLICKED} event, resolving its target and dispatching the
+     * corresponding handlers/actions.
+     *
+     * @param mouseEvent the click event
+     */
+    private void handleMouseClicked(MouseEvent mouseEvent) {
+        if (!hasClickHandlers()) {
+            return;
+        }
+
+        if (mouseEvent.isConsumed() || !mouseEvent.isStillSincePress()) {
+            return;
+        }
+
+        Node node = pick(this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
+        if (node == null) {
+            return;
+        }
+
+        Object target = resolveClickTarget(node);
+        if (target == null) {
+            return;
+        }
+
+        Point2D point = sceneToLocal(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+        dispatchClick(createClickEvent(mouseEvent, point, target));
+    }
+
+    /**
+     * Resolves the graph element associated with a picked node. Labels and arrows are mapped to
+     * their owning vertex or edge. The panel itself represents the canvas.
+     *
+     * @param node the node returned by {@link UtilitiesJavaFX#pick(Node, double, double)}
+     * @return a {@link SmartGraphVertex}, a {@link SmartGraphEdge}, this panel for the canvas, or
+     *         {@code null} if the node does not belong to a clickable graph element
+     */
+    private Object resolveClickTarget(Node node) {
+        if (node == this) {
+            return this;
+        }
+
+        Node current = node;
+        while (current != null && current != this) {
+            if (current instanceof SmartGraphVertex<?> vertex) {
+                return vertex;
+            }
+            if (current instanceof SmartGraphEdge<?, ?> edge) {
+                return edge;
+            }
+            if (current instanceof SmartLabel label) {
+                SmartLabelledNode owner = label.getOwner();
+                if (owner instanceof SmartGraphVertex<?> vertex) {
+                    return vertex;
+                }
+                if (owner instanceof SmartGraphEdge<?, ?> edge) {
+                    return edge;
                 }
             }
-        });
+            if (current instanceof SmartArrow arrow) {
+                SmartGraphEdge<?, ?> owner = arrow.getOwner();
+                if (owner != null) {
+                    return owner;
+                }
+            }
+            current = current.getParent();
+        }
+
+        return null;
+    }
+
+    /**
+     * Creates a click event for the given target.
+     *
+     * @param mouseEvent the original mouse event
+     * @param point      the click position in panel coordinates
+     * @param target     the resolved target
+     * @return the click event
+     */
+    @SuppressWarnings("unchecked")
+    private SmartGraphClickEvent<V, E> createClickEvent(MouseEvent mouseEvent, Point2D point, Object target) {
+        SmartGraphVertex<V> vertex = target instanceof SmartGraphVertex
+                ? (SmartGraphVertex<V>) target : null;
+        SmartGraphEdge<E, V> edge = target instanceof SmartGraphEdge
+                ? (SmartGraphEdge<E, V>) target : null;
+
+        return new SmartGraphClickEvent<>(mouseEvent, vertex, edge, point);
+    }
+
+    /**
+     * Dispatches a click event to the corresponding handler. Legacy double-click actions are
+     * also invoked for primary-button double-clicks.
+     *
+     * @param event the click event
+     */
+    private void dispatchClick(SmartGraphClickEvent<V, E> event) {
+        if (event.isCanvas()) {
+            if (canvasClickHandler != null) {
+                canvasClickHandler.accept(event);
+            }
+            return;
+        }
+
+        if (event.getVertex() != null) {
+            if (vertexClickHandler != null) {
+                vertexClickHandler.accept(event);
+            }
+            if (event.isPrimaryButton() && event.getClickCount() == 2
+                    && vertexDoubleClickConsumer != null) {
+                vertexDoubleClickConsumer.accept(event.getVertex());
+            }
+            return;
+        }
+
+        if (event.getEdge() != null) {
+            if (edgeClickHandler != null) {
+                edgeClickHandler.accept(event);
+            }
+            if (event.isPrimaryButton() && event.getClickCount() == 2
+                    && edgeDoubleClickConsumer != null) {
+                edgeDoubleClickConsumer.accept(event.getEdge());
+            }
+        }
     }
 
     /**

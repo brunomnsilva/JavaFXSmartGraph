@@ -319,6 +319,7 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
+        label.setOwner(this);
         DoubleBinding midCurveXBinding = new DoubleBinding() {
             { super.bind(startXProperty(), controlX1Property(), controlX2Property(), endXProperty(), label.layoutWidthProperty()); }
             @Override protected double computeValue() {
@@ -352,6 +353,7 @@ public class SmartGraphEdgeNode<E, V> extends CubicCurve implements SmartGraphEd
 
     public void attachArrow(SmartArrow arrow) {
         this.attachedArrow = arrow;
+        arrow.setOwner(this);
 
         arrow.translateXProperty().bind(endXProperty());
         arrow.translateYProperty().bind(endYProperty());

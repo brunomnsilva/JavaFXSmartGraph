@@ -1,5 +1,15 @@
 ## Changelog
 
+- (2.5.0) Interaction events:
+    - New event-based click API for vertices, edges and the canvas:
+      `setVertexClickHandler`, `setEdgeClickHandler` and `setCanvasClickHandler`.
+    - `SmartGraphClickEvent` exposes the clicked element, mouse button, click count, modifiers
+      and the click position in panel coordinates.
+    - Clicks on vertex labels, edge labels and arrows are routed to their owning graph element.
+    - Deprecated `setVertexDoubleClickAction` and `setEdgeDoubleClickAction`; use
+      `setVertexClickHandler` / `setEdgeClickHandler` and `SmartGraphClickEvent#isDoubleClick()`.
+      These deprecated methods are scheduled for removal in 3.0.0.
+
 - (2.4.0) Notable changes:
     - Fix a latent scroll bug in `ContentZoomScrollPane` under certain scroll events sequences.
     - ⚠️ JavaFX is now an `optional` dependency (provided by the application): the consuming application must declare the JavaFX modules it uses, so smartgraph no longer imposes a JavaFX version;
