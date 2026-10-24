@@ -143,6 +143,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         bindShapeProperties(this.shapeProxy);
 
         this.getChildren().add(this.shapeProxy.getShape());
+        this.hoverGroup.add(this.shapeProxy.getShape());
 
         /* Styling proxy */
         styleProxy = new SmartStyleProxy(this.shapeProxy.getShape());
@@ -250,6 +251,7 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         // If the shape is the same, no need to change it
         if(shapeProxyName.compareToIgnoreCase(shapeType) == 0) return;
 
+        ShapeWithRadius<?> oldShapeProxy = this.shapeProxy;
         ShapeWithRadius<?> newShapeProxy = ShapeFactory.create(shapeType, getCenterX(), getCenterY(), getRadius());
         // Shape correctly instantiated, i.e., 'shapeType' is valid, proceed...
 
@@ -261,6 +263,9 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
         this.shapeProxyName = shapeType;
 
         bindShapeProperties(newShapeProxy);
+
+        hoverGroup.remove(oldShapeProxy.getShape());
+        hoverGroup.add(newShapeProxy.getShape());
 
         this.getChildren().clear();
         this.getChildren().add(newShapeProxy.getShape());

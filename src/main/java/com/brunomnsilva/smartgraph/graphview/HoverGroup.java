@@ -24,10 +24,14 @@
 package com.brunomnsilva.smartgraph.graphview;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -42,6 +46,9 @@ final class HoverGroup {
 
     private final Set<Node> members = new LinkedHashSet<>();
     private final Set<Node> physicallyHovered = new LinkedHashSet<>();
+    private final Map<Node, ChangeListener<Boolean>> hoverListeners = new LinkedHashMap<>();
+    private final Map<Node, EventHandler<MouseEvent>> enterHandlers = new LinkedHashMap<>();
+    private final Map<Node, EventHandler<MouseEvent>> exitHandlers = new LinkedHashMap<>();
 
     private boolean active;
     private boolean propagating;
@@ -69,18 +76,25 @@ final class HoverGroup {
         }
 
         members.add(member);
-        member.hoverProperty().addListener((observable, oldValue, newValue) ->
-                onHoverChanged(member, newValue));
+
+        ChangeListener<Boolean> hoverListener = (observable, oldValue, newValue) ->
+                onHoverChanged(member, newValue);
+        hoverListeners.put(member, hoverListener);
+        member.hoverProperty().addListener(hoverListener);
 
         // A member can already be hovered because of a synthetic hover propagated by the group.
         // In that case a real mouse-enter does not change hoverProperty, so it must be observed
         // through the mouse events as well.
-        member.addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, event -> onPhysicalEnter(member));
-        member.addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, event -> {
+        EventHandler<MouseEvent> enterHandler = event -> onPhysicalEnter(member);
+        EventHandler<MouseEvent> exitHandler = event -> {
             if (event.getTarget() == member) {
                 onPhysicalExit(member);
             }
-        });
+        };
+        enterHandlers.put(member, enterHandler);
+        exitHandlers.put(member, exitHandler);
+        member.addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, enterHandler);
+        member.addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, exitHandler);
 
         if (member.isHover()) {
             physicallyHovered.add(member);
@@ -90,6 +104,50 @@ final class HoverGroup {
             ensureAllHovered();
         } else if (!physicallyHovered.isEmpty()) {
             setActive(true);
+        }
+    }
+
+    /**
+     * Removes a node from this hover group.
+     *
+     * @param member the node to remove
+     */
+    void remove(Node member) {
+        if (!members.remove(member)) {
+            return;
+        }
+
+        ChangeListener<Boolean> hoverListener = hoverListeners.remove(member);
+        if (hoverListener != null) {
+            member.hoverProperty().removeListener(hoverListener);
+        }
+
+        EventHandler<MouseEvent> enterHandler = enterHandlers.remove(member);
+        if (enterHandler != null) {
+            member.removeEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, enterHandler);
+        }
+
+        EventHandler<MouseEvent> exitHandler = exitHandlers.remove(member);
+        if (exitHandler != null) {
+            member.removeEventHandler(MouseEvent.MOUSE_EXITED_TARGET, exitHandler);
+        }
+
+        physicallyHovered.remove(member);
+
+        if (active) {
+            boolean previous = propagating;
+            propagating = true;
+            try {
+                UtilitiesJavaFX.triggerMouseExited(member);
+            } finally {
+                propagating = previous;
+            }
+
+            if (!physicallyHovered.isEmpty()) {
+                ensureAllHovered();
+            } else {
+                scheduleDeactivation();
+            }
         }
     }
 
