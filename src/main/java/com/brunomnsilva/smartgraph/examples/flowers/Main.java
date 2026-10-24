@@ -61,11 +61,6 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
-        /*
-        IMPORTANT: Must call init() after scene is displayed, so we can have width and height values
-        to initially place the vertices according to the placement strategy.
-        */
-        graphView.init();
     }
 
     /**

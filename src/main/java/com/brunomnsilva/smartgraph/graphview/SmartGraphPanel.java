@@ -109,6 +109,8 @@ public class SmartGraphPanel<V, E> extends Pane {
     private final Map<Edge<E, V>, Tuple<Vertex<V>>> connections;
     /** Flag indicating whether the graph visualization has been initialized. */
     private boolean initialized = false;
+    /** Flag indicating whether automatic initialization has already been scheduled. */
+    private boolean initializationScheduled = false;
     /** Flag indicating whether edges should be rendered with arrows. */
     private final boolean edgesWithArrows;
 
@@ -234,6 +236,11 @@ public class SmartGraphPanel<V, E> extends Pane {
                 timer.stop();
             }
         });
+
+        // Initialize automatically once the panel has a scene and a real layout size.
+        sceneProperty().addListener((observable, oldScene, newScene) -> scheduleAutoInitialization());
+        widthProperty().addListener((observable, oldWidth, newWidth) -> scheduleAutoInitialization());
+        heightProperty().addListener((observable, oldHeight, newHeight) -> scheduleAutoInitialization());
     }
 
     /**
@@ -398,29 +405,43 @@ public class SmartGraphPanel<V, E> extends Pane {
     }    
 
     /**
-     * Runs the initial current vertex placement strategy.
+     * Runs the initial vertex placement strategy.
      * <p>
-     * This method should only be called once during the lifetime of the object
-     * and only after the underlying {@link Scene} is displayed.
-     * <br/>
-     * Furthermore, required updates should be performed through the {@link #update()
-     * } method.
+     * This method is optional: the panel initializes automatically once it is attached to a
+     * {@link Scene} and has a non-zero layout size. Calling it explicitly forces initialization
+     * before that automatic pass, and is useful when, for example, vertex positions must be set
+     * manually before the automatic placement runs.
+     * <p>
+     * Calling this method after the panel has already been initialized has no effect.
+     * Required updates afterwards should be performed through {@link #update()}.
      *
-     * @throws IllegalStateException The exception is thrown if: (1) the Scene
-     * is not yet displayed; (2) It has zero width and/or height, and; (3) If
-     * this method was already called.
+     * @throws IllegalStateException if the scene is not yet set or the panel has zero size
      */
     public void init() throws IllegalStateException {
+        if (initialized) {
+            return;
+        }
+
         if (this.getScene() == null) {
             throw new IllegalStateException("You must call this method after the instance was added to a scene.");
-        } else if (this.getWidth() == 0 || this.getHeight() == 0) {
+        }
+        if (this.getWidth() <= 0 || this.getHeight() <= 0) {
             throw new IllegalStateException("The layout for this panel has zero width and/or height");
-        } else if (this.initialized) {
-            throw new IllegalStateException("Already initialized. Use update() method instead.");
+        }
+
+        initialize();
+    }
+
+    /**
+     * Performs the one-time initialization of the graph visualization.
+     */
+    private void initialize() {
+        if (initialized) {
+            return;
         }
 
         if (placementStrategy != null) {
-            // call strategy to place the vertices in their initial locations 
+            // call strategy to place the vertices in their initial locations
             placementStrategy.place(this.widthProperty().doubleValue(),
                     this.heightProperty().doubleValue(),
                     this);
@@ -434,11 +455,34 @@ public class SmartGraphPanel<V, E> extends Pane {
             timer.start();
         }
 
-        // If vertex/label shape/radius/etc. providers are set before the call to init(),
+        // If vertex/label shape/radius/etc. providers are set before initialization,
         // we must update before the first layout of the panel.
         updateNodes();
 
         this.initialized = true;
+    }
+
+    /**
+     * Schedules automatic initialization once the panel is attached to a scene and laid out.
+     */
+    private void scheduleAutoInitialization() {
+        if (initialized || initializationScheduled) {
+            return;
+        }
+        if (getScene() == null || getWidth() <= 0 || getHeight() <= 0) {
+            return;
+        }
+
+        initializationScheduled = true;
+        Platform.runLater(() -> {
+            try {
+                if (!initialized && getScene() != null && getWidth() > 0 && getHeight() > 0) {
+                    initialize();
+                }
+            } finally {
+                initializationScheduled = false;
+            }
+        });
     }
 
     /**
@@ -512,7 +556,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         if (!this.initialized) {
-            throw new IllegalStateException("You must call init() method before any updates.");
+            throw new IllegalStateException("The graph visualization is not initialized yet.");
         }
 
         //this will be called from a non-javafx thread, so this must be guaranteed to run of the graphics thread
@@ -536,7 +580,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         if (!this.initialized) {
-            throw new IllegalStateException("You must call init() method before any updates.");
+            throw new IllegalStateException("The graph visualization is not initialized yet.");
         }
         
         final FutureTask<Boolean> update = new FutureTask<>(() -> {

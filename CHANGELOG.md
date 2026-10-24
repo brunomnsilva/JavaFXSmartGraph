@@ -7,6 +7,8 @@
       and the click position in panel coordinates.
     - Clicks on vertex labels, edge labels and arrows are routed to their owning graph element.
     - Hover effects now propagate in both directions between graph elements and their labels/arrows.
+    - Panels initialize automatically once attached to a scene with a non-zero size; `init()` is
+      optional and idempotent.
     - Deprecated `setVertexDoubleClickAction` and `setEdgeDoubleClickAction`; use
       `setVertexClickHandler` / `setEdgeClickHandler` and `SmartGraphClickEvent#isDoubleClick()`.
       These deprecated methods are scheduled for removal in 3.0.0.

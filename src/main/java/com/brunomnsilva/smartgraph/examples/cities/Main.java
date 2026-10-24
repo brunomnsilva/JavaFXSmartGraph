@@ -74,7 +74,9 @@ public class Main extends Application {
         stage.setMinHeight(400);
         stage.setScene(scene);
         stage.show();
-        
+
+        /* Initialize before applying manual positions; automatic initialization would otherwise
+        run the placement strategy afterwards and overwrite them. */
         graphView.init();
 
         graphView.setVertexPosition(beijing, 520, 284);      // Center-ish

@@ -35,6 +35,7 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
       panel-local click position;
     - Clicks on vertex labels, edge labels and arrows are routed to their owning element;
     - Hover effects now propagate in both directions between graph elements and their labels/arrows;
+    - Panels initialize automatically once displayed; `init()` is optional and idempotent;
     - `setVertexDoubleClickAction` and `setEdgeDoubleClickAction` are deprecated and will be
       removed in 3.0.0; use the event handlers and `SmartGraphClickEvent.isDoubleClick()`.
 
@@ -212,10 +213,11 @@ Stage stage = new Stage(StageStyle.DECORATED);
 stage.setTitle("JavaFXGraph Visualization");
 stage.setScene(scene);
 stage.show();
-
-//IMPORTANT! - Called after scene is displayed, so we can initialize the graph visualization
-graphView.init();
 ```
+
+The panel initializes automatically once it is attached to a scene and has a non-zero layout
+size. You can still call `graphView.init()` explicitly if initialization must happen before that
+automatic pass, for example before setting manual vertex positions.
 
 This will display the graph using the instantiated placement `strategy`. You can **create your own static placement strategies** by implementing the `SmartPlacementStrategy` *interface* (see included examples).
 

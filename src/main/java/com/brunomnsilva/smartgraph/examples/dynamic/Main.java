@@ -97,12 +97,6 @@ public class Main extends Application {
             System.out.println(event);
         });
 
-        /*
-        IMPORTANT: Must call init() after scene is displayed, so we can have width and height values
-        to initially place the vertices according to the placement strategy.
-        */
-        graphView.init();
-
         continuously_test_adding_elements(g, graphView);
 
         stage.setOnCloseRequest(event -> {

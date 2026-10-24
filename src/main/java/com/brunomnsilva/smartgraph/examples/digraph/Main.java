@@ -71,12 +71,6 @@ public class Main extends Application {
         stage.show();
 
         /*
-        IMPORTANT: Must call init() after scene is displayed, so we can have width and height values
-        to initially place the vertices according to the placement strategy.
-        */
-        graphView.init();
-
-        /*
         Below you can see how to react to double-clicks on vertices and edges through the
         event-based click handlers.
          */
