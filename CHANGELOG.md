@@ -9,6 +9,8 @@
     - Hover effects now propagate in both directions between graph elements and their labels/arrows.
     - Panels initialize automatically once attached to a scene with a non-zero size; `init()` is
       optional and idempotent.
+    - Performance improvements in automatic layout and updates: unordered allocation-free force
+      calculations, coalesced updates, cached annotation lookups and set-based removal detection.
     - Deprecated `setVertexDoubleClickAction` and `setEdgeDoubleClickAction`; use
       `setVertexClickHandler` / `setEdgeClickHandler` and `SmartGraphClickEvent#isDoubleClick()`.
       These deprecated methods are scheduled for removal in 3.0.0.
