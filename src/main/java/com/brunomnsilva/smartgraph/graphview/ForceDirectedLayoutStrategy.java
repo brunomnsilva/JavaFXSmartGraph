@@ -66,11 +66,29 @@ public abstract class ForceDirectedLayoutStrategy<V> {
             for (int j = i + 1; j < nodeList.size(); j++) {
                 SmartGraphVertexNode<V> w = nodeList.get(j);
 
-                Point2D force = computeForceBetween(v, w, panelWidth, panelHeight);
-                v.addForceVector(force.getX(), force.getY());
-                w.addForceVector(-force.getX(), -force.getY());
+                addForceBetween(v, w, panelWidth, panelHeight);
             }
         }
+    }
+
+    /**
+     * Applies the force between two nodes to both nodes.
+     * <p>
+     * The default implementation delegates to
+     * {@link #computeForceBetween(SmartGraphVertexNode, SmartGraphVertexNode, double, double)}
+     * and applies the opposite force to the second node. Strategies that can compute the force
+     * without allocating a {@link Point2D} should override this method.
+     *
+     * @param v           a node
+     * @param w           another node
+     * @param panelWidth  the graph panel's width
+     * @param panelHeight the graph panel's height
+     */
+    protected void addForceBetween(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> w,
+                                   double panelWidth, double panelHeight) {
+        Point2D force = computeForceBetween(v, w, panelWidth, panelHeight);
+        v.addForceVector(force.getX(), force.getY());
+        w.addForceVector(-force.getX(), -force.getY());
     }
 
     /**

@@ -95,32 +95,65 @@ public class ForceDirectedSpringSystemLayoutStrategy<V> extends ForceDirectedLay
         // This allows to freely move the graph to a particular region in the panel;
         // On the other hand, e.g., in a bipartite graph the two sub-graphs will repel each other to the edges of the panel
 
-        Point2D vPosition = v.getUpdatedPosition();
-        Point2D wPosition = w.getUpdatedPosition();
-        double distance = vPosition.distance(wPosition) - (v.getRadius() + w.getRadius());
-        Point2D forceDirection = wPosition.subtract(vPosition).normalize();
+        double vX = v.getUpdatedPositionX();
+        double vY = v.getUpdatedPositionY();
+        double wX = w.getUpdatedPositionX();
+        double wY = w.getUpdatedPositionY();
+
+        double deltaX = wX - vX;
+        double deltaY = wY - vY;
+        double rawDistance = Math.hypot(deltaX, deltaY);
+        double distance = rawDistance - (v.getRadius() + w.getRadius());
 
         if (distance < 1) {
             distance = 1;
         }
 
-        // attractive force
-        Point2D attraction;
-        if(v.isAdjacentTo(w)) {
-            double attraction_factor = attractionForce * Math.log(distance / attractionScale);
-            attraction = forceDirection.multiply(attraction_factor);
-        } else {
-            attraction = new Point2D(0,0);
+        double directionX = rawDistance == 0 ? 0 : deltaX / rawDistance;
+        double directionY = rawDistance == 0 ? 0 : deltaY / rawDistance;
+
+        double totalForce = 0;
+        if (v.isAdjacentTo(w)) {
+            totalForce += attractionForce * Math.log(distance / attractionScale);
+        }
+        totalForce -= repulsiveForce * A_THOUSAND / (distance * distance);
+
+        double accelerationFactor = totalForce * acceleration;
+        return new Point2D(directionX * accelerationFactor, directionY * accelerationFactor);
+    }
+
+    @Override
+    protected void addForceBetween(SmartGraphVertexNode<V> v, SmartGraphVertexNode<V> w,
+                                   double panelWidth, double panelHeight) {
+        // Keep this allocation-free version in sync with computeForceBetween().
+        double vX = v.getUpdatedPositionX();
+        double vY = v.getUpdatedPositionY();
+        double wX = w.getUpdatedPositionX();
+        double wY = w.getUpdatedPositionY();
+
+        double deltaX = wX - vX;
+        double deltaY = wY - vY;
+        double rawDistance = Math.hypot(deltaX, deltaY);
+        double distance = rawDistance - (v.getRadius() + w.getRadius());
+
+        if (distance < 1) {
+            distance = 1;
         }
 
-        // repelling force
-        double repulsive_factor = repulsiveForce * A_THOUSAND / (distance * distance);
-        Point2D repulsion = forceDirection.multiply(-repulsive_factor);
+        double directionX = rawDistance == 0 ? 0 : deltaX / rawDistance;
+        double directionY = rawDistance == 0 ? 0 : deltaY / rawDistance;
 
-        // combine forces
-        Point2D totalForce = new Point2D(attraction.getX() + repulsion.getX(),
-                attraction.getY() + repulsion.getY());
+        double totalForce = 0;
+        if (v.isAdjacentTo(w)) {
+            totalForce += attractionForce * Math.log(distance / attractionScale);
+        }
+        totalForce -= repulsiveForce * A_THOUSAND / (distance * distance);
 
-        return totalForce.multiply(acceleration);
+        double accelerationFactor = totalForce * acceleration;
+        double forceX = directionX * accelerationFactor;
+        double forceY = directionY * accelerationFactor;
+
+        v.addForceVector(forceX, forceY);
+        w.addForceVector(-forceX, -forceY);
     }
 }

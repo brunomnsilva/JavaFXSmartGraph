@@ -406,6 +406,24 @@ public class SmartGraphVertexNode<T> extends Group implements SmartGraphVertex<T
     }
 
     /**
+     * Returns the x-coordinate of the future position without allocating a {@link Point2D}.
+     *
+     * @return future x-coordinate
+     */
+    double getUpdatedPositionX() {
+        return updatedPosition.x;
+    }
+
+    /**
+     * Returns the y-coordinate of the future position without allocating a {@link Point2D}.
+     *
+     * @return future y-coordinate
+     */
+    double getUpdatedPositionY() {
+        return updatedPosition.y;
+    }
+
+    /**
      * Updates the future position according to the current internal force
      * vector.
      *

@@ -24,8 +24,6 @@
 
 package com.brunomnsilva.smartgraph.graphview;
 
-import javafx.geometry.Point2D;
-
 import java.util.Collection;
 
 /**
@@ -96,11 +94,10 @@ public class ForceDirectedSpringGravityLayoutStrategy<V> extends ForceDirectedSp
         double centerY = panelHeight / 2;
 
         for (SmartGraphVertexNode<V> v : nodes) {
-            Point2D curPosition = v.getUpdatedPosition();
-            Point2D forceCenter = new Point2D(centerX - curPosition.getX(), centerY - curPosition.getY())
-                    .multiply(gravity);
+            double forceX = (centerX - v.getUpdatedPositionX()) * gravity;
+            double forceY = (centerY - v.getUpdatedPositionY()) * gravity;
 
-            v.addForceVector(forceCenter.getX(), forceCenter.getY());
+            v.addForceVector(forceX, forceY);
         }
     }
 }
