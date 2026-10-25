@@ -51,6 +51,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -111,6 +112,10 @@ public class SmartGraphPanel<V, E> extends Pane {
     private boolean initialized = false;
     /** Flag indicating whether automatic initialization has already been scheduled. */
     private boolean initializationScheduled = false;
+    /** Whether a visualization refresh is already scheduled or running. */
+    private final AtomicBoolean updateScheduled = new AtomicBoolean(false);
+    /** Whether a refresh was requested while another refresh was in progress. */
+    private final AtomicBoolean updateRequested = new AtomicBoolean(false);
     /** Flag indicating whether edges should be rendered with arrows. */
     private final boolean edgesWithArrows;
 
@@ -549,6 +554,9 @@ public class SmartGraphPanel<V, E> extends Pane {
      * <p>
      * New vertices will be added close to adjacent ones or randomly for
      * isolated vertices.
+     * <p>
+     * Multiple calls made before the scheduled refresh runs are coalesced into a single
+     * visualization update.
      */
     public void update() {
         if (this.getScene() == null) {
@@ -559,8 +567,37 @@ public class SmartGraphPanel<V, E> extends Pane {
             throw new IllegalStateException("The graph visualization is not initialized yet.");
         }
 
-        //this will be called from a non-javafx thread, so this must be guaranteed to run of the graphics thread
-        Platform.runLater(() -> updateViewModel());
+        updateRequested.set(true);
+        scheduleUpdate();
+    }
+
+    /**
+     * Schedules a visualization refresh if one is not already scheduled or running.
+     */
+    private void scheduleUpdate() {
+        if (updateScheduled.compareAndSet(false, true)) {
+            //this will be called from a non-javafx thread, so this must be guaranteed to run of the graphics thread
+            Platform.runLater(this::runScheduledUpdate);
+        }
+    }
+
+    /**
+     * Runs the scheduled visualization refresh and repeats if another refresh was requested
+     * while it was running.
+     */
+    private void runScheduledUpdate() {
+        try {
+            do {
+                updateRequested.set(false);
+                updateViewModel();
+            } while (updateRequested.get());
+        } finally {
+            updateScheduled.set(false);
+
+            if (updateRequested.get()) {
+                scheduleUpdate();
+            }
+        }
     }
     
     /**
