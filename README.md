@@ -108,7 +108,7 @@ Use `--enable-native-access=ALL-UNNAMED` instead if JavaFX is on the classpath r
 
 #### Maven
 
-Example for Maven, where `x.y.z` is the library version, e.g., `2.4.0`:
+Example for Maven, where `x.y.z` is the library version, e.g., `2.5.0`:
 
 ```xml
 <properties>
