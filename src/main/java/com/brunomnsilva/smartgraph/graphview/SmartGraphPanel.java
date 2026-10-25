@@ -1373,7 +1373,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private Bounds getDisplayedVerticesBoundingBox() {
 
         double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE,
-                maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
+                maxX = -Double.MAX_VALUE, maxY = -Double.MAX_VALUE;
         
         if(vertexNodes.size() == 0) return new BoundingBox(0, 0, getWidth(), getHeight());
         
