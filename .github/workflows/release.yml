@@ -1,0 +1,62 @@
+# Creates a GitHub Release when a version tag is pushed.
+# Maven Central publishing remains a local/manual step.
+#
+# Trigger by pushing a tag matching the project version, e.g. v2.5.0.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Create GitHub release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Validate tag against project version
+        run: |
+          PROJECT_VERSION=$(mvn -B -q -Dstyle.color=never -DforceStdout help:evaluate -Dexpression=project.version | tr -d '\r\n')
+          if [ "v${PROJECT_VERSION}" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match project version v${PROJECT_VERSION}"
+            exit 1
+          fi
+
+      - name: Build main, sources and javadoc artifacts
+        run: mvn -B -ntp clean package
+
+      - name: Verify release artifacts
+        run: |
+          test -n "$(find target -maxdepth 1 -name '*-sources.jar' -print -quit)"
+          test -n "$(find target -maxdepth 1 -name '*-javadoc.jar' -print -quit)"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          # Includes the main jar plus the -sources.jar and -javadoc.jar.
+          files: target/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
