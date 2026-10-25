@@ -89,14 +89,7 @@ public class ForceDirectedSpringGravityLayoutStrategy<V> extends ForceDirectedSp
     @Override
     public void computeForces(Collection<SmartGraphVertexNode<V>> nodes, double panelWidth, double panelHeight) {
         // Attractive and repulsive forces
-        for (SmartGraphVertexNode<V> v : nodes) {
-            for (SmartGraphVertexNode<V> w : nodes) {
-                if(v == w) continue;
-
-                Point2D force = computeForceBetween(v, w, panelWidth, panelHeight);
-                v.addForceVector(force.getX(), force.getY());
-            }
-        }
+        super.computeForces(nodes, panelWidth, panelHeight);
 
         // Gravitational pull towards the center for all nodes
         double centerX = panelWidth / 2;

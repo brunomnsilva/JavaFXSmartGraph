@@ -26,7 +26,9 @@ package com.brunomnsilva.smartgraph.graphview;
 
 import javafx.geometry.Point2D;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A representation of a force directed layout "strategy" used during automatic layout of nodes in a {@link SmartGraphPanel}.
@@ -44,8 +46,10 @@ public abstract class ForceDirectedLayoutStrategy<V> {
      * This method must compute forces between all graph nodes. Typically, repelling forces exist between all nodes (similarly to particles
      * with the same polarity), but attractive forces only exist between adjacent nodes (nodes that are connected).
      * <br/>
-     * The default behavior is to iterate over all distinct pairs of nodes and compute
-     * their combined forces (attractive and repulsive), by calling {@link #computeForceBetween(SmartGraphVertexNode, SmartGraphVertexNode, double, double)}.
+     * The default behavior is to iterate over each distinct pair of nodes once and compute
+     * their combined forces (attractive and repulsive), by calling
+     * {@link #computeForceBetween(SmartGraphVertexNode, SmartGraphVertexNode, double, double)}.
+     * The opposite force is applied to the second node of the pair.
      * <br/>
      * Other strategies that rely on some link of global metrics should override this method.
      *
@@ -54,12 +58,17 @@ public abstract class ForceDirectedLayoutStrategy<V> {
      * @param panelHeight   the graph panel's height
      */
     public void computeForces(Collection<SmartGraphVertexNode<V>> nodes, double panelWidth, double panelHeight) {
-        for (SmartGraphVertexNode<V> v : nodes) {
-            for (SmartGraphVertexNode<V> w : nodes) {
-                if(v == w) continue;
+        List<SmartGraphVertexNode<V>> nodeList = new ArrayList<>(nodes);
+
+        for (int i = 0; i < nodeList.size(); i++) {
+            SmartGraphVertexNode<V> v = nodeList.get(i);
+
+            for (int j = i + 1; j < nodeList.size(); j++) {
+                SmartGraphVertexNode<V> w = nodeList.get(j);
 
                 Point2D force = computeForceBetween(v, w, panelWidth, panelHeight);
                 v.addForceVector(force.getX(), force.getY());
+                w.addForceVector(-force.getX(), -force.getY());
             }
         }
     }
