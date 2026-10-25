@@ -27,17 +27,20 @@ through a [force-directed algorithm](https://en.wikipedia.org/wiki/Force-directe
 
 ### What's new?
 
-- (2.5.0) Notable changes:
-
-    - New event-based click API for vertices, edges and the canvas through
-      `setVertexClickHandler`, `setEdgeClickHandler` and `setCanvasClickHandler`;
-    - `SmartGraphClickEvent` provides the clicked element, mouse button, click count and
-      panel-local click position;
-    - Clicks on vertex labels, edge labels and arrows are routed to their owning element;
-    - Hover effects now propagate in both directions between graph elements and their labels/arrows;
-    - Panels initialize automatically once displayed; `init()` is optional and idempotent;
-    - `setVertexDoubleClickAction` and `setEdgeDoubleClickAction` are deprecated and will be
-      removed in 3.0.0; use the event handlers and `SmartGraphClickEvent.isDoubleClick()`.
+- (2.5.0) Interaction events:
+    - New event-based click API for vertices, edges and the canvas:
+      `setVertexClickHandler`, `setEdgeClickHandler` and `setCanvasClickHandler`.
+    - `SmartGraphClickEvent` exposes the clicked element, mouse button, click count, modifiers
+      and the click position in panel coordinates.
+    - Clicks on vertex labels, edge labels and arrows are routed to their owning graph element.
+    - Hover effects now propagate in both directions between graph elements and their labels/arrows.
+    - Panels initialize automatically once attached to a scene with a non-zero size; `init()` is
+      optional and idempotent.
+    - Performance improvements in automatic layout and updates: unordered allocation-free force
+      calculations, coalesced updates, cached annotation lookups and set-based removal detection.
+    - Deprecated `setVertexDoubleClickAction` and `setEdgeDoubleClickAction`; use
+      `setVertexClickHandler` / `setEdgeClickHandler` and `SmartGraphClickEvent#isDoubleClick()`.
+      These deprecated methods are scheduled for removal in 3.0.0.
 
 - (2.4.0) Notable changes:
 
