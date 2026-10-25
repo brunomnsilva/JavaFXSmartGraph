@@ -1527,7 +1527,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private Collection<Vertex<V>> removedVertices() {
         List<Vertex<V>> removed = new LinkedList<>();
 
-        Collection<Vertex<V>> graphVertices = theGraph.vertices();
+        Set<Vertex<V>> graphVertices = new HashSet<>(theGraph.vertices());
         Collection<SmartGraphVertexNode<V>> plotted = vertexNodes.values();
 
         for (SmartGraphVertexNode<V> v : plotted) {
@@ -1548,7 +1548,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private Collection<Edge<E, V>> removedEdges() {
         List<Edge<E, V>> removed = new LinkedList<>();
 
-        Collection<Edge<E, V>> graphEdges = theGraph.edges();
+        Set<Edge<E, V>> graphEdges = new HashSet<>(theGraph.edges());
         Collection<SmartGraphEdgeNode<E,V>> plotted = edgeNodes.values();
 
         for (SmartGraphEdgeNode<E,V> e : plotted) {
