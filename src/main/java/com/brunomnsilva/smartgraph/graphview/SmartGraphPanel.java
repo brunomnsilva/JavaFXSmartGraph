@@ -42,6 +42,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -84,6 +85,47 @@ public class SmartGraphPanel<V, E> extends Pane {
     public static final int VERTEX_SPAWN_PADDING = 50;
     /** Multiplier used for introducing randomness when spawning a vertex. */
     public static final int VERTEX_SPAWN_RANDOM_MULTIPLER = 10;
+
+    /** Cache of annotated label accessor methods, keyed by element class. */
+    private static final ClassValue<Method> LABEL_METHOD_CACHE = new ClassValue<>() {
+        @Override
+        protected Method computeValue(Class<?> type) {
+            return findAnnotatedMethod(type, SmartLabelSource.class);
+        }
+    };
+
+    /** Cache of annotated shape-type accessor methods, keyed by element class. */
+    private static final ClassValue<Method> SHAPE_TYPE_METHOD_CACHE = new ClassValue<>() {
+        @Override
+        protected Method computeValue(Class<?> type) {
+            return findAnnotatedMethod(type, SmartShapeTypeSource.class);
+        }
+    };
+
+    /** Cache of annotated radius accessor methods, keyed by element class. */
+    private static final ClassValue<Method> RADIUS_METHOD_CACHE = new ClassValue<>() {
+        @Override
+        protected Method computeValue(Class<?> type) {
+            return findAnnotatedMethod(type, SmartRadiusSource.class);
+        }
+    };
+
+    /**
+     * Finds the first declared method annotated with the given annotation and makes it accessible.
+     *
+     * @param type       the element class
+     * @param annotation the annotation to look for
+     * @return the annotated method, or {@code null} if none exists
+     */
+    private static Method findAnnotatedMethod(Class<?> type, Class<? extends Annotation> annotation) {
+        for (Method method : type.getDeclaredMethods()) {
+            if (method.isAnnotationPresent(annotation)) {
+                method.setAccessible(true);
+                return method;
+            }
+        }
+        return null;
+    }
 
     /*
      * CONFIGURATION PROPERTIES
@@ -1197,13 +1239,10 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
         
         try {
-            Class<?> clazz = vertexElement.getClass();
-            for (Method method : clazz.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(SmartLabelSource.class)) {
-                    method.setAccessible(true);
-                    Object value = method.invoke(vertexElement);
-                    return value.toString();
-                }
+            Method method = LABEL_METHOD_CACHE.get(vertexElement.getClass());
+            if (method != null) {
+                Object value = method.invoke(vertexElement);
+                return value.toString();
             }
         } catch (SecurityException | IllegalAccessException  | IllegalArgumentException | InvocationTargetException ex) {
             Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -1237,13 +1276,10 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
         
         try {
-            Class<?> clazz = edgeElement.getClass();
-            for (Method method : clazz.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(SmartLabelSource.class)) {
-                    method.setAccessible(true);
-                    Object value = method.invoke(edgeElement);
-                    return value.toString();
-                }
+            Method method = LABEL_METHOD_CACHE.get(edgeElement.getClass());
+            if (method != null) {
+                Object value = method.invoke(edgeElement);
+                return value.toString();
             }
         } catch (SecurityException | IllegalAccessException  | IllegalArgumentException |InvocationTargetException ex) {
             Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -1276,13 +1312,10 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         try {
-            Class<?> clazz = vertexElement.getClass();
-            for (Method method : clazz.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(SmartShapeTypeSource.class)) {
-                    method.setAccessible(true);
-                    Object value = method.invoke(vertexElement);
-                    return value.toString();
-                }
+            Method method = SHAPE_TYPE_METHOD_CACHE.get(vertexElement.getClass());
+            if (method != null) {
+                Object value = method.invoke(vertexElement);
+                return value.toString();
             }
         } catch (SecurityException | IllegalAccessException  | IllegalArgumentException | InvocationTargetException ex) {
             Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -1315,13 +1348,10 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         try {
-            Class<?> clazz = vertexElement.getClass();
-            for (Method method : clazz.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(SmartRadiusSource.class)) {
-                    method.setAccessible(true);
-                    Object value = method.invoke(vertexElement);
-                    return Double.parseDouble(value.toString());
-                }
+            Method method = RADIUS_METHOD_CACHE.get(vertexElement.getClass());
+            if (method != null) {
+                Object value = method.invoke(vertexElement);
+                return Double.parseDouble(value.toString());
             }
         } catch (SecurityException | IllegalAccessException  | IllegalArgumentException | InvocationTargetException ex) {
             Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.SEVERE, null, ex);
